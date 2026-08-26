@@ -1,26 +1,25 @@
-# Integration Event Contracts
+# Global Event Contracts Registry
+
+All domain events crossing module boundaries must be documented here with their JSON payload specifications.
 
 Statuses: `ACTIVE_INTERNAL` exists in current source but is not yet a tenant-ready external contract; `PROPOSED` requires approval and implementation.
 
-## Standard Envelope (Required for New External Events)
+## Standard Domain Event Envelope
 
 ```json
 {
-  "eventId": "uuid",
-  "eventType": "module.aggregate.event.v1",
-  "eventVersion": 1,
-  "tenantId": "uuid",
-  "producer": "module_name",
-  "aggregateType": "string",
-  "aggregateId": "uuid",
-  "occurredAt": "RFC-3339 UTC timestamp",
-  "correlationId": "string",
-  "causationId": "string|null",
+  "eventId": "UUID",
+  "eventType": "String",
+  "tenantId": "UUID",
+  "occurredAt": "2026-08-26T14:44:54Z",
+  "version": 1,
   "payload": {}
 }
 ```
 
-Compatibility rules: additive optional fields are backward compatible; renames, removals, semantic changes, type changes, and newly required fields require a new event version. Consumers must ignore unknown fields and deduplicate `(tenantId,eventId)`.
+Every registered cross-module event must use this envelope. Its contract entry must define the exact `eventType`, versioned payload schema, producer, aggregate identity where applicable, known consumers, delivery semantics, ordering, idempotency, security classification, retention, and correlation/causation behavior.
+
+Compatibility rules: additive optional fields are backward compatible; renames, removals, semantic changes, type changes, and newly required fields require a new `version`. Consumers must ignore unknown fields and deduplicate by `(tenantId, eventId)`.
 
 ## Current Transportation Events
 
