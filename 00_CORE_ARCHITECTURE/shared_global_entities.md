@@ -1,6 +1,27 @@
-# Shared Global Entities and Primitives
+# Shared Global Entities & Primitives
 
 Status: Controlled vocabulary; not a shared business-model library
+
+All business modules must reference these canonical structures for cross-cutting concepts.
+
+## 1. Tenant Context
+
+- **Representation:** `tenant_id` (UUIDv7 / UUID)
+- **Rule:** Resolve tenant context from verified JWT claims or trusted API Gateway headers at the inbound web-adapter layer. Never query tenant-owned database entities without tenant scoping.
+
+## 2. Audit Envelope (Base Entity Model)
+
+All tenant-owned database tables must include these standard audit columns:
+
+| Column Name | Type | Nullable | Default | Description |
+| :----------- | :---------- | :------- | :------------------ | :----------------------------------------------------- |
+| `id` | UUID | NO | gen_random_uuid() | Primary Key |
+| `tenant_id` | UUID | NO | - | Multi-Tenant Identifier (Indexed) |
+| `created_at` | TIMESTAMPTZ | NO | NOW() | Timestamp when created |
+| `updated_at` | TIMESTAMPTZ | NO | NOW() | Timestamp when last updated |
+| `created_by` | UUID | YES | NULL | User ID who created the record |
+| `updated_by` | UUID | YES | NULL | User ID who last updated the record |
+| `deleted_at` | TIMESTAMPTZ | YES | NULL | Soft delete timestamp (Index: `tenant_id`, `deleted_at`) |
 
 ## Classification
 
@@ -22,7 +43,7 @@ Minimum platform contract: `id`, `code`, `displayName`, `status`, `defaultCurren
 
 ## Audit Metadata
 
-Recommended tenant-owned record metadata: `tenant_id`, `created_at`, `created_by`, `updated_at`, `updated_by`, and `version`. Soft deletion is used only when required by business retention rules; it is not a universal default.
+The audit envelope above is mandatory for tenant-owned tables. Add a `version` column when optimistic concurrency control is required. Audit actor IDs are logical Identity references and must not create physical cross-module foreign keys.
 
 ## Identity References
 
