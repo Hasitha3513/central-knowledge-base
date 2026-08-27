@@ -41,4 +41,37 @@ Every tenant-aware feature requires tests proving same-tenant access succeeds, c
 
 ## Current Transportation Gap
 
-The existing transportation migrations V1–V36 largely predate this standard and do not consistently contain `tenant_id`. They must be treated as legacy single-tenant schema. Remediation requires a separately approved, forward-only migration plan with backfill, constraints, indexes, repository changes, API/event compatibility review, and isolation tests. Historical migrations must never be edited.
+The existing transportation migrations V1–V41 predate this standard and do not contain the required tenant foundation. They must be treated as legacy single-tenant schema. Remediation requires a forward-only migration plan with certified ownership mapping, backfill, reconciliation, constraints, indexes, repository changes, API/event compatibility review, and isolation tests. Historical migrations must never be edited.
+
+## Transportation MVP Decision Freeze
+
+Decision source: `TENANT-BUSINESS-AUTHORITY-001` (2026-08-27)
+
+### DECIDED
+
+- A dedicated platform `tenancy` bounded context owns the first-class Tenant aggregate. Identity owns membership and resolution; Organization and `shared` do not own Tenant lifecycle.
+- Tenant identity consists of immutable UUID, code, name, status, default currency, default time zone, timestamps, and version.
+- The MVP permits exactly one active tenant membership per active user. Membership is explicit; multi-membership and tenant switching are deferred.
+- Username and email remain globally unique. Permissions and role definitions are global platform templates; membership/role assignments are tenant-scoped. Tenant-custom roles are deferred.
+- No interactive cross-tenant global administrator or tenant impersonation is part of the MVP. Admin-style roles never bypass isolation.
+- Authentication resolves active membership and Tenant before issuing a JWT containing immutable `tenant_id`. Tenant-owned inbound ports receive a typed context containing at least tenant, actor, and correlation identity.
+- Every tenant-owned persisted row directly stores `tenant_id`, including child, history, execution, delivery, document, offline, and reporting/export records.
+- System/default notification templates are global. Notification rules, executions, and deliveries are tenant-owned; tenant-custom template copies are deferred.
+- Tenant-owned identifiers target `(tenant_id, business_identifier)` uniqueness. Existing global uniqueness may remain temporarily until collision and API impact are proven.
+- Cross-tenant normal resource access uses 404; authentication remains 401 and in-tenant permission denial follows existing 403 behavior.
+- Schedulers explicitly enumerate active tenants and isolate work. Offline idempotency is at least `(tenant_id, operation_id)`. Tenant events carry tenant identity. Reporting predicates apply before all filtering, aggregation, pagination, totals, and export generation.
+- Migration is forward-only: expand, migrate, reconcile, contract. V1–V41 remain immutable, and the next migration number must be rechecked when implementation begins.
+
+### IMPLEMENTATION PENDING
+
+No Tenant aggregate/table, membership model, tenant-aware JWT/context, tenant columns, scoped repositories, tenant schedulers, tenant events, or tenant report/export isolation exists in the transportation application yet. The decision record is not evidence of runtime compliance.
+
+### LEGACY MAPPING PENDING
+
+No bootstrap tenant or V1–V41 ownership assignment is authorized. An accountable data/business owner must certify the canonical tenant identity, every user membership, deterministic business-row ownership, orphan/test/unknown handling, reconciliation counts, approver, and approval date before backfill. The historical single-tenant deployment is not sufficient ownership evidence.
+
+Discovery task `TENANT-LEGACY-OWNERSHIP-AUTHORITY-001` is **BLOCKED** (2026-08-27). Repository evidence does not identify the canonical legal operator, Tenant code/name/default currency/default time zone, or actual runtime user/business-row inventory. Committed PostgreSQL/H2 datasets and the opt-in administrator are explicitly sample/local assets and must not be treated as ownership evidence. Actual row, orphan, relationship-conflict, identifier-collision, and active-membership counts remain unknown; formal business/data-governance approval is absent. No UUID, mapping, backfill, or migration is authorized.
+
+Follow-up evidence task `TENANT-LEGACY-EVIDENCE-002` is `BLOCKED_RUNTIME_DATABASE_UNAVAILABLE` (2026-08-27). The execution environment could not open a direct PostgreSQL socket, Docker access was denied, and no local PostgreSQL client was available. Runtime Flyway state and reconciliation counts were therefore not fabricated. A canonical-owner approval template exists but remains unsigned; business-owner approval is still required independently of database access.
+
+US-29 Freight Reporting remains `BLOCKED_BY_TENANT_FOUNDATION` until legacy mapping, tenant implementation, and isolation acceptance are complete.

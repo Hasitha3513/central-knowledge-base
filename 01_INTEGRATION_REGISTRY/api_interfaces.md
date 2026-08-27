@@ -21,7 +21,7 @@ The precise request/response schemas remain authoritative in controller DTOs and
 | Routing | `/routes`, revisions, disruptions, optimization, performance | Routing | Implemented |
 | Trips | `/trips` plus explicit submit/approve/reject/assign/dispatch/start/complete/close/cancel and operational-event commands | Trip | Implemented |
 | Fuel | `/fuel-issues`, `/fuel-purchases`, `/fuel-prices`, `/bunker-tanks`, `/trips/{tripId}/fuel-cost` | Fuel | Implemented |
-| Freight | `/v1/freight/orders`, `/manifests`, `/load-plans`, `/insurance/policies`, `/insurance/claims` | Freight | Implemented path prefix differs from `/api/v1`; preserve until approved migration |
+| Freight | `/v1/freight/orders`, `/manifests`, `/load-plans`, `/insurance/policies`, `/insurance/claims`, `/exceptions` | Freight | Implemented path prefix differs from `/api/v1`; preserve until approved migration |
 | Notifications | `/notifications`, `/notification-rules`, `/notification-templates`, delivery diagnostics | Notification | Implemented |
 | Reporting | `/dashboard/operations`, `/reports/*` | Reporting | Implemented read models |
 | Offline sync | `/offline-sync/operations` | Offline Sync | Implemented inbox |
@@ -29,15 +29,25 @@ The precise request/response schemas remain authoritative in controller DTOs and
 
 ### Freight Manifest Internal Application Contract
 
-`CargoManifestUseCase.ItemCommand` is an internal inbound-port command used by Manifest item create/update orchestration. Its active fields are `version: Long?`, `freightOrderLineId: UUID`, `description: String`, `quantity: Decimal`, `packingInformation: String`, `commodityClassification: String`, `customsApplicable: boolean`, `customsInformation: String?`, `hazardous: boolean`, `hazardousClassification: String?`, `hazardousDetails: String?`, `fragile: Boolean?`, and `temperatureSensitive: Boolean?`.
+`CargoManifestUseCase.ItemCommand` is an internal inbound-port command used by Manifest item create/update orchestration. Its active fields are `version: Long?`, `freightOrderLineId: UUID`, `description: String`, `quantity: Decimal`, `packingInformation: String`, `commodityClassification: String`, `customsApplicable: boolean`, `customsInformation: String?`, `hazardous: boolean`, `hazardousClassification: String?`, `hazardousDetails: String?`, `fragile: Boolean?`, `temperatureSensitive: Boolean?`, `unitWeight: BigDecimal?`, `weightUnit: String?`, `length: BigDecimal?`, `width: BigDecimal?`, `height: BigDecimal?`, and `dimensionUnit: String?`.
 
-The two special-cargo fields use tri-state semantics: `TRUE` and `FALSE` are explicit classifications; `NULL` is UNKNOWN. Omitted values remain UNKNOWN for compatibility and block Manifest finalization through `SPECIAL_CARGO_CLASSIFICATION_MISSING`.
+The special-cargo fields use tri-state semantics: `TRUE` and `FALSE` are explicit classifications; `NULL` is UNKNOWN. Omitted values remain UNKNOWN for compatibility and block Manifest finalization through `SPECIAL_CARGO_CLASSIFICATION_MISSING`. Measurement fields use nullable numerical decimals; missing measurements preserve `null` and cause downstream US-27 weight/volume validation to report `INCOMPLETE` with missing fact diagnostics.
 
 ### Freight Manifest Public Item Contract
 
-`POST /v1/freight/manifests/{manifestId}/items` and `PATCH /v1/freight/manifests/{manifestId}/items/{itemId}` accept additive nullable JSON properties `fragile: boolean | null` and `temperatureSensitive: boolean | null`. Omitted or explicit `null` values remain UNKNOWN; the adapter never defaults them to `false`. Cargo Manifest responses expose both properties with the same nullable tri-state semantics, including historical UNKNOWN records.
+`POST /v1/freight/manifests/{manifestId}/items` and `PATCH /v1/freight/manifests/{manifestId}/items/{itemId}` accept additive nullable JSON properties:
+- `fragile: boolean | null`
+- `temperatureSensitive: boolean | null`
+- `unitWeight: number | null` (positive decimal)
+- `weightUnit: "KG" | "G" | "TONNE" | null`
+- `length: number | null` (positive decimal)
+- `width: number | null` (positive decimal)
+- `height: number | null` (positive decimal)
+- `dimensionUnit: "M" | "CM" | "MM" | null`
 
-The first-party Manifest UI requires an explicit Yes/No choice for both fields on new or editable items. View-only and finalized records remain non-editable. Historical UNKNOWN values are rendered as `CLASSIFICATION REQUIRED`. Readiness and finalization expose `SPECIAL_CARGO_CLASSIFICATION_MISSING` through the standard API error/validation envelope, with item-level fields where available. Permissions remain `CARGO_MANIFEST_VIEW`, `CARGO_MANIFEST_MANAGE`, and `CARGO_MANIFEST_FINALIZE`; no new permission is introduced.
+Omitted or explicit `null` values remain UNKNOWN; the adapter never defaults them to `false` or `0`. Cargo Manifest responses expose these properties with the same nullable semantics.
+
+The first-party Manifest UI provides input fields for special cargo classification and physical cargo measurements. Historical UNKNOWN classifications are rendered as `CLASSIFICATION REQUIRED`, and missing measurements as `WEIGHT REQUIRED` / `DIMENSIONS REQUIRED`. Permissions remain `CARGO_MANIFEST_VIEW`, `CARGO_MANIFEST_MANAGE`, and `CARGO_MANIFEST_FINALIZE`.
 
 ## Proposed Cross-Module Interfaces
 

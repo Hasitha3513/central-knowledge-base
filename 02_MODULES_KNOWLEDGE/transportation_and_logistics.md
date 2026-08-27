@@ -2,12 +2,12 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V37
+Schema baseline: Flyway V1–V42
 Tenant readiness: LEGACY GAP — current schema is predominantly single-tenant
 
 ## Mission and Bounded Contexts
 
-Transportation manages fleet master/usage, drivers (legacy ownership), routing, trips, fuel and bunker operations, freight orders/manifests/load planning/insurance, operational notifications, reporting, identity/organization references, and offline command ingestion.
+Transportation manages fleet master/usage, drivers (legacy ownership), routing, trips, fuel and bunker operations, freight orders/manifests/load planning/insurance/exceptions, operational notifications, reporting, identity/organization references, and offline command ingestion.
 
 | Context | Principal models | Representative use cases |
 | :--- | :--- | :--- |
@@ -16,7 +16,7 @@ Transportation manages fleet master/usage, drivers (legacy ownership), routing, 
 | Routing | Route, Stop, Revision, Disruption | CRUD, revision history, disruption lifecycle, optimization |
 | Trip | Trip, Assignment, Dispatch, Status History, Operational Event | create, submit, approve, assign, dispatch, start, complete, close, cancel |
 | Fuel | Station, Limit Policy, Issue, Purchase, Price, Bunker Tank/Movement | issue lifecycle, purchase lifecycle, reconciliation, stock control, trip cost |
-| Freight | Order, Manifest, Load Plan, Insurance Policy/Claim/Settlement | order intake, manifest finalization, load placement, claim lifecycle |
+| Freight | Order, Manifest, Load Plan, Insurance Policy/Claim/Settlement, Cargo Exception | order intake, manifest finalization, load placement, weight/volume validation, claim lifecycle, cargo exceptions |
 | Notification | Rule, Policy, Template, Notification, Delivery Attempt | event routing, suppression, escalation, delivery diagnostics |
 | Offline Sync | Offline Operation | idempotent command inbox and conflict outcomes |
 
@@ -24,13 +24,15 @@ Transportation manages fleet master/usage, drivers (legacy ownership), routing, 
 
 Current internal event types are `VehicleReadingRecorded`, `VehicleReadingCorrected`, `VehicleMeterResetRecorded`, `RouteDisruptionCreatedEvent`, `RouteDisruptionResolvedEvent`, and `OperationalNotificationEvent`. Exact payloads and tenant deficiencies are registered in `../01_INTEGRATION_REGISTRY/event_contracts.md`.
 
-## Phase 1 Freight Manifest Special-Cargo Classification
+## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)
 
 - Manifest item create/update commands and public REST payloads carry nullable `fragile` and `temperatureSensitive` fields without collapsing UNKNOWN to `false`.
-- First-party item creation/editing requires explicit Yes/No decisions for both fields; historical UNKNOWN remains visible as `CLASSIFICATION REQUIRED`.
+- Manifest item create/update commands and public REST payloads carry nullable `unitWeight`, `weightUnit` ('KG', 'G', 'TONNE'), `length`, `width`, `height`, and `dimensionUnit` ('M', 'CM', 'MM') for US-27 weight, volume, and vehicle capacity validation.
+- First-party item creation/editing requires explicit Yes/No decisions for special cargo fields; historical UNKNOWN remains visible as `CLASSIFICATION REQUIRED`.
+- Cargo items with missing measurements are displayed with `WEIGHT REQUIRED` / `DIMENSIONS REQUIRED` tags and evaluated as `INCOMPLETE` in US-27 Weight/Volume validation.
 - Unfinalized UNKNOWN items may be classified by actors with `CARGO_MANIFEST_MANAGE`; finalized manifests remain read-only, including historical UNKNOWN records.
 - `SPECIAL_CARGO_CLASSIFICATION_MISSING` is returned through readiness and the standard finalization error envelope until every item is explicitly classified.
-- Load Planning consumption, keyword-rule removal, and structural readiness remain deferred to P2-LOAD-CORR-003 and later slices.
+- Load Planning consumes manifest item measurements via `CargoManifestLookupPort` to execute US-27 pure calculation engine (`WeightVolumeCalculationEngine`), producing legitimate PASS, FAIL, or INCOMPLETE outcomes.
 
 ## External Integration Points
 
@@ -42,7 +44,7 @@ Current internal event types are `VehicleReadingRecorded`, `VehicleReadingCorrec
 
 ### Schema-wide tenancy warning
 
-None of Flyway V1–V37 introduces the mandatory `tenant_id` discriminator. Every table below is therefore `NOT TENANT READY`. Existing physical foreign keys reflect the current modular monolith and are factual documentation, not approval for future cross-module coupling. Historical migrations are immutable.
+None of Flyway V1–V42 introduces the mandatory `tenant_id` discriminator. Every table below is therefore `NOT TENANT READY`. Existing physical foreign keys reflect the current modular monolith and are factual documentation, not approval for future cross-module coupling. Historical migrations are immutable.
 
 ### Baseline master and operations tables (V1–V10)
 
@@ -57,7 +59,7 @@ None of Flyway V1–V37 introduces the mandatory `tenant_id` discriminator. Ever
 | `driver` | Legacy driver master | `id UUID` | employee_number varchar60, first_name/last_name varchar100, phone/email?, status varchar40, active boolean | unique employee_number; index active/status |
 | `vehicle_category` | Vehicle classification | `id UUID` | code varchar40, name varchar160, description varchar255?, active boolean | unique code |
 | `vehicle_type` | Vehicle type | `id UUID` | category_id UUID, code varchar40, name varchar160, description varchar255?, active boolean | unique code; FK category |
-| `vehicle` | Vehicle master | `id UUID` | registration_number varchar80, chassis_number/engine_number varchar120?, category_id/type_id UUID, manufacturer/model?, manufacture_year int?, ownership_type/operational_status varchar40, odometer/engine_hours/capacity double?, active boolean | unique registration; FKs category/type; status and category/type indexes |
+| `vehicle` | Vehicle master | `id UUID` | registration_number varchar80, chassis_number/engine_number varchar120?, category_id/type_id UUID, manufacturer/model?, manufacture_year int?, ownership_type/operational_status varchar40, odometer/engine_hours/capacity double?, active boolean, capacity_kg numeric(19,4)?, tare_weight_kg numeric(19,4)?, gross_vehicle_weight_kg numeric(19,4)?, cargo_volume_capacity_m3 numeric(19,4)?, axle_count int?, max_axle_load_kg numeric(19,4)? | unique registration; FKs category/type; status and category/type indexes; capacity constraints |
 | `route` | Route master | `id UUID` | code varchar40, name varchar160, origin_location_id/destination_location_id UUID, distance double?, duration int?, active boolean | unique code; FKs locations; search index |
 | `route_stop` | Ordered route stop | `(route_id,stop_order)` | route_id UUID, stop_order int, location_id UUID | FK route cascade/location; unique route/location |
 | `trip` | Trip aggregate | `id UUID` | trip_number varchar60, customer/department/project/route UUID?, priority/status varchar, origin/destination UUID, requested times timestamptz, required vehicle/capacity?, cargo/passenger/instructions/notes?, assigned vehicle/driver?, actual times/readings/remarks?, created_at/updated_at | unique trip_number; lifecycle/period/allocation indexes; current physical FKs to references |
@@ -124,7 +126,7 @@ None of Flyway V1–V37 introduces the mandatory `tenant_id` discriminator. Ever
 | `notification_delivery_attempt` | Durable email attempt | `id UUID` | notification, attempt number/state/due/start/end/error/provider/created | unique notification/attempt; attempt/state checks; due/history indexes |
 | `offline_sync_operation` | Idempotent server inbox | `operation_id UUID` | operation type/version, actor/client, aggregate, request hash, result/version, processed/created | actor FK; version/result checks; actor/aggregate indexes |
 
-### Routing history and freight tables (V30–V37)
+### Routing history and freight tables (V30–V42)
 
 | Table | Purpose | Primary key | Key columns | Constraints / indexes |
 | :--- | :--- | :--- | :--- | :--- |
@@ -134,16 +136,18 @@ None of Flyway V1–V37 introduces the mandatory `tenant_id` discriminator. Ever
 | `freight_order` | Freight service request | `id UUID` | order number, customer, locations, pickup/delivery, service/priority/instructions/version/audit | unique number; references; location/window checks; customer/pickup indexes |
 | `freight_order_line` | Freight order line | `id UUID` | order, description, quantity, line_order | FK order cascade; unique order/position; positive checks |
 | `cargo_manifest` | Manifest aggregate | `id UUID` | number, freight order/id snapshot, version/audit/finalization | unique number; FK order; paired finalization check; indexes |
-| `cargo_manifest_item` | Manifest cargo item | `id UUID` | manifest/order line, description/quantity/packing/classification/customs/hazardous/fragile/temperature-sensitive/order | FKs; unique item order; quantity/position checks; special-cargo fields nullable for legacy UNKNOWN state |
-| `load_plan` | Vehicle loading plan | `id UUID` | number, manifest, vehicle, notes, version/audit | unique number; manifest/vehicle FKs and indexes |
+| `cargo_manifest_item` | Manifest cargo item | `id UUID` | manifest/order line, description/quantity/packing/classification/customs/hazardous/fragile/temperature-sensitive/measurements/order | FKs; unique item order; quantity/position/measurement checks; special-cargo and measurement fields nullable for legacy UNKNOWN state |
+| `load_plan` | Vehicle loading plan | `id UUID` | number, manifest, vehicle, notes, version/readiness/audit | unique number; manifest/vehicle FKs and indexes; readiness status |
 | `load_plan_item_placement` | Item placement | `id UUID` | plan, manifest item, placement/zone/stack/container/loading/special notes | FKs; unique item/order per plan; nonnegative checks |
 | `freight_insurance_policy` | Cargo policy | `id UUID` | number, freight order/manifest, provider/type, coverage/premium/currency/validity/status/version/audit | unique number; order FK; positive/window business validation; order index |
 | `freight_insurance_claim` | Insurance claim | `id UUID` | number, policy/order, incident/damage, claimed/assessed, assessor/status/resolution/version/audit | unique number; policy/order FKs; positive amount; indexes |
 | `freight_insurance_settlement` | Claim settlement | `id UUID` | claim, reference, amount/currency/notes/settlement audit | FK claim cascade; positive amount; claim index |
+| `cargo_exception` | Cargo exception record | `id UUID` | exception number, order/manifest/item/trip, type/severity/status/description/resolution/audit | unique number; references; status and severity checks |
+| `cargo_exception_history` | Exception audit | `id UUID` | cargo_exception_id, from_status, to_status, action, actor, comment, occurred_at | FK exception; chronology index |
 
 #### Table: `cargo_manifest_item`
 
-- **Purpose:** Stores execution-grade cargo items owned by a Cargo Manifest, including structured customs, hazardous, fragile, and temperature-sensitive classification.
+- **Purpose:** Stores execution-grade cargo items owned by a Cargo Manifest, including structured customs, hazardous, fragile, temperature-sensitive classification, and physical cargo measurements (weight and dimensions).
 - **Primary Key:** `id` (UUID)
 - **Multi-Tenant Key:** Not present — legacy single-tenant schema; tenant remediation remains separately governed.
 
@@ -163,17 +167,23 @@ None of Flyway V1–V37 introduces the mandatory `tenant_id` discriminator. Ever
 | `hazardous_details` | VARCHAR(1000) | YES | NULL | Required by domain when hazardous | Hazardous handling details |
 | `fragile` | BOOLEAN | YES | NULL | TRUE/FALSE/NULL tri-state | Manifest-owned fragile classification; NULL means UNKNOWN |
 | `temperature_sensitive` | BOOLEAN | YES | NULL | TRUE/FALSE/NULL tri-state | Manifest-owned temperature-sensitive classification; NULL means UNKNOWN |
+| `unit_weight` | DECIMAL(19,4) | YES | NULL | CHECK (`unit_weight IS NULL OR unit_weight > 0`) | Weight per unit; NULL means UNKNOWN |
+| `weight_unit` | VARCHAR(16) | YES | NULL | CHECK (`weight_unit IS NULL OR weight_unit IN ('KG','G','TONNE')`) | Weight measurement unit |
+| `length` | DECIMAL(19,4) | YES | NULL | CHECK (`length IS NULL OR length > 0`) | Cargo package length; NULL means UNKNOWN |
+| `width` | DECIMAL(19,4) | YES | NULL | CHECK (`width IS NULL OR width > 0`) | Cargo package width; NULL means UNKNOWN |
+| `height` | DECIMAL(19,4) | YES | NULL | CHECK (`height IS NULL OR height > 0`) | Cargo package height; NULL means UNKNOWN |
+| `dimension_unit` | VARCHAR(16) | YES | NULL | CHECK (`dimension_unit IS NULL OR dimension_unit IN ('M','CM','MM')`) | Linear dimension unit |
 | `item_order` | INTEGER | NO | - | UNIQUE (`cargo_manifest_id`, `item_order`); CHECK (`item_order >= 0`) | Stable item position within the manifest |
 
-Indexes: `idx_manifest_item_parent (cargo_manifest_id)`. V37 adds only `fragile` and `temperature_sensitive`; it performs no backfill, text parsing, defaulting, or destructive change. Manifest validation emits `SPECIAL_CARGO_CLASSIFICATION_MISSING` when either field is UNKNOWN, and finalization remains blocked until both are explicit.
+Indexes: `idx_manifest_item_parent (cargo_manifest_id)`. V42 adds `unit_weight`, `weight_unit`, `length`, `width`, `height`, and `dimension_unit` as nullable columns without backfill. Manifest validation continues to permit saving unmeasured items, while Load Planning weight/volume validation reports `INCOMPLETE` with missing fact diagnostics when measurements are absent.
 
 ## Migration Inventory
 
-V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification.
+V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements.
 
 ## Required Remediation Before Suite Integration
 
-1. Approve tenant migration strategy and add forward migrations; never rewrite V1–V37.
+1. Approve tenant migration strategy and add forward migrations; never rewrite V1–V42.
 2. Scope every uniqueness constraint and repository query by tenant.
 3. Add tenant fields to integration envelopes.
 4. Resolve driver, customer, project, vendor, and maintenance ownership through ADRs.
