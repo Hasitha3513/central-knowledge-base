@@ -2,7 +2,7 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V36
+Schema baseline: Flyway V1–V37
 Tenant readiness: LEGACY GAP — current schema is predominantly single-tenant
 
 ## Mission and Bounded Contexts
@@ -24,6 +24,14 @@ Transportation manages fleet master/usage, drivers (legacy ownership), routing, 
 
 Current internal event types are `VehicleReadingRecorded`, `VehicleReadingCorrected`, `VehicleMeterResetRecorded`, `RouteDisruptionCreatedEvent`, `RouteDisruptionResolvedEvent`, and `OperationalNotificationEvent`. Exact payloads and tenant deficiencies are registered in `../01_INTEGRATION_REGISTRY/event_contracts.md`.
 
+## Phase 1 Freight Manifest Special-Cargo Classification
+
+- Manifest item create/update commands and public REST payloads carry nullable `fragile` and `temperatureSensitive` fields without collapsing UNKNOWN to `false`.
+- First-party item creation/editing requires explicit Yes/No decisions for both fields; historical UNKNOWN remains visible as `CLASSIFICATION REQUIRED`.
+- Unfinalized UNKNOWN items may be classified by actors with `CARGO_MANIFEST_MANAGE`; finalized manifests remain read-only, including historical UNKNOWN records.
+- `SPECIAL_CARGO_CLASSIFICATION_MISSING` is returned through readiness and the standard finalization error envelope until every item is explicitly classified.
+- Load Planning consumption, keyword-rule removal, and structural readiness remain deferred to P2-LOAD-CORR-003 and later slices.
+
 ## External Integration Points
 
 - Publishes trip/freight execution, vehicle usage, route disruption, fuel, and delivery facts after contracts are approved.
@@ -34,7 +42,7 @@ Current internal event types are `VehicleReadingRecorded`, `VehicleReadingCorrec
 
 ### Schema-wide tenancy warning
 
-None of Flyway V1–V36 introduces the mandatory `tenant_id` discriminator. Every table below is therefore `NOT TENANT READY`. Existing physical foreign keys reflect the current modular monolith and are factual documentation, not approval for future cross-module coupling. Historical migrations are immutable.
+None of Flyway V1–V37 introduces the mandatory `tenant_id` discriminator. Every table below is therefore `NOT TENANT READY`. Existing physical foreign keys reflect the current modular monolith and are factual documentation, not approval for future cross-module coupling. Historical migrations are immutable.
 
 ### Baseline master and operations tables (V1–V10)
 
@@ -116,7 +124,7 @@ None of Flyway V1–V36 introduces the mandatory `tenant_id` discriminator. Ever
 | `notification_delivery_attempt` | Durable email attempt | `id UUID` | notification, attempt number/state/due/start/end/error/provider/created | unique notification/attempt; attempt/state checks; due/history indexes |
 | `offline_sync_operation` | Idempotent server inbox | `operation_id UUID` | operation type/version, actor/client, aggregate, request hash, result/version, processed/created | actor FK; version/result checks; actor/aggregate indexes |
 
-### Routing history and freight tables (V30–V36)
+### Routing history and freight tables (V30–V37)
 
 | Table | Purpose | Primary key | Key columns | Constraints / indexes |
 | :--- | :--- | :--- | :--- | :--- |
@@ -126,20 +134,46 @@ None of Flyway V1–V36 introduces the mandatory `tenant_id` discriminator. Ever
 | `freight_order` | Freight service request | `id UUID` | order number, customer, locations, pickup/delivery, service/priority/instructions/version/audit | unique number; references; location/window checks; customer/pickup indexes |
 | `freight_order_line` | Freight order line | `id UUID` | order, description, quantity, line_order | FK order cascade; unique order/position; positive checks |
 | `cargo_manifest` | Manifest aggregate | `id UUID` | number, freight order/id snapshot, version/audit/finalization | unique number; FK order; paired finalization check; indexes |
-| `cargo_manifest_item` | Manifest cargo item | `id UUID` | manifest/order line, description/quantity/packing/classification/customs/hazardous/order | FKs; unique item order; quantity/position checks |
+| `cargo_manifest_item` | Manifest cargo item | `id UUID` | manifest/order line, description/quantity/packing/classification/customs/hazardous/fragile/temperature-sensitive/order | FKs; unique item order; quantity/position checks; special-cargo fields nullable for legacy UNKNOWN state |
 | `load_plan` | Vehicle loading plan | `id UUID` | number, manifest, vehicle, notes, version/audit | unique number; manifest/vehicle FKs and indexes |
 | `load_plan_item_placement` | Item placement | `id UUID` | plan, manifest item, placement/zone/stack/container/loading/special notes | FKs; unique item/order per plan; nonnegative checks |
 | `freight_insurance_policy` | Cargo policy | `id UUID` | number, freight order/manifest, provider/type, coverage/premium/currency/validity/status/version/audit | unique number; order FK; positive/window business validation; order index |
 | `freight_insurance_claim` | Insurance claim | `id UUID` | number, policy/order, incident/damage, claimed/assessed, assessor/status/resolution/version/audit | unique number; policy/order FKs; positive amount; indexes |
 | `freight_insurance_settlement` | Claim settlement | `id UUID` | claim, reference, amount/currency/notes/settlement audit | FK claim cascade; positive amount; claim index |
 
+#### Table: `cargo_manifest_item`
+
+- **Purpose:** Stores execution-grade cargo items owned by a Cargo Manifest, including structured customs, hazardous, fragile, and temperature-sensitive classification.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** Not present — legacy single-tenant schema; tenant remediation remains separately governed.
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY | Unique manifest-item identifier |
+| `cargo_manifest_id` | UUID | NO | - | Internal FK -> `cargo_manifest(id)` ON DELETE CASCADE | Owning Cargo Manifest |
+| `freight_order_line_id` | UUID | NO | - | Internal FK -> `freight_order_line(id)` | Referenced Freight Order line |
+| `description` | VARCHAR(500) | NO | - | - | Traceable cargo description |
+| `quantity` | DECIMAL(19,4) | NO | - | CHECK (`quantity > 0`) | Manifested quantity |
+| `packing_information` | VARCHAR(500) | NO | - | - | Supplier/operator packing description |
+| `commodity_classification` | VARCHAR(120) | NO | - | Provider-neutral code validated by domain | Commodity classification |
+| `customs_applicable` | BOOLEAN | NO | FALSE | - | Whether customs information applies |
+| `customs_information` | VARCHAR(1000) | YES | NULL | Required by domain when customs applies | Customs details |
+| `hazardous` | BOOLEAN | NO | FALSE | - | Whether hazardous-goods information applies |
+| `hazardous_classification` | VARCHAR(120) | YES | NULL | Required by domain when hazardous | Provider-neutral hazardous classification |
+| `hazardous_details` | VARCHAR(1000) | YES | NULL | Required by domain when hazardous | Hazardous handling details |
+| `fragile` | BOOLEAN | YES | NULL | TRUE/FALSE/NULL tri-state | Manifest-owned fragile classification; NULL means UNKNOWN |
+| `temperature_sensitive` | BOOLEAN | YES | NULL | TRUE/FALSE/NULL tri-state | Manifest-owned temperature-sensitive classification; NULL means UNKNOWN |
+| `item_order` | INTEGER | NO | - | UNIQUE (`cargo_manifest_id`, `item_order`); CHECK (`item_order >= 0`) | Stable item position within the manifest |
+
+Indexes: `idx_manifest_item_parent (cargo_manifest_id)`. V37 adds only `fragile` and `temperature_sensitive`; it performs no backfill, text parsing, defaulting, or destructive change. Manifest validation emits `SPECIAL_CARGO_CLASSIFICATION_MISSING` when either field is UNKNOWN, and finalization remains blocked until both are explicit.
+
 ## Migration Inventory
 
-V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance.
+V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification.
 
 ## Required Remediation Before Suite Integration
 
-1. Approve tenant migration strategy and add forward migrations; never rewrite V1–V36.
+1. Approve tenant migration strategy and add forward migrations; never rewrite V1–V37.
 2. Scope every uniqueness constraint and repository query by tenant.
 3. Add tenant fields to integration envelopes.
 4. Resolve driver, customer, project, vendor, and maintenance ownership through ADRs.

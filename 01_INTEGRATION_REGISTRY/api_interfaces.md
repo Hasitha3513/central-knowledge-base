@@ -27,6 +27,18 @@ The precise request/response schemas remain authoritative in controller DTOs and
 | Offline sync | `/offline-sync/operations` | Offline Sync | Implemented inbox |
 | Health | `/health` | System | Implemented |
 
+### Freight Manifest Internal Application Contract
+
+`CargoManifestUseCase.ItemCommand` is an internal inbound-port command used by Manifest item create/update orchestration. Its active fields are `version: Long?`, `freightOrderLineId: UUID`, `description: String`, `quantity: Decimal`, `packingInformation: String`, `commodityClassification: String`, `customsApplicable: boolean`, `customsInformation: String?`, `hazardous: boolean`, `hazardousClassification: String?`, `hazardousDetails: String?`, `fragile: Boolean?`, and `temperatureSensitive: Boolean?`.
+
+The two special-cargo fields use tri-state semantics: `TRUE` and `FALSE` are explicit classifications; `NULL` is UNKNOWN. Omitted values remain UNKNOWN for compatibility and block Manifest finalization through `SPECIAL_CARGO_CLASSIFICATION_MISSING`.
+
+### Freight Manifest Public Item Contract
+
+`POST /v1/freight/manifests/{manifestId}/items` and `PATCH /v1/freight/manifests/{manifestId}/items/{itemId}` accept additive nullable JSON properties `fragile: boolean | null` and `temperatureSensitive: boolean | null`. Omitted or explicit `null` values remain UNKNOWN; the adapter never defaults them to `false`. Cargo Manifest responses expose both properties with the same nullable tri-state semantics, including historical UNKNOWN records.
+
+The first-party Manifest UI requires an explicit Yes/No choice for both fields on new or editable items. View-only and finalized records remain non-editable. Historical UNKNOWN values are rendered as `CLASSIFICATION REQUIRED`. Readiness and finalization expose `SPECIAL_CARGO_CLASSIFICATION_MISSING` through the standard API error/validation envelope, with item-level fields where available. Permissions remain `CARGO_MANIFEST_VIEW`, `CARGO_MANIFEST_MANAGE`, and `CARGO_MANIFEST_FINALIZE`; no new permission is introduced.
+
 ## Proposed Cross-Module Interfaces
 
 | Provider | Interface purpose | Consumers | Status |
