@@ -2,7 +2,8 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V42
+Schema baseline: Flyway V1–V42 (V40: cargo_exception_permissions; V41: cargo_exception_tables; V42: cargo_manifest_item_measurements)
+US-30 Cargo Exceptions: COMPLETE (P2-CARGO-EXCEPTION-001)
 Tenant readiness: LEGACY GAP — current schema is predominantly single-tenant
 
 ## Mission and Bounded Contexts
@@ -142,8 +143,8 @@ None of Flyway V1–V42 introduces the mandatory `tenant_id` discriminator. Ever
 | `freight_insurance_policy` | Cargo policy | `id UUID` | number, freight order/manifest, provider/type, coverage/premium/currency/validity/status/version/audit | unique number; order FK; positive/window business validation; order index |
 | `freight_insurance_claim` | Insurance claim | `id UUID` | number, policy/order, incident/damage, claimed/assessed, assessor/status/resolution/version/audit | unique number; policy/order FKs; positive amount; indexes |
 | `freight_insurance_settlement` | Claim settlement | `id UUID` | claim, reference, amount/currency/notes/settlement audit | FK claim cascade; positive amount; claim index |
-| `cargo_exception` | Cargo exception record | `id UUID` | exception number, order/manifest/item/trip, type/severity/status/description/resolution/audit | unique number; references; status and severity checks |
-| `cargo_exception_history` | Exception audit | `id UUID` | cargo_exception_id, from_status, to_status, action, actor, comment, occurred_at | FK exception; chronology index |
+| `cargo_exception` | Cargo exception record (US-30) | `id UUID` | exception_number varchar32 UNIQUE, exception_type varchar40 CHECK(6 types), status varchar20 DEFAULT 'OPEN' CHECK(OPEN/HELD/ESCALATED/RESOLVED/REJECTED), severity varchar20 DEFAULT 'MEDIUM' CHECK(LOW/MEDIUM/HIGH/CRITICAL), freight_order_id UUID NOT NULL FK freight_order, manifest_id UUID?, manifest_item_id UUID?, description varchar2000 NOT NULL, impact varchar2000?, restriction varchar1000?, corrective_action varchar2000?, resolution varchar2000?, resolved_at timestamptz?, resolved_by varchar128?, version bigint DEFAULT 0, created_at/updated_at timestamptz, created_by/updated_by varchar128 | Sequence cargo_exception_number_sequence; FK freight_order(id); CHECK type/status/severity; indexes on freight_order_id, manifest_id, exception_type, status, created_at DESC |
+| `cargo_exception_history` | Exception lifecycle audit (US-30 AC3) | `id UUID` | exception_id UUID NOT NULL FK cargo_exception ON DELETE CASCADE, action varchar60 NOT NULL (HOLD_APPLIED/ESCALATED/RELEASED/REJECTED/RESOLVED), actor varchar128 NOT NULL, occurred_at timestamptz NOT NULL, reason varchar2000?, details varchar2000? | FK exception cascade; index on exception_id |
 
 #### Table: `cargo_manifest_item`
 
