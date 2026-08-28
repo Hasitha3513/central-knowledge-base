@@ -21,7 +21,7 @@ Transportation manages fleet master/usage, drivers (legacy ownership), routing, 
 | Trip | Trip, Assignment, Dispatch, Status History, Operational Event | create, submit, approve, assign, dispatch, start, complete, close, cancel |
 | Fuel | Station, Limit Policy, Issue, Purchase, Price, Bunker Tank/Movement | issue lifecycle, purchase lifecycle, reconciliation, stock control, trip cost |
 | Freight | Order, Manifest, Load Plan, Insurance Policy/Claim/Settlement, Cargo Exception | order intake, manifest finalization, load placement, weight/volume validation, claim lifecycle, cargo exceptions |
-| Delivery | Delivery Reference, Delivery Summary, Delivery Id/Number/Status | module discovery, tenant-aware foundation status, public lookup/reference contracts, Delivery-owned outbound integration ports |
+| Delivery | Delivery Reference, Delivery Summary, Delivery Id/Number/Status | module discovery, authoritative tenant-context integration, preserved future-slice lookup/reference contracts and Delivery-owned outbound ports |
 | Notification | Rule, Policy, Template, Notification, Delivery Attempt | event routing, suppression, escalation, delivery diagnostics |
 | Offline Sync | Offline Operation | idempotent command inbox and conflict outcomes |
 
@@ -35,6 +35,7 @@ Delivery publishes no domain or integration event in the foundation slice. Futur
 
 - Delivery is a dedicated Spring Modulith module at `com.transportlogistics.app.delivery`.
 - Current foundation scope is architectural only: framework-free domain primitives (`DeliveryId`, `DeliveryNumber`, `DeliveryStatus`), Spring Modulith discovery/boundary rules, and a `DeliveryTenantContextPort` adapter that delegates exclusively to authoritative server-side `CurrentTenant`.
+- All future Delivery operational aggregates, rows, commands, queries, APIs, repository operations, events, jobs, caches and analytics are tenant-owned and must derive `tenant_id` from authoritative server-side context; client-supplied Tenant authority is forbidden.
 - Public `DeliveryLookupPort`, `DeliveryReference`, `DeliverySummary`, and the customer/location/freight-order/trip/slot/evidence/offline/notification outbound ports are preserved `PRE-EXISTING_UNCOMMITTED_FUTURE_SLICE` contracts. They have no adapters or implemented use cases and must not be represented as completed capability.
 - No synthetic foundation-status application use case, placeholder bean, or runtime permission catalogue exists. Permission names are frozen governance metadata only and remain unseeded/unassigned until their source-defined story actions are implemented.
 - Implementations must not query another module's repositories, JPA entities, services, adapters, or tables directly.
