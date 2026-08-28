@@ -34,10 +34,10 @@ Delivery publishes no domain or integration event in the foundation slice. Futur
 ## Phase 1 Delivery Operations Foundation (MVP 1.3)
 
 - Delivery is a dedicated Spring Modulith module at `com.transportlogistics.app.delivery`.
-- Current foundation scope is architectural only: public `DeliveryLookupPort`, `DeliveryReference`, `DeliverySummary`, framework-free domain primitives (`DeliveryId`, `DeliveryNumber`, `DeliveryStatus`), `DeliveryFoundationUseCase`, and Delivery-owned outbound ports.
-- Delivery-owned outbound ports cover customer lookup, location lookup, freight-order lookup, trip lookup, slot availability, evidence storage, offline acknowledgement, notification dispatch, and tenant context. Implementations must not query another module's repositories, JPA entities, or tables directly.
-- `DeliveryFoundationService` exposes the frozen permission catalogue and whether a server-side tenant context is resolved. It does not create delivery orders, assign deliveries, execute POD, or mutate persistence.
-- Frozen permission catalogue: `DELIVERY_VIEW`, `DELIVERY_CREATE`, `DELIVERY_UPDATE`, `DELIVERY_ASSIGN`, `DELIVERY_EXECUTE`, `DELIVERY_POD_CAPTURE`, `DELIVERY_COMPLETE`, `DELIVERY_FAIL`, `DELIVERY_REDELIVER`, `DELIVERY_EXCEPTION_MANAGE`, `DELIVERY_REPORT_VIEW`.
+- Current foundation scope is architectural only: framework-free domain primitives (`DeliveryId`, `DeliveryNumber`, `DeliveryStatus`), Spring Modulith discovery/boundary rules, and a `DeliveryTenantContextPort` adapter that delegates exclusively to authoritative server-side `CurrentTenant`.
+- Public `DeliveryLookupPort`, `DeliveryReference`, `DeliverySummary`, and the customer/location/freight-order/trip/slot/evidence/offline/notification outbound ports are preserved `PRE-EXISTING_UNCOMMITTED_FUTURE_SLICE` contracts. They have no adapters or implemented use cases and must not be represented as completed capability.
+- No synthetic foundation-status application use case, placeholder bean, or runtime permission catalogue exists. Permission names are frozen governance metadata only and remain unseeded/unassigned until their source-defined story actions are implemented.
+- Implementations must not query another module's repositories, JPA entities, services, adapters, or tables directly.
 - No Delivery database table, migration, REST endpoint, UI route, domain event, or scheduled/background process exists yet. US-56 through US-62 remain unimplemented story workflows.
 
 ## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)

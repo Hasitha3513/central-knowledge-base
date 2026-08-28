@@ -25,7 +25,7 @@ The precise request/response schemas remain authoritative in controller DTOs and
 | Notifications | `/notifications`, `/notification-rules`, `/notification-templates`, delivery diagnostics | Notification | Implemented |
 | Reporting | `/dashboard/operations`, `/reports/*` | Reporting | Implemented read models; source repositories are tenant-isolated through authoritative runtime context |
 | Freight reporting (US-29) | `GET /reports/freight/summary`, `GET /reports/freight/shipments`, `GET /reports/freight/export` | Reporting (inbound/API), Freight (source query contract) | Implemented tenant-scoped read-only summaries, pageable shipment/capacity rows, and bounded CSV; permissions `FREIGHT_REPORT_VIEW` and `FREIGHT_REPORT_EXPORT`; missing measurements/capacity remain `INCOMPLETE` |
-| Delivery foundation | No public REST route yet | Delivery | Foundation implemented: Spring Modulith module, public lookup/reference contracts, tenant-aware foundation use case, outbound ports, and frozen permission catalogue; US-56 through US-62 APIs remain pending |
+| Delivery foundation | No public REST route yet | Delivery | Foundation implemented: Spring Modulith module, framework-free domain primitives, preserved future-slice lookup/reference and outbound-port contracts, and authoritative tenant-context adapter; no application use case or permission-catalogue bean exists; US-56 through US-62 APIs remain pending |
 | Offline sync | `/offline-sync/operations` | Offline Sync | Implemented inbox |
 | Health | `/health` | System | Implemented |
 
@@ -53,12 +53,12 @@ The first-party Manifest UI provides input fields for special cargo classificati
 
 ## Proposed Cross-Module Interfaces
 
-### Delivery Internal Foundation Contracts
+### Delivery Foundation and Preserved Future-Slice Contracts
 
-- `DeliveryLookupPort.findReference(UUID deliveryId): Optional<DeliveryReference>` is the root public read-only Delivery module contract for future cross-module consumers.
-- `DeliveryFoundationUseCase.status(): DeliveryFoundationStatus` is an internal foundation use case returning `currentTenantId`, `tenantResolved`, and the frozen permission catalogue.
-- Delivery-owned outbound ports: `DeliveryCustomerLookupPort`, `DeliveryLocationLookupPort`, `DeliveryFreightOrderLookupPort`, `DeliveryTripLookupPort`, `DeliverySlotAvailabilityPort`, `DeliveryEvidenceStoragePort`, `DeliveryOfflineSyncPort`, `DeliveryNotificationPort`, and `DeliveryTenantContextPort`.
-- These contracts are provider-neutral Java ports. They do not approve cross-module SQL, direct repository access, REST APIs, events, schema, or workflow behavior.
+- `DeliveryTenantContextPort`, implemented by the `CurrentTenant` adapter, is the only actively wired foundation port.
+- `DeliveryLookupPort.findReference(UUID deliveryId): Optional<DeliveryReference>` is a preserved, unimplemented read-only contract for a future cross-module consumer.
+- Preserved future-slice outbound contracts are `DeliveryCustomerLookupPort`, `DeliveryLocationLookupPort`, `DeliveryFreightOrderLookupPort`, `DeliveryTripLookupPort`, `DeliverySlotAvailabilityPort`, `DeliveryEvidenceStoragePort`, `DeliveryOfflineSyncPort`, and `DeliveryNotificationPort`.
+- These provider-neutral contracts do not constitute implemented use cases and do not approve cross-module SQL, direct repository access, REST APIs, events, schema, adapters, or workflow behavior. No synthetic foundation-status use case or runtime permission-catalogue bean exists.
 
 | Provider | Interface purpose | Consumers | Status |
 | :--- | :--- | :--- | :--- |

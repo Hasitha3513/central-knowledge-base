@@ -8,7 +8,7 @@
 
 ## Delivery Operations Permission Catalogue
 
-`MVP-1.3-DELIVERY-MODULE-FOUNDATION-001` freezes the Delivery permission names for upcoming MVP 1.3 implementation. They are not yet seeded in `app_permission`, assigned to roles, or enforced by public REST endpoints in the foundation slice.
+`MVP-1.3-DELIVERY-OPERATIONS-CONTRACT-001-R2` freezes the Delivery permission names for upcoming MVP 1.3 implementation. They are not yet seeded in `app_permission`, assigned to roles, exposed through a runtime permission-catalogue bean, or enforced by public REST endpoints in the foundation slice.
 
 | Permission | Purpose | Implementation status |
 | :--- | :--- | :--- |
