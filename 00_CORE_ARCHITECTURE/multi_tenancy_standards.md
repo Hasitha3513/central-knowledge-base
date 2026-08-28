@@ -1,77 +1,112 @@
 # Multi-Tenancy Standards
 
 Status: Mandatory for all new schema and contracts
-Isolation model: Shared application and database with row-level tenant discrimination unless an approved module ADR specifies stronger isolation
+
+Isolation model: Shared application and database with row-level tenant discrimination unless an approved ADR specifies stronger isolation
 
 ## Tenant Identity
 
 - Canonical identifier: `tenant_id`, UUID, immutable.
-- Every tenant-owned aggregate, persistence row, integration event, command, query, cache key, audit record, and idempotency key includes tenant identity.
-- Global reference data is exceptional and must be explicitly classified as `GLOBAL`; absence of `tenant_id` is never an implicit global classification.
-- Tenant identity is derived from a verified token/session or trusted service credential, never from an untrusted payload alone.
+- Every tenant-owned aggregate, row, event, command, query, cache key, audit record, and idempotency key includes tenant identity.
+- Global data is exceptional and explicitly classified `GLOBAL`; absence of `tenant_id` never implies global status.
+- Tenant scope comes from authenticated identity plus validated active server-side membership, or an approved trusted-service policy. Client input and unvalidated token claims are never Tenant authority.
 
-## Request Flow
+## Request Flow and Runtime Authority
 
-1. The inbound adapter authenticates the caller.
-2. It resolves the active tenant and verifies membership/authorization.
-3. It constructs a typed tenant context containing `tenantId`, actor, correlation ID, and request ID.
-4. The inbound port receives the tenant context explicitly.
-5. Every outbound persistence call carries `tenantId` and every query predicates on it.
+The Transportation MVP uses `SERVER_SIDE_MEMBERSHIP_RESOLUTION`:
+
+1. Verify the bearer token and load the active authenticated user.
+2. Resolve the user's current `ACTIVE` `TenantMembership` from server persistence.
+3. Resolve and verify the associated `ACTIVE` Tenant.
+4. Establish `TenantExecutionContext`; business code consumes `CurrentTenant`, not Spring Security, JWT, or HTTP details.
+5. Pass tenant identity explicitly to tenant-owned use cases and persistence operations; every query predicates on it.
+6. Clear HTTP context in `finally`.
+
+`CurrentTenant` / `TenantExecutionContext` is authoritative at runtime. Payload/query `tenantId`, browser storage, and arbitrary `X-Tenant-ID` are `UNTRUSTED`. The single-membership MVP has no tenant switcher. A future selector may select only a currently authorized membership.
+
+HTTP `ThreadLocal` context is request-scoped only. Scheduled, background, and asynchronous work receives Tenant identity explicitly and establishes/clears a bounded context; it never blindly inherits request context.
+
+## JWT Tenant Authority
+
+- JWT is authentication evidence, not authoritative Tenant ownership.
+- A mandatory immutable `tenant_id` JWT claim is `NOT REQUIRED` for the current MVP. Existing access-token and refresh-token contracts remain unchanged.
+- Login, refresh, and every bearer request revalidate active membership and active Tenant server-side, so changes take effect without waiting for old access-token expiry.
+- A future Tenant claim may be an optimization or selection hint only when validated against current server membership; it is never sole authority.
+
+## Authorization and RBAC
+
+`ACCESS = Authenticated User AND Active Tenant Membership AND Active Tenant AND Required RBAC Permission AND Tenant-Owned Resource Scope`
+
+Every term is required. Admin-style roles do not bypass isolation; interactive cross-tenant administration and impersonation are deferred.
+
+### Global RBAC definitions
+
+- `app_permission`: `GLOBAL` permission catalogue.
+- `app_role`: `GLOBAL` role-template catalogue.
+- `app_role_permission`: `GLOBAL` template-to-permission mapping.
+
+These define capabilities, not Tenant ownership. Username and email remain globally unique credentials. Tenant-custom roles are deferred.
+
+### Tenant-scoped authorization assignment
+
+Target: `TenantMembership -> Membership Role Assignment -> Global Role Template -> Global Permissions`.
+
+Current `app_user_role` is `LEGACY_UNSCOPED_ROLE_ASSIGNMENT` and `TRANSITIONAL`. It may temporarily preserve existing RBAC behavior but is not final Tenant-safe authority. `TENANT-OPERATIONAL-DATA-RETROFIT-001` must define a forward migration, compatibility window, and deprecation/removal path toward a repository-convention name such as `membership_role` or `tenant_membership_role`; this document does not authorize that schema change.
+
+The database currently enforces one `tenant_membership` record per user. Membership-scoped assignment remains required so future multi-membership can grant different global role templates in different Tenants.
 
 ## Database Controls
 
-- New tenant-owned tables define `tenant_id UUID NOT NULL` and an index beginning with `tenant_id` for tenant-scoped access paths.
-- Business uniqueness is tenant-scoped, for example `UNIQUE (tenant_id, code)` rather than global `UNIQUE (code)`.
-- Foreign keys within one module include tenant consistency where practical, for example composite references `(tenant_id, parent_id)`.
-- Repository methods such as `findById(UUID)` are forbidden for tenant-owned records; use `findByTenantIdAndId(tenantId, id)` or an equivalent specification.
-- Bulk updates, deletes, native SQL, scheduled jobs, exports, and reports require explicit tenant predicates.
-- PostgreSQL row-level security is recommended as defense in depth, not a substitute for application isolation.
+- Tenant-owned tables define `tenant_id UUID NOT NULL` and tenant-leading indexes.
+- Business uniqueness is tenant-scoped, for example `UNIQUE (tenant_id, code)`.
+- Same-module relationships preserve Tenant consistency where practical.
+- Unscoped tenant-owned repository lookups are forbidden; use Tenant-qualified methods/specifications.
+- Bulk mutations, native SQL, jobs, exports, and reports require explicit Tenant predicates.
+- New writes derive ownership from `CurrentTenant`, never client input.
+- PostgreSQL RLS is defense in depth, not a substitute for application isolation.
 
 ## API, Events, and Operations
 
-- Public payloads include `tenantId` only where the trust model permits; the server rejects mismatches with authenticated context.
-- Event envelopes always include `tenantId`, `eventId`, `eventType`, `eventVersion`, `occurredAt`, `producer`, `aggregateType`, `aggregateId`, `correlationId`, and optional `causationId`.
+- Public `tenantId` values are accepted only under an explicit trust model and must match authenticated context.
+- Event envelopes include Tenant, event, version, time, producer, aggregate, correlation, and optional causation identity.
 - Consumers partition idempotency by `(tenantId, eventId)`.
-- Logs, metrics, traces, object-storage paths, caches, and search indexes are tenant-scoped and must avoid sensitive payloads.
-- Support impersonation must be explicit, authorized, audited, time-bounded, and visible in the tenant context.
+- Logs, traces, storage, caches, and search indexes are Tenant-scoped.
 
 ## Testing
 
-Every tenant-aware feature requires tests proving same-tenant access succeeds, cross-tenant read/write/update/delete fails, unique constraints are tenant-scoped, events carry the tenant, and background/bulk paths preserve isolation.
+Tenant-aware features prove same-Tenant access, cross-Tenant denial for every operation, Tenant-scoped uniqueness, Tenant-bearing events, and isolated background/bulk paths.
 
-## Current Transportation Gap
+## Transportation Foundation Status
 
-The existing transportation migrations V1–V41 predate this standard and do not contain the required tenant foundation. They must be treated as legacy single-tenant schema. Remediation requires a forward-only migration plan with certified ownership mapping, backfill, reconciliation, constraints, indexes, repository changes, API/event compatibility review, and isolation tests. Historical migrations must never be edited.
+Decision: `ADR-TENANT-AUTHORITY-AND-RBAC-001.md`
 
-## Transportation MVP Decision Freeze
+Verified implementation: `TENANT-FOUNDATION-IMPLEMENTATION-001` (2026-08-28)
 
-Decision source: `TENANT-BUSINESS-AUTHORITY-001` (2026-08-27)
+| Capability | Status |
+| :--- | :--- |
+| First-class Tenant aggregate and persistence | `IMPLEMENTED` |
+| Explicit Tenant membership and persistence | `IMPLEMENTED` |
+| `CurrentTenant` / `TenantExecutionContext` | `IMPLEMENTED` |
+| Per-request server-side membership/Tenant validation | `IMPLEMENTED` |
+| Canonical `CLTS-LK` clean bootstrap | `IMPLEMENTED` |
+| Operational business-row scoping | `PENDING` |
+| Repository/event/job/cache/report isolation | `PENDING` |
+| Overall Tenant isolation | `PARTIAL` |
 
-### DECIDED
+Platform `tenancy` owns Tenant lifecycle. Identity owns membership and authenticated resolution; Organization and `shared` do not own Tenant lifecycle. The MVP permits exactly one membership per user; multi-membership is deferred.
 
-- A dedicated platform `tenancy` bounded context owns the first-class Tenant aggregate. Identity owns membership and resolution; Organization and `shared` do not own Tenant lifecycle.
-- Tenant identity consists of immutable UUID, code, name, status, default currency, default time zone, timestamps, and version.
-- The MVP permits exactly one active tenant membership per active user. Membership is explicit; multi-membership and tenant switching are deferred.
-- Username and email remain globally unique. Permissions and role definitions are global platform templates; membership/role assignments are tenant-scoped. Tenant-custom roles are deferred.
-- No interactive cross-tenant global administrator or tenant impersonation is part of the MVP. Admin-style roles never bypass isolation.
-- Authentication resolves active membership and Tenant before issuing a JWT containing immutable `tenant_id`. Tenant-owned inbound ports receive a typed context containing at least tenant, actor, and correlation identity.
-- Every tenant-owned persisted row directly stores `tenant_id`, including child, history, execution, delivery, document, offline, and reporting/export records.
-- System/default notification templates are global. Notification rules, executions, and deliveries are tenant-owned; tenant-custom template copies are deferred.
-- Tenant-owned identifiers target `(tenant_id, business_identifier)` uniqueness. Existing global uniqueness may remain temporarily until collision and API impact are proven.
-- Cross-tenant normal resource access uses 404; authentication remains 401 and in-tenant permission denial follows existing 403 behavior.
-- Schedulers explicitly enumerate active tenants and isolate work. Offline idempotency is at least `(tenant_id, operation_id)`. Tenant events carry tenant identity. Reporting predicates apply before all filtering, aggregation, pagination, totals, and export generation.
-- Migration is forward-only: expand, migrate, reconcile, contract. V1–V41 remain immutable, and the next migration number must be rechecked when implementation begins.
+### Canonical clean initialization
 
-### IMPLEMENTATION PENDING
+- UUID: `4f8b6a3b-2c1e-4d89-9a72-f9e4c5b3671a`
+- Code: `CLTS-LK`
+- Name: Ceylon Logistics & Transport Solutions (Pvt) Ltd
+- Currency/time zone/status: `LKR` / `Asia/Colombo` / `ACTIVE`
+- Migration: `V43__tenant_foundation.sql`
 
-No Tenant aggregate/table, membership model, tenant-aware JWT/context, tenant columns, scoped repositories, tenant schedulers, tenant events, or tenant report/export isolation exists in the transportation application yet. The decision record is not evidence of runtime compliance.
+No recoverable legacy production database was found. Legacy preservation is `NOT REQUIRED`; legacy reconciliation and backfill are `NOT APPLICABLE`; this is a `CLEAN_INITIALIZATION_TARGET`. Historical migrations remain immutable, and legacy mapping/backfill gates must not be reintroduced for this environment.
 
-### LEGACY MAPPING PENDING
+### Remaining operational gap
 
-No bootstrap tenant or V1–V41 ownership assignment is authorized. An accountable data/business owner must certify the canonical tenant identity, every user membership, deterministic business-row ownership, orphan/test/unknown handling, reconciliation counts, approver, and approval date before backfill. The historical single-tenant deployment is not sufficient ownership evidence.
+Foundation implementation is not complete multi-tenancy. Existing operational tables remain predominantly without `tenant_id`; repositories, events, jobs, caches, offline operations, and reporting sources are not fully isolated. `TENANT-OPERATIONAL-DATA-RETROFIT-001` is next and must scope data module by module through forward migrations and isolation tests.
 
-Discovery task `TENANT-LEGACY-OWNERSHIP-AUTHORITY-001` is **BLOCKED** (2026-08-27). Repository evidence does not identify the canonical legal operator, Tenant code/name/default currency/default time zone, or actual runtime user/business-row inventory. Committed PostgreSQL/H2 datasets and the opt-in administrator are explicitly sample/local assets and must not be treated as ownership evidence. Actual row, orphan, relationship-conflict, identifier-collision, and active-membership counts remain unknown; formal business/data-governance approval is absent. No UUID, mapping, backfill, or migration is authorized.
-
-Follow-up evidence task `TENANT-LEGACY-EVIDENCE-002` is `BLOCKED_RUNTIME_DATABASE_UNAVAILABLE` (2026-08-27). The execution environment could not open a direct PostgreSQL socket, Docker access was denied, and no local PostgreSQL client was available. Runtime Flyway state and reconciliation counts were therefore not fabricated. A canonical-owner approval template exists but remains unsigned; business-owner approval is still required independently of database access.
-
-US-29 Freight Reporting remains `BLOCKED_BY_TENANT_FOUNDATION` until legacy mapping, tenant implementation, and isolation acceptance are complete.
+US-29 Freight Reporting remains `BLOCKED_BY_TENANT_FOUNDATION` until Freight and Reporting sources are tenant-scoped and operational isolation acceptance passes.

@@ -6,8 +6,10 @@ All business modules must reference these canonical structures for cross-cutting
 
 ## 1. Tenant Context
 
-- **Representation:** `tenant_id` (UUIDv7 / UUID)
-- **Rule:** Resolve tenant context from verified JWT claims or trusted API Gateway headers at the inbound web-adapter layer. Never query tenant-owned database entities without tenant scoping.
+- **Representation:** `tenant_id` (UUID)
+- **Runtime authority:** `CurrentTenant` / `TenantExecutionContext`, established after authenticated identity is validated against an active server-side Tenant membership and active Tenant.
+- **Rule:** JWT claims, payloads, query parameters, browser storage, and arbitrary Tenant headers are not sole Tenant authority. Business modules consume the approved context and never query Tenant-owned data without Tenant scope.
+- **Background rule:** Async, scheduled, and background work receives Tenant identity explicitly and establishes/clears a bounded context; it never blindly inherits an HTTP `ThreadLocal`.
 
 ## 2. Audit Envelope (Base Entity Model)
 
@@ -27,7 +29,7 @@ All tenant-owned database tables must include these standard audit columns:
 
 | Concept | Canonical representation | Ownership | Notes |
 | :--- | :--- | :--- | :--- |
-| Tenant | `tenant_id: UUID` | Platform/Identity | Root isolation boundary; immutable |
+| Tenant | `tenant_id: UUID` | Platform Tenancy | Root isolation boundary; immutable |
 | Actor | `actor_id: UUID`, `actor_type` | Identity | Human or service principal |
 | Correlation | `correlation_id: UUID/string` | Technical | Propagated across calls and events |
 | Event identity | `event_id: UUID`, `event_version: integer` | Producer | Globally unique event occurrence |
@@ -40,6 +42,8 @@ All tenant-owned database tables must include these standard audit columns:
 ## Tenant Entity
 
 Minimum platform contract: `id`, `code`, `displayName`, `status`, `defaultCurrency`, `defaultTimeZone`, `createdAt`, `updatedAt`, and `version`. No business module may own or mutate tenant lifecycle directly.
+
+Transportation persists this contract via `V43__tenant_foundation.sql`. Its canonical clean-initialization record is UUID `4f8b6a3b-2c1e-4d89-9a72-f9e4c5b3671a`, code `CLTS-LK`, Ceylon Logistics & Transport Solutions (Pvt) Ltd, `LKR`, `Asia/Colombo`, `ACTIVE`.
 
 ## Audit Metadata
 
