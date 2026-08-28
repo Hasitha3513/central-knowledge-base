@@ -24,6 +24,7 @@ The precise request/response schemas remain authoritative in controller DTOs and
 | Freight | `/v1/freight/orders`, `/manifests`, `/load-plans`, `/insurance/policies`, `/insurance/claims`, `/exceptions` | Freight | Implemented path prefix differs from `/api/v1`; preserve until approved migration |
 | Notifications | `/notifications`, `/notification-rules`, `/notification-templates`, delivery diagnostics | Notification | Implemented |
 | Reporting | `/dashboard/operations`, `/reports/*` | Reporting | Implemented read models; source repositories are tenant-isolated through authoritative runtime context |
+| Freight reporting (US-29) | `GET /reports/freight/summary`, `GET /reports/freight/shipments`, `GET /reports/freight/export` | Reporting (inbound/API), Freight (source query contract) | Implemented tenant-scoped read-only summaries, pageable shipment/capacity rows, and bounded CSV; permissions `FREIGHT_REPORT_VIEW` and `FREIGHT_REPORT_EXPORT`; missing measurements/capacity remain `INCOMPLETE` |
 | Offline sync | `/offline-sync/operations` | Offline Sync | Implemented inbox |
 | Health | `/health` | System | Implemented |
 
