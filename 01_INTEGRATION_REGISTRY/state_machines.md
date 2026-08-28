@@ -17,3 +17,13 @@
 | `CANCELLED` | FOUNDATION_BASELINE |
 
 Transition commands, guards, audit requirements, tenant behavior, idempotency, event emission, and compensations must be registered before implementing US-56 through US-62 workflows.
+
+### US-56 Frozen Readiness Semantics
+
+`MVP-1.3-US56-PRODUCT-DECISIONS-001` freezes, but does not implement, the US-56 lifecycle subset:
+
+- Create produces `DRAFT`.
+- Successful order-readiness validation produces `READY_FOR_ASSIGNMENT`.
+- Changing priority, service type, window, instructions or references in `DRAFT`/`READY_FOR_ASSIGNMENT` produces `DRAFT` and requires revalidation.
+- Assignment is not performed by US-56. Assignment target and target eligibility remain deferred.
+- Later `ASSIGNED` or execution states make US-56 requirement fields immutable when those states are implemented.

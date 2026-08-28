@@ -41,6 +41,17 @@ Delivery publishes no domain or integration event in the foundation slice. Futur
 - Implementations must not query another module's repositories, JPA entities, services, adapters, or tables directly.
 - No Delivery database table, migration, REST endpoint, UI route, domain event, or scheduled/background process exists yet. US-56 through US-62 remain unimplemented story workflows.
 
+### US-56 Product Decisions
+
+`MVP-1.3-US56-PRODUCT-DECISIONS-001` resolves the implementation blocker without introducing production code:
+
+- Priority: Delivery-owned fixed catalogue `LOW`, `NORMAL`, `HIGH`, `URGENT`; default `NORMAL`; recorded urgency only.
+- Service type: Delivery-owned fixed catalogue `STANDARD`, `EXPRESS`, `SAME_DAY`, `SCHEDULED`; default `STANDARD`; explicit delivery window required and no implicit cross-scope behavior.
+- Assignment: `NONE_IN_US56` and `NO_ASSIGNMENT_COLUMNS_IN_US56`. US-56 validates readiness only.
+- Readiness facts: authoritative Tenant context; active same-Tenant customer and origin/destination locations; distinct locations; valid window; supported catalogues. Unknown external facts fail closed.
+- Lifecycle subset: create `DRAFT`; validation may produce `READY_FOR_ASSIGNMENT`; requirement edits return the order to `DRAFT`.
+- Status: US-56 `READY_FOR_IMPLEMENTATION`; US-57 through US-62 remain unimplemented.
+
 ## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)
 
 - Manifest item create/update commands and public REST payloads carry nullable `fragile` and `temperatureSensitive` fields without collapsing UNKNOWN to `false`.

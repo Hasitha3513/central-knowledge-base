@@ -60,6 +60,14 @@ The first-party Manifest UI provides input fields for special cargo classificati
 - Preserved future-slice outbound contracts are `DeliveryCustomerLookupPort`, `DeliveryLocationLookupPort`, `DeliveryFreightOrderLookupPort`, `DeliveryTripLookupPort`, `DeliverySlotAvailabilityPort`, `DeliveryEvidenceStoragePort`, `DeliveryOfflineSyncPort`, and `DeliveryNotificationPort`.
 - These provider-neutral contracts do not constitute implemented use cases and do not approve cross-module SQL, direct repository access, REST APIs, events, schema, adapters, or workflow behavior. No synthetic foundation-status use case or runtime permission-catalogue bean exists.
 
+### US-56 Frozen Product Semantics (Not Implemented)
+
+- Delivery-owned priority values: `LOW`, `NORMAL`, `HIGH`, `URGENT`; create default `NORMAL`. Priority records urgency only in US-56.
+- Delivery-owned service types: `STANDARD`, `EXPRESS`, `SAME_DAY`, `SCHEDULED`; create default `STANDARD`. Each uses an explicit valid delivery window and implies no pricing, routing, SLA, POD or assignment behavior.
+- US-56 creates/updates/reads Delivery Orders and validates readiness. Assignment target is `NONE_IN_US56`; no assignment request field, response field, selector or persistence column is approved.
+- Readiness fails closed unless server Tenant context and active same-Tenant customer/origin/destination references resolve; origin differs from destination and window start precedes end.
+- Conceptual routes remain `POST/GET /api/v1/deliveries`, `GET/PATCH /api/v1/deliveries/{deliveryId}`, and `POST /api/v1/deliveries/{deliveryId}/validate-readiness`. They become implemented only with the US-56 production slice.
+
 | Provider | Interface purpose | Consumers | Status |
 | :--- | :--- | :--- | :--- |
 | Transportation | Trip/freight chargeable facts, vehicle/route lookup, delivery status | Finance, Sales/CRM, Maintenance | PROPOSED |
