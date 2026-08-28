@@ -14,7 +14,7 @@ The precise request/response schemas remain authoritative in controller DTOs and
 
 | Capability | Implemented route family | Owner | Status / notes |
 | :--- | :--- | :--- | :--- |
-| Identity | `/auth`, `/users`, `/roles` | Identity | Tenant foundation implemented: login, refresh, and bearer requests revalidate active membership/Tenant server-side; global RBAC remains transitional through `app_user_role` |
+| Identity | `/auth`, `/users`, `/roles` | Identity | Login, refresh, and bearer requests revalidate active membership/Tenant server-side; assignments use `tenant_membership_role` with global role/permission definitions; JWT contract unchanged |
 | Organization reference data | `/customers`, `/departments`, `/locations`, `/projects`, `/vendors` | Organization | Implemented; some ownership will need suite-level reconciliation |
 | Fleet and drivers | `/vehicles`, `/vehicle-categories`, `/vehicle-types`, `/drivers` | Fleet | Implemented |
 | Fleet compliance/usage | `/vehicles/{id}/documents`, `/readings`, `/meter-resets`, `/maintenance-schedules`, `/lubricant-logs`; driver licenses/exceptions/violations/medical/drug tests | Fleet | Implemented; HRM/Maintenance ownership must be resolved before extraction |
@@ -23,7 +23,7 @@ The precise request/response schemas remain authoritative in controller DTOs and
 | Fuel | `/fuel-issues`, `/fuel-purchases`, `/fuel-prices`, `/bunker-tanks`, `/trips/{tripId}/fuel-cost` | Fuel | Implemented |
 | Freight | `/v1/freight/orders`, `/manifests`, `/load-plans`, `/insurance/policies`, `/insurance/claims`, `/exceptions` | Freight | Implemented path prefix differs from `/api/v1`; preserve until approved migration |
 | Notifications | `/notifications`, `/notification-rules`, `/notification-templates`, delivery diagnostics | Notification | Implemented |
-| Reporting | `/dashboard/operations`, `/reports/*` | Reporting | Implemented read models |
+| Reporting | `/dashboard/operations`, `/reports/*` | Reporting | Implemented read models; source repositories are tenant-isolated through authoritative runtime context |
 | Offline sync | `/offline-sync/operations` | Offline Sync | Implemented inbox |
 | Health | `/health` | System | Implemented |
 

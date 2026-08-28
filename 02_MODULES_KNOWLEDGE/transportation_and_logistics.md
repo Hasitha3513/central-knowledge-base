@@ -43,9 +43,9 @@ Current internal event types are `VehicleReadingRecorded`, `VehicleReadingCorrec
 
 ## Database Schema Data Dictionary
 
-### Schema-wide tenancy warning
+### Schema-wide tenancy status
 
-Flyway V43 implements the first-class Tenant and Tenant membership foundation. Operational tables from V1–V42 still lack the mandatory `tenant_id` discriminator and remain `NOT TENANT READY`. Existing physical foreign keys reflect the current modular monolith and are factual documentation, not approval for future cross-module coupling. Historical migrations are immutable.
+Flyway V43 implements the first-class Tenant and Tenant membership foundation. V44 adds membership-scoped role assignment and non-null, indexed `tenant_id` ownership to current-scope operational tables across Identity token persistence, Organization, Fleet/Driver, Routing/Trip, Fuel, Freight, Notification, and Offline Sync. Existing physical foreign keys reflect the current modular monolith and are factual documentation, not approval for future cross-module coupling. Historical migrations are immutable.
 
 ### Tenant foundation tables (V43)
 
@@ -117,6 +117,7 @@ V43 deterministically seeds UUID `4f8b6a3b-2c1e-4d89-9a72-f9e4c5b3671a`, `CLTS-L
 | :--- | :--- | :--- | :--- | :--- |
 | `app_permission` | Global permission catalogue | `code varchar100` | description varchar255, active boolean | PK code; `GLOBAL` RBAC definition |
 | `app_user_role` | Legacy user-role assignment | `(user_id,role_id)` | user_id UUID, role_id UUID | cascade FKs user/role; `LEGACY_UNSCOPED_ROLE_ASSIGNMENT`, transitional |
+| `tenant_membership_role` | Tenant-scoped role-template assignment | `(membership_id,role_id)` | membership_id UUID, role_id UUID | cascade FKs membership/role; runtime authorization authority |
 | `app_role_permission` | Global role-template permissions | `(role_id,permission_code)` | role_id UUID, permission_code varchar100 | FKs role/permission; `GLOBAL` RBAC definition |
 | `refresh_token` | Hashed refresh token | `id UUID` | user_id UUID, token_hash varchar64, created/expires/revoked timestamps, replaced_by UUID? | unique hash; FK user cascade; user/expiry indexes |
 
@@ -222,14 +223,12 @@ Indexes: `idx_manifest_item_parent (cargo_manifest_id)`. V42 adds `unit_weight`,
 
 ## Migration Inventory
 
-V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap.
+V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority.
 
-## Required Remediation Before Suite Integration
+## Remaining Suite Integration Work
 
-1. Execute `TENANT-OPERATIONAL-DATA-RETROFIT-001` with forward migrations; never rewrite V1–V43.
-2. Scope every uniqueness constraint and repository query by tenant.
-3. Add tenant fields to integration envelopes.
-4. Resolve driver, customer, project, vendor, and maintenance ownership through ADRs.
-5. Replace cross-boundary physical references with logical IDs/contracts as modules become independent.
+1. Add Tenant envelopes whenever new cross-module integration events are approved or existing event contracts are versioned.
+2. Resolve driver, customer, project, vendor, and maintenance ownership through ADRs.
+3. Replace cross-boundary physical references with logical IDs/contracts as modules become independent.
 
-The foundation and runtime context are implemented, but overall isolation remains `PARTIAL`. US-29 stays `BLOCKED_BY_TENANT_FOUNDATION` until Freight and Reporting sources are Tenant-scoped and isolation acceptance passes. Legacy preservation and backfill are not applicable to this clean-initialization environment.
+The foundation, operational repository isolation, scheduled-job isolation, Freight isolation, and Reporting-source isolation are `ACCEPTED_FOR_CURRENT_SCOPE`. US-29 is `READY_FOR_IMPLEMENTATION`. Legacy preservation and backfill remain not applicable to this clean-initialization environment.

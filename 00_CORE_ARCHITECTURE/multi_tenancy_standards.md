@@ -51,7 +51,7 @@ These define capabilities, not Tenant ownership. Username and email remain globa
 
 Target: `TenantMembership -> Membership Role Assignment -> Global Role Template -> Global Permissions`.
 
-Current `app_user_role` is `LEGACY_UNSCOPED_ROLE_ASSIGNMENT` and `TRANSITIONAL`. It may temporarily preserve existing RBAC behavior but is not final Tenant-safe authority. `TENANT-OPERATIONAL-DATA-RETROFIT-001` must define a forward migration, compatibility window, and deprecation/removal path toward a repository-convention name such as `membership_role` or `tenant_membership_role`; this document does not authorize that schema change.
+`tenant_membership_role` is the implemented authorization-assignment authority from V44. It links a Tenant membership to a global `app_role` template. `app_user_role` remains `LEGACY_UNSCOPED_ROLE_ASSIGNMENT` and `TRANSITIONAL` for compatibility only; runtime authorization no longer reads or writes it.
 
 The database currently enforces one `tenant_membership` record per user. Membership-scoped assignment remains required so future multi-membership can grant different global role templates in different Tenants.
 
@@ -89,9 +89,10 @@ Verified implementation: `TENANT-FOUNDATION-IMPLEMENTATION-001` (2026-08-28)
 | `CurrentTenant` / `TenantExecutionContext` | `IMPLEMENTED` |
 | Per-request server-side membership/Tenant validation | `IMPLEMENTED` |
 | Canonical `CLTS-LK` clean bootstrap | `IMPLEMENTED` |
-| Operational business-row scoping | `PENDING` |
-| Repository/event/job/cache/report isolation | `PENDING` |
-| Overall Tenant isolation | `PARTIAL` |
+| Operational business-row scoping | `IMPLEMENTED_CURRENT_SCOPE` |
+| Repository/job/report isolation | `IMPLEMENTED_CURRENT_SCOPE` |
+| Event/cache isolation | `NO_NEW_TENANT_EVENTS_OR_CACHES_IN_RETROFIT_SCOPE` |
+| Overall Tenant isolation | `ACCEPTED_FOR_CURRENT_SCOPE` |
 
 Platform `tenancy` owns Tenant lifecycle. Identity owns membership and authenticated resolution; Organization and `shared` do not own Tenant lifecycle. The MVP permits exactly one membership per user; multi-membership is deferred.
 
@@ -105,8 +106,8 @@ Platform `tenancy` owns Tenant lifecycle. Identity owns membership and authentic
 
 No recoverable legacy production database was found. Legacy preservation is `NOT REQUIRED`; legacy reconciliation and backfill are `NOT APPLICABLE`; this is a `CLEAN_INITIALIZATION_TARGET`. Historical migrations remain immutable, and legacy mapping/backfill gates must not be reintroduced for this environment.
 
-### Remaining operational gap
+### Operational retrofit acceptance
 
-Foundation implementation is not complete multi-tenancy. Existing operational tables remain predominantly without `tenant_id`; repositories, events, jobs, caches, offline operations, and reporting sources are not fully isolated. `TENANT-OPERATIONAL-DATA-RETROFIT-001` is next and must scope data module by module through forward migrations and isolation tests.
+`TENANT-OPERATIONAL-DATA-RETROFIT-001` completed V44 operational discriminators, membership-scoped role assignment, tenant-aware JPA query/insert enforcement, tenant-qualified direct identifier repository operations, active-Tenant scheduled-job execution, and two-Tenant Freight/Reporting-source isolation acceptance. No JWT contract changed and no US-29 report functionality was introduced.
 
-US-29 Freight Reporting remains `BLOCKED_BY_TENANT_FOUNDATION` until Freight and Reporting sources are tenant-scoped and operational isolation acceptance passes.
+US-29 Freight Reporting is `READY_FOR_IMPLEMENTATION`; the next task is `P2-FREIGHT-REPORTING-001`.
