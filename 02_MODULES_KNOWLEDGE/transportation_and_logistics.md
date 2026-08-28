@@ -2,9 +2,11 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V43 (V40: cargo_exception_permissions; V41: cargo_exception_tables; V42: cargo_manifest_item_measurements; V43: tenant foundation)
+Schema baseline: Flyway V1–V45 (V43: tenant foundation; V44: operational tenant scoping and membership-role authority; V45: Freight reporting permissions)
 US-30 Cargo Exceptions: COMPLETE (P2-CARGO-EXCEPTION-001)
-Tenant readiness: FOUNDATION IMPLEMENTED / OPERATIONAL ISOLATION PENDING — operational schema remains predominantly single-tenant
+US-29 Freight Reporting: COMPLETE (P2-FREIGHT-REPORTING-001)
+Freight release status: 7/7 COMPLETE
+Tenant readiness: FOUNDATION IMPLEMENTED / OPERATIONAL ISOLATION ACCEPTED_FOR_CURRENT_SCOPE
 
 ## Mission and Bounded Contexts
 
