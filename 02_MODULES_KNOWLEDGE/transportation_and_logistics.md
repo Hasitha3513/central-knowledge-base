@@ -3,6 +3,7 @@
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
 Schema baseline: Flyway V1–V45 (V43: tenant foundation; V44: operational tenant scoping and membership-role authority; V45: Freight reporting permissions)
+Delivery foundation: COMPLETE (MVP-1.3-DELIVERY-MODULE-FOUNDATION-001); no delivery tables or story workflows implemented yet
 US-30 Cargo Exceptions: COMPLETE (P2-CARGO-EXCEPTION-001)
 US-29 Freight Reporting: COMPLETE (P2-FREIGHT-REPORTING-001)
 Freight release status: 7/7 COMPLETE
@@ -10,7 +11,7 @@ Tenant readiness: FOUNDATION IMPLEMENTED / OPERATIONAL ISOLATION ACCEPTED_FOR_CU
 
 ## Mission and Bounded Contexts
 
-Transportation manages fleet master/usage, drivers (legacy ownership), routing, trips, fuel and bunker operations, freight orders/manifests/load planning/insurance/exceptions, operational notifications, reporting, identity/organization references, and offline command ingestion.
+Transportation manages fleet master/usage, drivers (legacy ownership), routing, trips, fuel and bunker operations, freight orders/manifests/load planning/insurance/exceptions, delivery operations foundation, operational notifications, reporting, identity/organization references, and offline command ingestion.
 
 | Context | Principal models | Representative use cases |
 | :--- | :--- | :--- |
@@ -20,12 +21,24 @@ Transportation manages fleet master/usage, drivers (legacy ownership), routing, 
 | Trip | Trip, Assignment, Dispatch, Status History, Operational Event | create, submit, approve, assign, dispatch, start, complete, close, cancel |
 | Fuel | Station, Limit Policy, Issue, Purchase, Price, Bunker Tank/Movement | issue lifecycle, purchase lifecycle, reconciliation, stock control, trip cost |
 | Freight | Order, Manifest, Load Plan, Insurance Policy/Claim/Settlement, Cargo Exception | order intake, manifest finalization, load placement, weight/volume validation, claim lifecycle, cargo exceptions |
+| Delivery | Delivery Reference, Delivery Summary, Delivery Id/Number/Status | module discovery, tenant-aware foundation status, public lookup/reference contracts, Delivery-owned outbound integration ports |
 | Notification | Rule, Policy, Template, Notification, Delivery Attempt | event routing, suppression, escalation, delivery diagnostics |
 | Offline Sync | Offline Operation | idempotent command inbox and conflict outcomes |
 
 ## Published Events
 
 Current internal event types are `VehicleReadingRecorded`, `VehicleReadingCorrected`, `VehicleMeterResetRecorded`, `RouteDisruptionCreatedEvent`, `RouteDisruptionResolvedEvent`, and `OperationalNotificationEvent`. Exact payloads and tenant deficiencies are registered in `../01_INTEGRATION_REGISTRY/event_contracts.md`.
+
+Delivery publishes no domain or integration event in the foundation slice. Future Delivery events require registration before implementation.
+
+## Phase 1 Delivery Operations Foundation (MVP 1.3)
+
+- Delivery is a dedicated Spring Modulith module at `com.transportlogistics.app.delivery`.
+- Current foundation scope is architectural only: public `DeliveryLookupPort`, `DeliveryReference`, `DeliverySummary`, framework-free domain primitives (`DeliveryId`, `DeliveryNumber`, `DeliveryStatus`), `DeliveryFoundationUseCase`, and Delivery-owned outbound ports.
+- Delivery-owned outbound ports cover customer lookup, location lookup, freight-order lookup, trip lookup, slot availability, evidence storage, offline acknowledgement, notification dispatch, and tenant context. Implementations must not query another module's repositories, JPA entities, or tables directly.
+- `DeliveryFoundationService` exposes the frozen permission catalogue and whether a server-side tenant context is resolved. It does not create delivery orders, assign deliveries, execute POD, or mutate persistence.
+- Frozen permission catalogue: `DELIVERY_VIEW`, `DELIVERY_CREATE`, `DELIVERY_UPDATE`, `DELIVERY_ASSIGN`, `DELIVERY_EXECUTE`, `DELIVERY_POD_CAPTURE`, `DELIVERY_COMPLETE`, `DELIVERY_FAIL`, `DELIVERY_REDELIVER`, `DELIVERY_EXCEPTION_MANAGE`, `DELIVERY_REPORT_VIEW`.
+- No Delivery database table, migration, REST endpoint, UI route, domain event, or scheduled/background process exists yet. US-56 through US-62 remain unimplemented story workflows.
 
 ## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)
 
@@ -226,6 +239,8 @@ Indexes: `idx_manifest_item_parent (cargo_manifest_id)`. V42 adds `unit_weight`,
 ## Migration Inventory
 
 V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions.
+
+No Delivery migration exists in `MVP-1.3-DELIVERY-MODULE-FOUNDATION-001`.
 
 ## Remaining Suite Integration Work
 
