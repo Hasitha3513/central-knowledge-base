@@ -5,6 +5,7 @@ Source repository: current workspace
 Schema baseline: Flyway V1–V46 (V46: tenant-scoped US-56 Delivery Orders and permissions)
 Delivery US-56: COMPLETE; US-57 through US-62 remain unimplemented
 MVP 1.3 Delivery Operations: 1/7 COMPLETE
+Delivery US-57 decision gate: PRODUCT_DECISIONS_COMPLETE; implementation NOT_STARTED
 US-30 Cargo Exceptions: COMPLETE (P2-CARGO-EXCEPTION-001)
 US-29 Freight Reporting: COMPLETE (P2-FREIGHT-REPORTING-001)
 Freight release status: 7/7 COMPLETE
@@ -55,6 +56,22 @@ US-56 publishes no cross-module event because it captures requirements and readi
 - Number allocation uses a database uniqueness guard on `(tenant_id, delivery_number)` and must not use `MAX + 1`. A uniqueness collision permits at most three fresh allocation attempts before sanitized `DELIVERY_NUMBER_ALLOCATION_FAILED`. US-56 introduces no explicit idempotency-key contract.
 - Status: US-56 `COMPLETE`; US-57 through US-62 remain unimplemented.
 - Final acceptance: `MVP-1.3-US56-DELIVERY-ORDERS-FINAL-ACCEPTANCE-002` verified remote application commit `40eb120ac64cce44716598d267c68901127dd44a`, focused backend 51/51 PASS, full backend 972 tests with zero failures/errors (15 skipped), frontend 234/234 PASS, Chromium 2/2 PASS, and PostgreSQL 16 Flyway V1–V46 PASS.
+
+### US-57 Proof-of-Delivery Product Decisions
+
+`MVP-1.3-US57-POD-PRODUCT-DECISIONS-001` freezes the following without implementing US-57:
+
+- US-57 is online-only; US-58 owns offline signature/photo, quality/retake, consent and synchronization.
+- A valid POD contains at least one of signature, photo or barcode; any non-empty combination is allowed. Limits: one signature, three photos and one barcode.
+- Signature/photo files are detected/decoded PNG or JPEG with maximum sizes of 2 MiB and 10 MiB respectively. Binary integrity metadata includes SHA-256, detected MIME and content length.
+- Barcode is the normalized Delivery Order number and must match the target `DEL-YYYY-NNNNNN` exactly.
+- Server acceptance time is authoritative UTC; optional device time is audit-only. Latitude/longitude are optional where available, paired and range-validated; absent GPS is non-blocking and no geofence is added.
+- Delivery owns POD/evidence metadata and a provider-neutral evidence-storage port. Multipart remains an inbound-adapter concern; no cloud SDK, JPA blob, public URL, filesystem path or cross-module Document dependency is authorized.
+- One optimistic `DRAFT` POD per Delivery Order may be edited before `FINALIZED`; finalized evidence is immutable and US-57 exposes no deletion/correction workflow.
+- Finalization atomically transitions current `READY_FOR_ASSIGNMENT` to new state `DELIVERED`. This is a transitional minimum and does not fabricate assignment, Rider ownership or `OUT_FOR_DELIVERY` facts.
+- Permissions are `DELIVERY_POD_CAPTURE` and privacy-sensitive `DELIVERY_POD_VIEW`. All rows, storage namespaces, direct-ID operations, audits and streams are server-Tenant scoped.
+- Retention is external to US-57; no duration or malware service is invented. No public POD event or US-61 analytics is implemented.
+- Expected future forward migration is V47 after rechecking the migration head. Current schema remains V1–V46 until implementation.
 
 ## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)
 

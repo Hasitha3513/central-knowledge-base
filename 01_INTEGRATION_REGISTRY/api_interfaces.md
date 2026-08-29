@@ -70,6 +70,17 @@ The first-party Manifest UI provides input fields for special cargo classificati
 - Implemented routes are `POST/GET /api/v1/deliveries`, `GET/PATCH /api/v1/deliveries/{deliveryId}`, and `POST /api/v1/deliveries/{deliveryId}/validate-readiness`; application controller mappings omit the deployment-level `/api` prefix and use `/v1/deliveries`.
 - Requests never accept `tenantId` or `deliveryNumber`. PATCH and readiness commands require the optimistic `version`; stale versions return the standard conflict error.
 
+### US-57 Online Proof-of-Delivery Contract (Product Decisions Frozen; Not Implemented)
+
+- US-57 is online-only. US-58 owns offline signature/photo capture, quality/retake, consent and Offline Sync integration.
+- A valid POD requires at least one primary evidence type from `SIGNATURE`, `PHOTO` or `BARCODE`; any non-empty combination is allowed. Limits are one signature, three photos and one barcode.
+- The barcode is the target Delivery Order's immutable `DEL-YYYY-NNNNNN` number. Server acceptance time is the authoritative UTC completion instant; optional device time is audit-only. Geo-tag is optional where available and missing GPS does not block valid proof.
+- Delivery owns metadata and uses its provider-neutral `DeliveryEvidenceStoragePort` for binary evidence. Binary upload is multipart at the inbound adapter; public URLs, filesystem paths, object keys and request `tenantId` are forbidden.
+- Conceptual routes are `POST/GET /v1/deliveries/{deliveryId}/proof`, `POST /v1/deliveries/{deliveryId}/proof/evidence`, `DELETE /v1/deliveries/{deliveryId}/proof/evidence/{evidenceId}`, `GET /v1/deliveries/{deliveryId}/proof/evidence/{evidenceId}/content`, and `POST /v1/deliveries/{deliveryId}/proof/finalize`.
+- `DELIVERY_POD_CAPTURE` governs draft/evidence/finalization actions. Privacy-sensitive metadata/content viewing uses `DELIVERY_POD_VIEW`.
+- Finalization requires matching Delivery/POD optimistic versions, durable validated evidence and same-Tenant ownership. It atomically finalizes the one POD and transitions the current `READY_FOR_ASSIGNMENT` Delivery to `DELIVERED`; this is an explicit transitional US-57 path and does not claim assignment or `OUT_FOR_DELIVERY` facts.
+- Finalized POD/evidence is immutable. US-57 exposes no finalized edit/delete/correction endpoint and no public integration event.
+
 | Provider | Interface purpose | Consumers | Status |
 | :--- | :--- | :--- | :--- |
 | Transportation | Trip/freight chargeable facts, vehicle/route lookup, delivery status | Finance, Sales/CRM, Maintenance | PROPOSED |

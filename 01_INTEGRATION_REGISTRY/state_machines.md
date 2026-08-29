@@ -2,28 +2,34 @@
 
 ## Delivery Operations
 
-`MVP-1.3-DELIVERY-MODULE-FOUNDATION-001` introduces only the Delivery lifecycle baseline enum. It does not implement transitions, persistence, REST commands, events, assignment, proof-of-delivery, failure handling, redelivery, or return-to-origin workflows.
+The accepted US-56 implementation contains only the current production Delivery states below. Earlier foundation documents discussed later candidate states, but they are not implemented authority.
 
 | State | Status |
 | :--- | :--- |
-| `DRAFT` | FOUNDATION_BASELINE |
-| `READY_FOR_ASSIGNMENT` | FOUNDATION_BASELINE |
-| `ASSIGNED` | FOUNDATION_BASELINE |
-| `OUT_FOR_DELIVERY` | FOUNDATION_BASELINE |
-| `DELIVERED` | FOUNDATION_BASELINE |
-| `FAILED` | FOUNDATION_BASELINE |
-| `REDELIVERY_SCHEDULED` | FOUNDATION_BASELINE |
-| `RETURN_TO_ORIGIN` | FOUNDATION_BASELINE |
-| `CANCELLED` | FOUNDATION_BASELINE |
+| `DRAFT` | IMPLEMENTED_US56 |
+| `READY_FOR_ASSIGNMENT` | IMPLEMENTED_US56 |
 
-Transition commands, guards, audit requirements, tenant behavior, idempotency, event emission, and compensations must be registered before implementing US-56 through US-62 workflows.
+Later states remain story-scoped and must be registered before implementation.
 
 ### US-56 Frozen Readiness Semantics
 
-`MVP-1.3-US56-PRODUCT-DECISIONS-001` freezes, but does not implement, the US-56 lifecycle subset:
+`MVP-1.3-US56-PRODUCT-DECISIONS-001` freezes and the accepted US-56 implementation enforces this lifecycle subset:
 
 - Create produces `DRAFT`.
 - Successful order-readiness validation produces `READY_FOR_ASSIGNMENT`.
 - Changing priority, service type, window, instructions or references in `DRAFT`/`READY_FOR_ASSIGNMENT` produces `DRAFT` and requires revalidation.
 - Assignment is not performed by US-56. Assignment target and target eligibility remain deferred.
 - Later `ASSIGNED` or execution states make US-56 requirement fields immutable when those states are implemented.
+
+### US-57 Frozen POD and Completion Semantics
+
+`MVP-1.3-US57-POD-PRODUCT-DECISIONS-001` freezes but does not implement:
+
+- POD lifecycle: `DRAFT -> FINALIZED`; one POD per Delivery Order.
+- Draft metadata/evidence is mutable with optimistic versioning. Finalized proof and evidence are immutable.
+- US-57 adds only `DELIVERED` when its implementation is accepted.
+- Transitional Delivery transition: `READY_FOR_ASSIGNMENT -> DELIVERED`, performed atomically with valid POD finalization.
+- A Delivery in `DRAFT` is ineligible; an already delivered order rejects duplicate finalization.
+- This transition records no assignment, Rider ownership, Trip execution or `OUT_FOR_DELIVERY` fact. When an authoritative execution model is introduced, POD eligibility must be narrowed through a separately approved forward decision.
+- Successful finalization uses the server acceptance UTC instant for both POD acceptance and Delivery completion.
+- Storage failure leaves the POD draft retryable and the Delivery unchanged; a POD cannot appear finalized with missing/unverified evidence.
