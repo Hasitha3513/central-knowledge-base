@@ -50,6 +50,8 @@ Delivery publishes no domain or integration event in the foundation slice. Futur
 - Assignment: `NONE_IN_US56` and `NO_ASSIGNMENT_COLUMNS_IN_US56`. US-56 validates readiness only.
 - Readiness facts: authoritative Tenant context; active same-Tenant customer and origin/destination locations; distinct locations; valid window; supported catalogues. Unknown external facts fail closed.
 - Lifecycle subset: create `DRAFT`; validation may produce `READY_FOR_ASSIGNMENT`; requirement edits return the order to `DRAFT`.
+- Delivery number: immutable, server-generated `DEL-YYYY-NNNNNN` (regex `^DEL-[0-9]{4}-[0-9]{6}$`), allocated atomically from a Delivery-owned counter scoped by `(tenant_id, tenant-local calendar year)`. The sequence starts at `000001`, permits permanent gaps, never reuses or wraps, and fails with `DELIVERY_NUMBER_SEQUENCE_EXHAUSTED` after `999999`.
+- Number allocation uses a database uniqueness guard on `(tenant_id, delivery_number)` and must not use `MAX + 1`. A uniqueness collision permits at most three fresh allocation attempts before sanitized `DELIVERY_NUMBER_ALLOCATION_FAILED`. US-56 introduces no explicit idempotency-key contract.
 - Status: US-56 `READY_FOR_IMPLEMENTATION`; US-57 through US-62 remain unimplemented.
 
 ## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)

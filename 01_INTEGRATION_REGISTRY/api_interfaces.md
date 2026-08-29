@@ -66,6 +66,7 @@ The first-party Manifest UI provides input fields for special cargo classificati
 - Delivery-owned service types: `STANDARD`, `EXPRESS`, `SAME_DAY`, `SCHEDULED`; create default `STANDARD`. Each uses an explicit valid delivery window and implies no pricing, routing, SLA, POD or assignment behavior.
 - US-56 creates/updates/reads Delivery Orders and validates readiness. Assignment target is `NONE_IN_US56`; no assignment request field, response field, selector or persistence column is approved.
 - Readiness fails closed unless server Tenant context and active same-Tenant customer/origin/destination references resolve; origin differs from destination and window start precedes end.
+- `deliveryNumber` is an immutable server-generated response field and is excluded from create/update requests. Its exact format is `DEL-YYYY-NNNNNN`, allocated atomically per Tenant and Tenant-local calendar year; gaps are allowed, values are never reused, and US-56 defines no client idempotency key.
 - Conceptual routes remain `POST/GET /api/v1/deliveries`, `GET/PATCH /api/v1/deliveries/{deliveryId}`, and `POST /api/v1/deliveries/{deliveryId}/validate-readiness`. They become implemented only with the US-56 production slice.
 
 | Provider | Interface purpose | Consumers | Status |
