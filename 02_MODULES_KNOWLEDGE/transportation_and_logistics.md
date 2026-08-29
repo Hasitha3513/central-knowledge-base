@@ -4,6 +4,7 @@ Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
 Schema baseline: Flyway V1–V46 (V46: tenant-scoped US-56 Delivery Orders and permissions)
 Delivery US-56: COMPLETE; US-57 through US-62 remain unimplemented
+MVP 1.3 Delivery Operations: 1/7 COMPLETE
 US-30 Cargo Exceptions: COMPLETE (P2-CARGO-EXCEPTION-001)
 US-29 Freight Reporting: COMPLETE (P2-FREIGHT-REPORTING-001)
 Freight release status: 7/7 COMPLETE
@@ -53,6 +54,7 @@ US-56 publishes no cross-module event because it captures requirements and readi
 - Delivery number: immutable, server-generated `DEL-YYYY-NNNNNN` (regex `^DEL-[0-9]{4}-[0-9]{6}$`), allocated atomically from a Delivery-owned counter scoped by `(tenant_id, tenant-local calendar year)`. The sequence starts at `000001`, permits permanent gaps, never reuses or wraps, and fails with `DELIVERY_NUMBER_SEQUENCE_EXHAUSTED` after `999999`.
 - Number allocation uses a database uniqueness guard on `(tenant_id, delivery_number)` and must not use `MAX + 1`. A uniqueness collision permits at most three fresh allocation attempts before sanitized `DELIVERY_NUMBER_ALLOCATION_FAILED`. US-56 introduces no explicit idempotency-key contract.
 - Status: US-56 `COMPLETE`; US-57 through US-62 remain unimplemented.
+- Final acceptance: `MVP-1.3-US56-DELIVERY-ORDERS-FINAL-ACCEPTANCE-002` verified remote application commit `40eb120ac64cce44716598d267c68901127dd44a`, focused backend 51/51 PASS, full backend 972 tests with zero failures/errors (15 skipped), frontend 234/234 PASS, Chromium 2/2 PASS, and PostgreSQL 16 Flyway V1–V46 PASS.
 
 ## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)
 

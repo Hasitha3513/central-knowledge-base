@@ -16,12 +16,12 @@
 | Projects | Finance | budgets and actual costs | Events/API | PROPOSED |
 | Sales/CRM | Inventory | available-to-promise | API | PROPOSED |
 | Sales/CRM | Transportation | shipment plan and delivery status | Commands/API and events | PROPOSED |
-| Delivery (Transportation internal) | Freight, Trip, Organization, Notification, Offline Sync | freight-order facts, trip facts, customer/location references, delivery notifications, offline acknowledgements | Delivery-owned provider-neutral ports only; no direct repositories/JPA/tables | FOUNDATION_ONLY |
+| Delivery (Transportation internal) | Freight, Trip, Organization, Notification, Offline Sync | customer/location references active for US-56; other listed facts remain future-slice contracts | Delivery-owned provider-neutral ports only; no direct repositories/JPA/tables | US56_IMPLEMENTED; US57–62_PENDING |
 
 ## Ownership Decisions
 
 - Transportation owns trips, routes, freight execution, operational vehicle readings, and transport-specific fuel facts.
-- Transportation now contains a dedicated Delivery Modulith boundary for MVP 1.3 foundation contracts; Delivery story workflows and persistence remain pending.
+- Transportation contains a dedicated Delivery Modulith boundary. US-56 Delivery Order workflow and persistence are implemented and accepted; US-57 through US-62 remain pending.
 - HRM will own employee master and employment lifecycle; migration/bridging of the current `driver` model requires an ADR.
 - Vehicle Maintenance will own maintenance work execution; migration/bridging of current `maintenance_schedule` requires an ADR.
 - Finance owns ledgers, invoices, payments, tax accounting, and financial posting—not operational source facts.
