@@ -2,8 +2,8 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V45 (V43: tenant foundation; V44: operational tenant scoping and membership-role authority; V45: Freight reporting permissions)
-Delivery foundation: COMPLETE (MVP-1.3-DELIVERY-MODULE-FOUNDATION-001); no delivery tables or story workflows implemented yet
+Schema baseline: Flyway V1–V46 (V46: tenant-scoped US-56 Delivery Orders and permissions)
+Delivery US-56: COMPLETE; US-57 through US-62 remain unimplemented
 US-30 Cargo Exceptions: COMPLETE (P2-CARGO-EXCEPTION-001)
 US-29 Freight Reporting: COMPLETE (P2-FREIGHT-REPORTING-001)
 Freight release status: 7/7 COMPLETE
@@ -21,7 +21,7 @@ Transportation manages fleet master/usage, drivers (legacy ownership), routing, 
 | Trip | Trip, Assignment, Dispatch, Status History, Operational Event | create, submit, approve, assign, dispatch, start, complete, close, cancel |
 | Fuel | Station, Limit Policy, Issue, Purchase, Price, Bunker Tank/Movement | issue lifecycle, purchase lifecycle, reconciliation, stock control, trip cost |
 | Freight | Order, Manifest, Load Plan, Insurance Policy/Claim/Settlement, Cargo Exception | order intake, manifest finalization, load placement, weight/volume validation, claim lifecycle, cargo exceptions |
-| Delivery | Delivery Reference, Delivery Summary, Delivery Id/Number/Status | module discovery, authoritative tenant-context integration, preserved future-slice lookup/reference contracts and Delivery-owned outbound ports |
+| Delivery | Delivery Order, Delivery Number, Priority, Service Type, Window, Status | create/search/read/update requirements and validate readiness; authoritative Tenant context and logical organization references |
 | Notification | Rule, Policy, Template, Notification, Delivery Attempt | event routing, suppression, escalation, delivery diagnostics |
 | Offline Sync | Offline Operation | idempotent command inbox and conflict outcomes |
 
@@ -29,21 +29,21 @@ Transportation manages fleet master/usage, drivers (legacy ownership), routing, 
 
 Current internal event types are `VehicleReadingRecorded`, `VehicleReadingCorrected`, `VehicleMeterResetRecorded`, `RouteDisruptionCreatedEvent`, `RouteDisruptionResolvedEvent`, and `OperationalNotificationEvent`. Exact payloads and tenant deficiencies are registered in `../01_INTEGRATION_REGISTRY/event_contracts.md`.
 
-Delivery publishes no domain or integration event in the foundation slice. Future Delivery events require registration before implementation.
+US-56 publishes no cross-module event because it captures requirements and readiness only; no downstream workflow is triggered. Future Delivery events require registration before implementation.
 
 ## Phase 1 Delivery Operations Foundation (MVP 1.3)
 
 - Delivery is a dedicated Spring Modulith module at `com.transportlogistics.app.delivery`.
-- Current foundation scope is architectural only: framework-free domain primitives (`DeliveryId`, `DeliveryNumber`, `DeliveryStatus`), Spring Modulith discovery/boundary rules, and a `DeliveryTenantContextPort` adapter that delegates exclusively to authoritative server-side `CurrentTenant`.
+- US-56 adds the framework-free `DeliveryOrder`, priority/service/window value types, application service, ports, adapters, persistence and REST/UI slice to the existing foundation.
 - All future Delivery operational aggregates, rows, commands, queries, APIs, repository operations, events, jobs, caches and analytics are tenant-owned and must derive `tenant_id` from authoritative server-side context; client-supplied Tenant authority is forbidden.
 - Public `DeliveryLookupPort`, `DeliveryReference`, `DeliverySummary`, and the customer/location/freight-order/trip/slot/evidence/offline/notification outbound ports are preserved `PRE-EXISTING_UNCOMMITTED_FUTURE_SLICE` contracts. They have no adapters or implemented use cases and must not be represented as completed capability.
 - No synthetic foundation-status application use case, placeholder bean, or runtime permission catalogue exists. Permission names are frozen governance metadata only and remain unseeded/unassigned until their source-defined story actions are implemented.
 - Implementations must not query another module's repositories, JPA entities, services, adapters, or tables directly.
-- No Delivery database table, migration, REST endpoint, UI route, domain event, or scheduled/background process exists yet. US-56 through US-62 remain unimplemented story workflows.
+- V46 adds `delivery_order`, `delivery_number_counter`, four permissions and supporting indexes. US-56 REST/UI workflows are implemented; US-57 through US-62 remain unimplemented.
 
 ### US-56 Product Decisions
 
-`MVP-1.3-US56-PRODUCT-DECISIONS-001` resolves the implementation blocker without introducing production code:
+`MVP-1.3-US56-PRODUCT-DECISIONS-001` is implemented as follows:
 
 - Priority: Delivery-owned fixed catalogue `LOW`, `NORMAL`, `HIGH`, `URGENT`; default `NORMAL`; recorded urgency only.
 - Service type: Delivery-owned fixed catalogue `STANDARD`, `EXPRESS`, `SAME_DAY`, `SCHEDULED`; default `STANDARD`; explicit delivery window required and no implicit cross-scope behavior.
@@ -52,7 +52,7 @@ Delivery publishes no domain or integration event in the foundation slice. Futur
 - Lifecycle subset: create `DRAFT`; validation may produce `READY_FOR_ASSIGNMENT`; requirement edits return the order to `DRAFT`.
 - Delivery number: immutable, server-generated `DEL-YYYY-NNNNNN` (regex `^DEL-[0-9]{4}-[0-9]{6}$`), allocated atomically from a Delivery-owned counter scoped by `(tenant_id, tenant-local calendar year)`. The sequence starts at `000001`, permits permanent gaps, never reuses or wraps, and fails with `DELIVERY_NUMBER_SEQUENCE_EXHAUSTED` after `999999`.
 - Number allocation uses a database uniqueness guard on `(tenant_id, delivery_number)` and must not use `MAX + 1`. A uniqueness collision permits at most three fresh allocation attempts before sanitized `DELIVERY_NUMBER_ALLOCATION_FAILED`. US-56 introduces no explicit idempotency-key contract.
-- Status: US-56 `READY_FOR_IMPLEMENTATION`; US-57 through US-62 remain unimplemented.
+- Status: US-56 `COMPLETE`; US-57 through US-62 remain unimplemented.
 
 ## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)
 
@@ -252,9 +252,49 @@ Indexes: `idx_manifest_item_parent (cargo_manifest_id)`. V42 adds `unit_weight`,
 
 ## Migration Inventory
 
-V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions.
+#### Table: `delivery_order`
 
-No Delivery migration exists in `MVP-1.3-DELIVERY-MODULE-FOUNDATION-001`.
+- **Purpose:** Tenant-owned US-56 Delivery Order requirements and readiness state.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, indexed through composite operational indexes)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY | Delivery Order identifier |
+| `tenant_id` | UUID | NO | - | Logical FK -> `tenant(id)`; UNIQUE with `delivery_number` | Authoritative tenant scope |
+| `delivery_number` | VARCHAR(15) | NO | - | `DEL-YYYY-NNNNNN`; immutable; tenant-scoped unique | Server-generated order number |
+| `customer_id` | UUID | NO | - | Logical FK -> Organization Customer | Customer reference validated through public port |
+| `origin_location_id` | UUID | NO | - | Logical FK -> Organization Location; differs from destination | Origin reference |
+| `destination_location_id` | UUID | NO | - | Logical FK -> Organization Location; differs from origin | Destination reference |
+| `priority` | VARCHAR(20) | NO | `NORMAL` | CHECK LOW/NORMAL/HIGH/URGENT | Delivery urgency |
+| `service_type` | VARCHAR(20) | NO | `STANDARD` | CHECK STANDARD/EXPRESS/SAME_DAY/SCHEDULED | Delivery service classification |
+| `window_start` | TIMESTAMPTZ | NO | - | `window_start <= window_end` | Delivery-window start |
+| `window_end` | TIMESTAMPTZ | NO | - | `window_start <= window_end` | Delivery-window end |
+| `instructions` | TEXT | YES | NULL | - | Optional requirements |
+| `status` | VARCHAR(40) | NO | `DRAFT` | CHECK DRAFT/READY_FOR_ASSIGNMENT | US-56 lifecycle state |
+| `version` | BIGINT | NO | `0` | optimistic lock | Concurrent-update version |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Creation time |
+| `updated_at` | TIMESTAMPTZ | NO | - | - | Last update time |
+| `created_by` | VARCHAR(128) | NO | - | - | Creating actor |
+| `updated_by` | VARCHAR(128) | NO | - | - | Last modifying actor |
+
+Indexes: `(tenant_id,status)`, `(tenant_id,customer_id)`, `(tenant_id,window_start,window_end)`. No assignment columns and no physical cross-module foreign keys exist.
+
+#### Table: `delivery_number_counter`
+
+- **Purpose:** Atomic tenant/year sequence allocation for immutable Delivery numbers.
+- **Primary Key:** (`tenant_id`, `calendar_year`)
+- **Multi-Tenant Key:** `tenant_id`
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `tenant_id` | UUID | NO | - | PRIMARY KEY component; logical FK -> `tenant(id)` | Tenant sequence scope |
+| `calendar_year` | INTEGER | NO | - | PRIMARY KEY component; 1000–9999 | Tenant-local calendar year |
+| `last_value` | INTEGER | NO | - | 1–999999 | Last permanently allocated number |
+
+V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions.
+
+US-56 Delivery persistence is introduced only by forward migration V46.
 
 ## Remaining Suite Integration Work
 

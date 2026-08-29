@@ -25,7 +25,7 @@ The precise request/response schemas remain authoritative in controller DTOs and
 | Notifications | `/notifications`, `/notification-rules`, `/notification-templates`, delivery diagnostics | Notification | Implemented |
 | Reporting | `/dashboard/operations`, `/reports/*` | Reporting | Implemented read models; source repositories are tenant-isolated through authoritative runtime context |
 | Freight reporting (US-29) | `GET /reports/freight/summary`, `GET /reports/freight/shipments`, `GET /reports/freight/export` | Reporting (inbound/API), Freight (source query contract) | Implemented tenant-scoped read-only summaries, pageable shipment/capacity rows, and bounded CSV; permissions `FREIGHT_REPORT_VIEW` and `FREIGHT_REPORT_EXPORT`; missing measurements/capacity remain `INCOMPLETE` |
-| Delivery foundation | No public REST route yet | Delivery | Foundation implemented: Spring Modulith module, framework-free domain primitives, preserved future-slice lookup/reference and outbound-port contracts, and authoritative tenant-context adapter; no application use case or permission-catalogue bean exists; US-56 through US-62 APIs remain pending |
+| Delivery Orders (US-56) | `POST/GET /v1/deliveries`, `GET/PATCH /v1/deliveries/{id}`, `POST /v1/deliveries/{id}/validate-readiness` | Delivery | Implemented tenant-scoped requirements and readiness workflow; no assignment or US-57–62 behavior |
 | Offline sync | `/offline-sync/operations` | Offline Sync | Implemented inbox |
 | Health | `/health` | System | Implemented |
 
@@ -60,14 +60,15 @@ The first-party Manifest UI provides input fields for special cargo classificati
 - Preserved future-slice outbound contracts are `DeliveryCustomerLookupPort`, `DeliveryLocationLookupPort`, `DeliveryFreightOrderLookupPort`, `DeliveryTripLookupPort`, `DeliverySlotAvailabilityPort`, `DeliveryEvidenceStoragePort`, `DeliveryOfflineSyncPort`, and `DeliveryNotificationPort`.
 - These provider-neutral contracts do not constitute implemented use cases and do not approve cross-module SQL, direct repository access, REST APIs, events, schema, adapters, or workflow behavior. No synthetic foundation-status use case or runtime permission-catalogue bean exists.
 
-### US-56 Frozen Product Semantics (Not Implemented)
+### US-56 Delivery Order Contract (Implemented)
 
 - Delivery-owned priority values: `LOW`, `NORMAL`, `HIGH`, `URGENT`; create default `NORMAL`. Priority records urgency only in US-56.
 - Delivery-owned service types: `STANDARD`, `EXPRESS`, `SAME_DAY`, `SCHEDULED`; create default `STANDARD`. Each uses an explicit valid delivery window and implies no pricing, routing, SLA, POD or assignment behavior.
 - US-56 creates/updates/reads Delivery Orders and validates readiness. Assignment target is `NONE_IN_US56`; no assignment request field, response field, selector or persistence column is approved.
 - Readiness fails closed unless server Tenant context and active same-Tenant customer/origin/destination references resolve; origin differs from destination and window start precedes end.
 - `deliveryNumber` is an immutable server-generated response field and is excluded from create/update requests. Its exact format is `DEL-YYYY-NNNNNN`, allocated atomically per Tenant and Tenant-local calendar year; gaps are allowed, values are never reused, and US-56 defines no client idempotency key.
-- Conceptual routes remain `POST/GET /api/v1/deliveries`, `GET/PATCH /api/v1/deliveries/{deliveryId}`, and `POST /api/v1/deliveries/{deliveryId}/validate-readiness`. They become implemented only with the US-56 production slice.
+- Implemented routes are `POST/GET /api/v1/deliveries`, `GET/PATCH /api/v1/deliveries/{deliveryId}`, and `POST /api/v1/deliveries/{deliveryId}/validate-readiness`; application controller mappings omit the deployment-level `/api` prefix and use `/v1/deliveries`.
+- Requests never accept `tenantId` or `deliveryNumber`. PATCH and readiness commands require the optimistic `version`; stale versions return the standard conflict error.
 
 | Provider | Interface purpose | Consumers | Status |
 | :--- | :--- | :--- | :--- |

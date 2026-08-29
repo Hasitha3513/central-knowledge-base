@@ -8,14 +8,14 @@
 
 ## Delivery Operations Permission Catalogue
 
-`MVP-1.3-DELIVERY-OPERATIONS-CONTRACT-001-R2` freezes the Delivery permission names for upcoming MVP 1.3 implementation. They are not yet seeded in `app_permission`, assigned to roles, exposed through a runtime permission-catalogue bean, or enforced by public REST endpoints in the foundation slice.
+US-56 seeds and enforces its four Delivery permissions through V46 and Spring Security. Later permissions remain frozen and unseeded until their owning stories are implemented.
 
 | Permission | Purpose | Implementation status |
 | :--- | :--- | :--- |
-| `DELIVERY_VIEW` | View Delivery records and references | FROZEN_NOT_SEEDED |
-| `DELIVERY_CREATE` | Create Delivery Orders | FROZEN_NOT_SEEDED |
-| `DELIVERY_UPDATE` | Update editable Delivery details | FROZEN_NOT_SEEDED |
-| `DELIVERY_ASSIGN` | Assign delivery resources/routes/trips | FROZEN_NOT_SEEDED |
+| `DELIVERY_VIEW` | View tenant-scoped Delivery Orders | IMPLEMENTED_US56 |
+| `DELIVERY_CREATE` | Create Delivery Orders | IMPLEMENTED_US56 |
+| `DELIVERY_UPDATE` | Update editable Delivery requirements | IMPLEMENTED_US56 |
+| `DELIVERY_ASSIGN` | Validate readiness for later assignment; no assignment occurs in US-56 | IMPLEMENTED_US56 |
 | `DELIVERY_EXECUTE` | Execute delivery progress commands | FROZEN_NOT_SEEDED |
 | `DELIVERY_POD_CAPTURE` | Capture electronic proof of delivery | FROZEN_NOT_SEEDED |
 | `DELIVERY_COMPLETE` | Complete successful delivery | FROZEN_NOT_SEEDED |
