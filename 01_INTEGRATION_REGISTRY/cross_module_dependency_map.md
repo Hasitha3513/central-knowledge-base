@@ -16,12 +16,12 @@
 | Projects | Finance | budgets and actual costs | Events/API | PROPOSED |
 | Sales/CRM | Inventory | available-to-promise | API | PROPOSED |
 | Sales/CRM | Transportation | shipment plan and delivery status | Commands/API and events | PROPOSED |
-| Delivery (Transportation internal) | Freight, Trip, Organization, Notification, Offline Sync | customer/location references active for US-56; US-57 uses Delivery-owned evidence storage only; Offline Sync remains US-58; other listed facts remain future-slice contracts | Delivery-owned provider-neutral ports only; no direct repositories/JPA/tables | US56_IMPLEMENTED; US57_DECISIONS_FROZEN; US58–62_PENDING |
+| Delivery (Transportation internal) | Freight, Trip, Organization, Notification, Offline Sync | customer/location references active for US-56; US-57 uses Delivery-owned evidence storage; Offline Sync boundary frozen for US-58; other listed facts remain future-slice contracts | Delivery-owned provider-neutral ports and OfflineOperationHandler port only; no direct repositories/JPA/tables | US56_US57_IMPLEMENTED; US58_DECISIONS_FROZEN; US59–62_PENDING |
 
 ## Ownership Decisions
 
 - Transportation owns trips, routes, freight execution, operational vehicle readings, and transport-specific fuel facts.
-- Transportation contains a dedicated Delivery Modulith boundary. US-56 is implemented and accepted; US-57 online POD decisions are frozen but unimplemented; US-58 through US-62 remain pending.
+- Transportation contains a dedicated Delivery Modulith boundary. US-56 and US-57 are implemented and accepted; US-58 offline POD product decisions are frozen; US-59 through US-62 remain pending.
 - HRM will own employee master and employment lifecycle; migration/bridging of the current `driver` model requires an ADR.
 - Vehicle Maintenance will own maintenance work execution; migration/bridging of current `maintenance_schedule` requires an ADR.
 - Finance owns ledgers, invoices, payments, tax accounting, and financial posting—not operational source facts.
