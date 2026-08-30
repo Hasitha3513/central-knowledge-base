@@ -311,9 +311,61 @@ Indexes: `(tenant_id,status)`, `(tenant_id,customer_id)`, `(tenant_id,window_sta
 | `calendar_year` | INTEGER | NO | - | PRIMARY KEY component; 1000–9999 | Tenant-local calendar year |
 | `last_value` | INTEGER | NO | - | 1–999999 | Last permanently allocated number |
 
-V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions.
+#### Table: `proof_of_delivery`
 
-US-56 Delivery persistence is introduced only by forward migration V46.
+- **Purpose:** Tenant-owned US-57 Proof of Delivery aggregate tracking proof lifecycle, signer, and coordinates.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY; UNIQUE (`id`, `tenant_id`) | Proof of Delivery identifier |
+| `tenant_id` | UUID | NO | - | Logical FK -> `tenant(id)`; UNIQUE (`tenant_id`, `delivery_order_id`) | Authoritative tenant scope |
+| `delivery_order_id` | UUID | NO | - | FK -> `delivery_order(id, tenant_id)` | Associated Delivery Order |
+| `status` | VARCHAR(20) | NO | `DRAFT` | CHECK (`status IN ('DRAFT', 'FINALIZED')`) | POD lifecycle state |
+| `device_captured_at` | TIMESTAMPTZ | YES | NULL | - | Optional client timestamp |
+| `latitude` | NUMERIC(10,7) | YES | NULL | CHECK (`latitude BETWEEN -90 AND 90`) | Optional geo latitude |
+| `longitude` | NUMERIC(10,7) | YES | NULL | CHECK (`longitude BETWEEN -180 AND 180`) | Optional geo longitude |
+| `accuracy_meters` | NUMERIC(12,3) | YES | NULL | CHECK (`accuracy_meters > 0`) | Optional geo accuracy |
+| `signer_name` | VARCHAR(200) | YES | NULL | Required when signature evidence present | Signer full name |
+| `signer_relationship` | VARCHAR(100) | YES | NULL | - | Signer relationship to recipient |
+| `accepted_at` | TIMESTAMPTZ | YES | NULL | Server UTC timestamp populated on finalization | Final acceptance timestamp |
+| `accepted_by` | VARCHAR(128) | YES | NULL | Populated on finalization | Finalizing actor username |
+| `version` | BIGINT | NO | `0` | optimistic lock | Concurrency version |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Creation timestamp |
+| `updated_at` | TIMESTAMPTZ | NO | - | - | Update timestamp |
+| `created_by` | VARCHAR(128) | NO | - | - | Creating actor |
+| `updated_by` | VARCHAR(128) | NO | - | - | Modifying actor |
+
+Indexes: `(tenant_id, status)`.
+
+#### Table: `pod_evidence`
+
+- **Purpose:** Stores binary/textual evidence items (Signature, Photo, Barcode) associated with a POD.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY | Evidence item identifier |
+| `tenant_id` | UUID | NO | - | Logical FK -> `tenant(id)` | Authoritative tenant scope |
+| `proof_of_delivery_id` | UUID | NO | - | FK -> `proof_of_delivery(id, tenant_id)` ON DELETE CASCADE | Parent POD reference |
+| `evidence_type` | VARCHAR(20) | NO | - | CHECK (`evidence_type IN ('SIGNATURE', 'PHOTO', 'BARCODE')`) | Evidence type |
+| `storage_reference` | VARCHAR(255) | YES | NULL | Required for SIGNATURE/PHOTO | Relative storage reference key |
+| `barcode_value` | VARCHAR(64) | YES | NULL | Required for BARCODE (`DEL-YYYY-NNNNNN`) | Normalized barcode value |
+| `detected_content_type` | VARCHAR(50) | YES | NULL | `image/png` or `image/jpeg` for files | MIME type |
+| `content_length` | BIGINT | YES | NULL | > 0 for binary files | File size in bytes |
+| `sha256_checksum` | VARCHAR(64) | YES | NULL | 64-char hex SHA-256 | Content checksum |
+| `original_filename` | VARCHAR(255) | YES | NULL | - | Uploaded file name |
+| `capture_source` | VARCHAR(20) | NO | - | CHECK (`capture_source IN ('CAMERA', 'FILE', 'SCANNER', 'MANUAL')`) | Capture source channel |
+| `created_by` | VARCHAR(128) | NO | - | - | Uploading actor |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Creation timestamp |
+
+Indexes: `(tenant_id, proof_of_delivery_id)`, unique partial index for single signature per POD, unique partial index for single barcode per POD.
+
+V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions.
+
+US-56 and US-57 Delivery persistence is introduced by forward migrations V46 and V47.
 
 ## Remaining Suite Integration Work
 

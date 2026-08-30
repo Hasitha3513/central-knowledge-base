@@ -474,7 +474,30 @@ Step 5. Confirm the transaction and review both tanks' movement histories and ba
 - **Adjustment exceeds available stock:** Correct the quantity or investigate the balance; do not split the transaction to bypass validation.
 - **Wrong tank in a transfer:** Stop before confirmation. After confirmation, use the approved correction/escalation process rather than inventing an offsetting transaction without authorization.
 
-## 9. Daily Operational Checklists
+## 9. Delivery Orders & Proof of Delivery (POD)
+
+**Navigation:** **Delivery > Delivery Orders** (`/deliveries`)
+
+### 9.1 Create and Validate a Delivery Order
+Step 1. Navigate to **Delivery > Delivery Orders** and click **New delivery order**.
+Step 2. Select Customer, Origin Location, Destination Location, Priority (Low, Normal, High, Urgent), Service Type (Standard, Express, Same Day, Scheduled), Delivery Window (Start/End), and optional Special Instructions.
+Step 3. Click **Save delivery order**. An immutable server-generated identifier formatted `DEL-YYYY-NNNNNN` is allocated.
+Step 4. Review the draft order and click **Validate readiness**. If all customer and location references are active within the Tenant, the order transitions from `DRAFT` to `READY FOR ASSIGNMENT`.
+
+### 9.2 Capture Proof of Delivery (POD)
+Step 1. Open a Delivery Order in `READY FOR ASSIGNMENT` status.
+Step 2. In the **Proof of Delivery** section, enter the recipient Signer Name (mandatory for signatures) and optional Signer Relationship.
+Step 3. (Optional) Click **Capture location** to capture device latitude and longitude.
+Step 4. Click **Start POD** to initialize the POD draft.
+Step 5. Attach primary delivery evidence:
+- **Signature Image:** Upload a PNG/JPEG file (<= 2MB).
+- **Delivery Photo:** Upload up to 3 PNG/JPEG photos (<= 10MB each).
+- **Barcode Scan:** Scan or enter the exact Delivery Order number barcode (`DEL-YYYY-NNNNNN`).
+Step 6. Click **Finalize POD**. Upon successful finalization:
+- Proof of Delivery transitions to `FINALIZED` and becomes permanently immutable (no further evidence can be uploaded or deleted).
+- Delivery Order atomically transitions from `READY FOR ASSIGNMENT` to `DELIVERED`.
+
+## 10. Daily Operational Checklists
 
 ### Fleet Manager
 
@@ -488,9 +511,10 @@ Step 5. Confirm the transaction and review both tanks' movement histories and ba
 - Confirm route, eligible vehicle, eligible driver, and approval before dispatch.
 - Monitor delays/incidents and ensure trips are completed and closed accurately.
 
-### Driver
+### Driver / Field Delivery Agent
 
-- Confirm assigned trip, vehicle, route, and departure instructions.
+- Confirm assigned trip, vehicle, route, delivery orders, and departure instructions.
+- Capture valid Proof of Delivery (signature, photo, or barcode) upon completion of each delivery stop.
 - Report document, vehicle, route, delay, incident, and reading issues promptly.
 - Provide accurate operational readings and completion information; do not share credentials.
 
@@ -500,7 +524,7 @@ Step 5. Confirm the transaction and review both tanks' movement histories and ba
 - Record quantities and meter readings from verified source information.
 - Review bunker balances, physical dips, purchases, transfers, and reconciliation exceptions.
 
-## 10. Support and Escalation
+## 11. Support and Escalation
 
 When an operation fails:
 
@@ -514,6 +538,6 @@ Step 4. Do not create a duplicate record or bypass a readiness, compliance, or i
 
 Step 5. Escalate with the module, record identifier, time, intended action, displayed message, and correlation ID. Do not include passwords or unnecessary medical/personal information.
 
-## 11. Scope Boundaries
+## 12. Scope Boundaries
 
 This guide describes the currently implemented operational workflows. It does not authorize users to bypass server validation, tenant isolation, approval controls, compliance blocks, stock controls, or lifecycle rules. Capabilities identified in the roadmap as deferred or post-MVP are not operational merely because a related screen or data field exists.
