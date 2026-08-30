@@ -363,6 +363,13 @@ Indexes: `(tenant_id, status)`.
 
 Indexes: `(tenant_id, proof_of_delivery_id)`, unique partial index for single signature per POD, unique partial index for single barcode per POD.
 
+#### US-58 Offline Proof of Delivery Synchronization
+- **Operation Type:** `DELIVERY_POD_OFFLINE_SYNC` (Aggregate: `DELIVERY`)
+- **Queue / Storage:** Local client IndexedDB outbox queue (`features/offlineSync`), server `offline_sync_operation` (V29).
+- **Composite Payload:** Signer metadata, consent record (`consentGiven: true`, `consentVersion: "POD-CONSENT-V1"`, timestamp), device coordinates, and ordered evidence list (`DeliveryPodOfflineEvidenceItem` with base64 PNG/JPEG or barcode value).
+- **Execution Boundary:** `DeliveryPodOfflineOperationHandler` invokes `OfflineProofOfDeliveryRecorder` on `delivery` module.
+- **Idempotency & Concurrency:** Server checks delivery state (`READY_FOR_ASSIGNMENT`), optimistic lock version, duplicate POD recording, and ensures atomic database finalization into `DELIVERED`.
+
 V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions.
 
 US-56 and US-57 Delivery persistence is introduced by forward migrations V46 and V47.

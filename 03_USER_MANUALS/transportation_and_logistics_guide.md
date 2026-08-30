@@ -484,17 +484,21 @@ Step 2. Select Customer, Origin Location, Destination Location, Priority (Low, N
 Step 3. Click **Save delivery order**. An immutable server-generated identifier formatted `DEL-YYYY-NNNNNN` is allocated.
 Step 4. Review the draft order and click **Validate readiness**. If all customer and location references are active within the Tenant, the order transitions from `DRAFT` to `READY FOR ASSIGNMENT`.
 
-### 9.2 Capture Proof of Delivery (POD)
+### 9.2 Capture Proof of Delivery (POD) (Online & Offline)
 Step 1. Open a Delivery Order in `READY FOR ASSIGNMENT` status.
 Step 2. In the **Proof of Delivery** section, enter the recipient Signer Name (mandatory for signatures) and optional Signer Relationship.
-Step 3. (Optional) Click **Capture location** to capture device latitude and longitude.
-Step 4. Click **Start POD** to initialize the POD draft.
+Step 3. **Customer Consent (POD-CONSENT-V1):** Explicitly check the consent confirmation checkbox before capturing electronic signature or photo evidence.
+Step 4. (Optional) Click **Capture location** to capture device latitude and longitude.
 Step 5. Attach primary delivery evidence:
-- **Signature Image:** Upload a PNG/JPEG file (<= 2MB).
-- **Delivery Photo:** Upload up to 3 PNG/JPEG photos (<= 10MB each).
+- **Draw Signature:** Open the signature canvas to draw signature directly on touch screen or with mouse. Use **Clear / Retake** if corrections are needed.
+- **Upload Signature:** Upload a PNG/JPEG file (<= 2MB).
+- **Delivery Photo:** Capture via camera or upload up to 3 PNG/JPEG photos (<= 10MB each).
 - **Barcode Scan:** Scan or enter the exact Delivery Order number barcode (`DEL-YYYY-NNNNNN`).
-Step 6. Click **Finalize POD**. Upon successful finalization:
-- Proof of Delivery transitions to `FINALIZED` and becomes permanently immutable (no further evidence can be uploaded or deleted).
+Step 6. Finalization & Sync Modes:
+- **Online Mode:** Click **Finalize POD Online** to atomically submit directly to the server.
+- **Offline / Staged Mode:** Click **Save & Queue Offline** to persist the complete POD package into the local browser IndexedDB outbox (`DELIVERY_POD_OFFLINE_SYNC`). The system automatically synchronizes the queued POD when connectivity is restored.
+Step 7. Upon successful server processing:
+- Proof of Delivery transitions to `FINALIZED` and becomes permanently immutable.
 - Delivery Order atomically transitions from `READY FOR ASSIGNMENT` to `DELIVERED`.
 
 ## 10. Daily Operational Checklists
