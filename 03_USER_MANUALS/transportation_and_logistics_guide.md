@@ -501,6 +501,28 @@ Step 7. Upon successful server processing:
 - Proof of Delivery transitions to `FINALIZED` and becomes permanently immutable.
 - Delivery Order atomically transitions from `READY FOR ASSIGNMENT` to `DELIVERED`.
 
+### 9.3 Record a Failed Delivery Attempt (US-59)
+Step 1. Open a Delivery Order in `READY FOR ASSIGNMENT` status when delivery could not be completed in the field.
+Step 2. In the **Failed Delivery Attempt** section, select a standardized **Failure Reason**:
+- `Customer Unavailable`, `Wrong Address`, `Access Restricted`, or `Document/Payment Issue` (defaults to `Redelivery Eligible`).
+- `Customer Refused` (defaults to `Return to Base Required`; requires explanation notes $\ge 5$ chars).
+- `Damaged Cargo` (defaults to `Escalated`; requires explanation notes $\ge 5$ chars).
+- `Other` (requires detailed explanation notes $\ge 10$ chars).
+Step 3. (Optional) Record customer contact attempts made in the field (Phone, SMS, WhatsApp, Email, or In Person) along with outcome (e.g. `No Answer`, `Line Busy`, `Spoke to Customer`).
+Step 4. Click **Record Failed Attempt**. The order transitions to `FAILED ATTEMPT`, `RETURN TO BASE`, or `ESCALATED` according to the failure disposition.
+Step 5. For orders requiring operational management resolution, use **Escalate** or **Return to Base** with supervisor confirmation.
+
+### 9.4 Schedule Re-Delivery (US-60)
+Step 1. Open a Delivery Order in `FAILED ATTEMPT` status whose latest attempt disposition is `Redelivery Eligible`.
+Step 2. In the **Re-Delivery Scheduling** section, click **Schedule Re-Delivery**.
+Step 3. Choose a scheduling approach:
+- **Automatic / Depot Suggestions:** Click **Get Available Slot Suggestions** to view capacity-verified morning (09:00–13:00) and afternoon (14:00–18:00) next-day slots, then click a slot to select it.
+- **Customer Preference Window:** Enter customer requested start/end times and advisory notes, then click **Get Available Slot Suggestions** to check whether the preferred window fits within operational depot hours (08:00–20:00) and concurrent capacity ($\le 50$).
+- **Agent-Assisted Custom Window:** Select a valid window within the 30-day scheduling horizon directly using the date-time range picker.
+Step 4. Click **Confirm & Schedule**.
+Step 5. The delivery order atomically transitions from `FAILED ATTEMPT` back to `READY FOR ASSIGNMENT`, updating the active delivery window and recording an immutable `CONFIRMED` audit schedule entry.
+Step 6. **Rescheduling:** If the customer requests a different time window while the order is in `READY FOR ASSIGNMENT`, click **Reschedule**, select a new capacity-verified window with a reason for change, and confirm. The previous schedule is marked `SUPERSEDED` and the new window becomes active.
+
 ## 10. Daily Operational Checklists
 
 ### Fleet Manager

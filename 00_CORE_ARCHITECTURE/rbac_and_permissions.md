@@ -24,7 +24,8 @@ US-56 seeds and enforces its four Delivery permissions through V46 and Spring Se
 | `DELIVERY_FAIL_ESCALATE` | Escalate failed deliveries and resolve escalations | IMPLEMENTED_US59 |
 | `DELIVERY_RETURN_INITIATE` | Initiate Return to Base (RTO) for failed deliveries | IMPLEMENTED_US59 |
 | `DELIVERY_COMPLETE` | Complete successful delivery outside US-57 POD finalization | FROZEN_NOT_SEEDED; US-57 finalization uses `DELIVERY_POD_CAPTURE` atomically |
-| `DELIVERY_REDELIVER` | Schedule or manage redelivery | FROZEN_NOT_SEEDED (US-60) |
+| `DELIVERY_REDELIVERY_SCHEDULE` | Schedule or reschedule redelivery attempts | IMPLEMENTED_US60 |
+| `DELIVERY_REDELIVERY_VIEW` | View redelivery schedules and history | IMPLEMENTED_US60 |
 | `DELIVERY_EXCEPTION_MANAGE` | Manage Delivery exceptions | FROZEN_NOT_SEEDED (US-62) |
 | `DELIVERY_REPORT_VIEW` | View Delivery reports | FROZEN_NOT_SEEDED (US-61) |
 
