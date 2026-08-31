@@ -25,7 +25,9 @@ The precise request/response schemas remain authoritative in controller DTOs and
 | Notifications | `/notifications`, `/notification-rules`, `/notification-templates`, delivery diagnostics | Notification | Implemented |
 | Reporting | `/dashboard/operations`, `/reports/*` | Reporting | Implemented read models; source repositories are tenant-isolated through authoritative runtime context |
 | Freight reporting (US-29) | `GET /reports/freight/summary`, `GET /reports/freight/shipments`, `GET /reports/freight/export` | Reporting (inbound/API), Freight (source query contract) | Implemented tenant-scoped read-only summaries, pageable shipment/capacity rows, and bounded CSV; permissions `FREIGHT_REPORT_VIEW` and `FREIGHT_REPORT_EXPORT`; missing measurements/capacity remain `INCOMPLETE` |
-| Delivery Orders (US-56) | `POST/GET /v1/deliveries`, `GET/PATCH /v1/deliveries/{id}`, `POST /v1/deliveries/{id}/validate-readiness` | Delivery | Implemented tenant-scoped requirements and readiness workflow; no assignment or US-57–62 behavior |
+| Delivery Orders (US-56) | `POST/GET /v1/deliveries`, `GET/PATCH /v1/deliveries/{id}`, `POST /v1/deliveries/{id}/validate-readiness` | Delivery | Implemented tenant-scoped requirements and readiness workflow |
+| Proof of Delivery (US-57/58) | `GET/POST /v1/deliveries/{id}/proof`, `/evidence`, `/finalize` | Delivery | Implemented online and offline POD capture, evidence storage, and finalization |
+| Failed Deliveries (US-59) | `POST /v1/deliveries/{id}/failed-attempt`, `GET /v1/deliveries/{id}/attempts`, `POST /v1/deliveries/{id}/attempts/{attemptId}/contacts`, `POST /v1/deliveries/{id}/escalate`, `PATCH /v1/deliveries/{id}/escalations/{escalationId}`, `POST /v1/deliveries/{id}/return-to-base` | Delivery | Implemented failed attempts, contact attempts, escalations, return-to-base, and failure history |
 | Offline sync | `/offline-sync/operations` | Offline Sync | Implemented inbox |
 | Health | `/health` | System | Implemented |
 

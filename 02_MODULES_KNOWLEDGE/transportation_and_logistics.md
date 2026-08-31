@@ -61,11 +61,11 @@ US-56 publishes no cross-module event because it captures requirements and readi
 
 `MVP-1.3-US57-POD-PRODUCT-DECISIONS-001` is implemented and verified (US-57 online POD + US-58 offline POD).
 
-### US-59 Failed Deliveries Product Decisions
+### US-59 Failed Deliveries Product Decisions & Implementation
 
-`MVP-1.3-US59-FAILED-DELIVERIES-PRODUCT-DECISIONS-001` freezes the following without implementing US-59:
+`MVP-1.3-US59-FAILED-DELIVERIES-PRODUCT-DECISIONS-001` is implemented and verified (US-59 Failed Deliveries):
 
-- **Failure Reason Taxonomy:** Standardized enums (`CUSTOMER_UNAVAILABLE`, `WRONG_ADDRESS`, `CUSTOMER_REFUSED`, `ACCESS_RESTRICTED`, `DAMAGED_CARGO`, `DOCUMENT_OR_PAYMENT_ISSUE`, `OTHER`). Arbitrary free-text-only status mutation is prohibited; `OTHER` requires mandatory non-empty notes (>= 10 chars).
+- **Failure Reason Taxonomy:** Standardized enums (`CUSTOMER_UNAVAILABLE`, `WRONG_ADDRESS`, `CUSTOMER_REFUSED`, `ACCESS_RESTRICTED`, `DAMAGED_CARGO`, `DOCUMENT_OR_PAYMENT_ISSUE`, `OTHER`). Arbitrary free-text-only status mutation is prohibited; `OTHER` requires mandatory non-empty notes (>= 10 chars), `CUSTOMER_REFUSED` and `DAMAGED_CARGO` require non-empty notes (>= 5 chars).
 - **Delivery Lifecycle Extension:** `READY_FOR_ASSIGNMENT` can transition to `FAILED_ATTEMPT` (non-terminal, redelivery eligible), `RETURN_TO_BASE` (terminal/return custody), or `ESCALATED` (management hold). Finalized `DELIVERED` orders remain immutable and can never be marked failed.
 - **Delivery Attempt & Contact Model:** Separate immutable entities `DeliveryAttempt` and `DeliveryContactAttempt` capturing sequential attempt numbering, UTC timestamps, failure reasons, contact channels (`PHONE`, `SMS`, `WHATSAPP`, `EMAIL`, `IN_PERSON`), contact outcomes, operator IDs, and tenant isolation.
 - **Privacy & PII Protection:** Contact attempts record only channel and outcome metadata; customer phone numbers/emails remain referenced from Customer master and are not duplicated into logs or attempt payloads.
@@ -73,7 +73,7 @@ US-56 publishes no cross-module event because it captures requirements and readi
 - **Story Boundaries:** US-59 determines that another attempt is needed (`REDELIVERY_ELIGIBLE`). US-60 owns customer time preference collection and slot scheduling. US-61 owns analytics. US-62 owns specialized exception gates.
 - **Offline Policy:** `ONLINE_ONLY_FOR_US59` in MVP Phase 1.3.
 - **RBAC:** `DELIVERY_FAIL_RECORD`, `DELIVERY_FAIL_VIEW`, `DELIVERY_FAIL_ESCALATE`, `DELIVERY_RETURN_INITIATE`.
-- **Expected Persistence:** Forward migration V48 when implementation begins (tables: `delivery_attempt`, `delivery_contact_attempt`, `delivery_escalation`). Current schema remains V1–V47 until implementation.
+- **Persistence (V48):** Forward migration V48 adds tables `delivery_attempt`, `delivery_contact_attempt`, `delivery_escalation` and seeds US-59 permissions.
 
 ## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)
 
@@ -372,9 +372,73 @@ Indexes: `(tenant_id, proof_of_delivery_id)`, unique partial index for single si
 - **Execution Boundary:** `DeliveryPodOfflineOperationHandler` invokes `OfflineProofOfDeliveryRecorder` on `delivery` module.
 - **Idempotency & Concurrency:** Server checks delivery state (`READY_FOR_ASSIGNMENT`), optimistic lock version, duplicate POD recording, and ensures atomic database finalization into `DELIVERED`.
 
-V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions.
+#### Table: `delivery_attempt` (V48)
 
-US-56 and US-57 Delivery persistence is introduced by forward migrations V46 and V47.
+- **Purpose:** Stores sequential, immutable failure attempt records for a delivery order.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY | Attempt record identifier |
+| `tenant_id` | UUID | NO | - | Logical FK -> `tenant(id)` | Authoritative tenant scope |
+| `delivery_id` | UUID | NO | - | FK -> `delivery_order(id, tenant_id)` ON DELETE CASCADE | Delivery order reference |
+| `attempt_number` | INTEGER | NO | - | CHECK (`attempt_number >= 1`) | Sequential attempt number (1, 2, 3...) |
+| `attempt_timestamp` | TIMESTAMPTZ | NO | - | - | UTC timestamp of the attempt |
+| `failure_reason` | VARCHAR(40) | NO | - | CHECK (`failure_reason IN (...)`) | Standardized failure reason enum |
+| `notes` | VARCHAR(500) | YES | NULL | - | Operator attempt notes |
+| `disposition` | VARCHAR(40) | NO | - | CHECK (`disposition IN (...)`) | Outcome disposition |
+| `recorded_by` | VARCHAR(128) | NO | - | - | Recording operator |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Creation timestamp |
+
+Unique Constraints: `(tenant_id, delivery_id, attempt_number)`.
+Indexes: `(tenant_id, delivery_id)`.
+
+#### Table: `delivery_contact_attempt` (V48)
+
+- **Purpose:** Stores contact communication attempts during or following a delivery attempt.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY | Contact attempt identifier |
+| `tenant_id` | UUID | NO | - | Logical FK -> `tenant(id)` | Authoritative tenant scope |
+| `delivery_attempt_id` | UUID | NO | - | FK -> `delivery_attempt(id, tenant_id)` ON DELETE CASCADE | Parent attempt reference |
+| `channel` | VARCHAR(20) | NO | - | CHECK (`channel IN ('PHONE', 'SMS', 'WHATSAPP', 'EMAIL', 'IN_PERSON')`) | Interaction channel |
+| `contact_timestamp` | TIMESTAMPTZ | NO | - | - | UTC timestamp of contact |
+| `outcome` | VARCHAR(30) | NO | - | CHECK (`outcome IN ('ANSWERED', 'NO_ANSWER', 'BUSY', 'WRONG_NUMBER', 'MESSAGE_LEFT', 'REJECTED')`) | Contact outcome |
+| `notes` | VARCHAR(500) | YES | NULL | - | Operator contact notes (no PII) |
+| `recorded_by` | VARCHAR(128) | NO | - | - | Recording operator |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Creation timestamp |
+
+Indexes: `(tenant_id, delivery_attempt_id)`.
+
+#### Table: `delivery_escalation` (V48)
+
+- **Purpose:** Stores operational and management escalations for failed deliveries.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY | Escalation record identifier |
+| `tenant_id` | UUID | NO | - | Logical FK -> `tenant(id)` | Authoritative tenant scope |
+| `delivery_id` | UUID | NO | - | FK -> `delivery_order(id, tenant_id)` ON DELETE CASCADE | Delivery order reference |
+| `delivery_attempt_id` | UUID | YES | NULL | FK -> `delivery_attempt(id, tenant_id)` ON DELETE SET NULL | Associated attempt reference |
+| `reason` | VARCHAR(500) | NO | - | - | Escalation explanation |
+| `status` | VARCHAR(20) | NO | - | CHECK (`status IN ('OPEN', 'UNDER_REVIEW', 'RESOLVED')`) | Escalation status |
+| `escalated_by` | VARCHAR(128) | NO | - | - | Operator who raised escalation |
+| `escalated_at` | TIMESTAMPTZ | NO | - | - | Escalation timestamp |
+| `resolution_notes` | VARCHAR(500) | YES | NULL | - | Manager resolution notes |
+| `resolved_by` | VARCHAR(128) | YES | NULL | - | Manager who resolved escalation |
+| `resolved_at` | TIMESTAMPTZ | YES | NULL | - | Resolution timestamp |
+
+Indexes: `(tenant_id, delivery_id)`, `(tenant_id, status)`.
+
+V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions; V48 US-59 Failed Deliveries, attempts, contact attempts, escalations, and permissions.
+
+US-56, US-57, and US-59 Delivery persistence is introduced by forward migrations V46, V47, and V48.
 
 ## Remaining Suite Integration Work
 
