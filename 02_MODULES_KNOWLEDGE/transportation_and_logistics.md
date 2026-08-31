@@ -7,6 +7,7 @@ Delivery US-56, US-57, US-58, US-59, US-60, US-61, US-62: COMPLETE
 MVP 1.3 Delivery Operations: 7/7 COMPLETE (CLOSED)
 Active Milestone: MVP 1.4 Last-Mile Delivery & Customer Experience (US-63 to US-70)
 US-63 Manage Delivery Zones: COMPLETE (MVP-1.4-US63-DELIVERY-ZONES-FINAL-ACCEPTANCE-001) — V52 Flyway, pure Java ray-casting PiP, DeliveryZoneController, DeliveryZoneListPage.tsx
+US-64 Manage Delivery Slots: PRODUCT_DECISIONS_FROZEN (MVP-1.4-US64-DELIVERY-SLOTS-PRODUCT-DECISIONS-001) / IMPLEMENTATION_NOT_STARTED — V53 planned (delivery_slot, delivery_slot_reservation, overbooking override, US-60 port implementation)
 Delivery US-63 final acceptance gate: COMPLETE (MVP-1.4-US63-DELIVERY-ZONES-FINAL-ACCEPTANCE-001)
 Delivery US-62 final acceptance gate: COMPLETE (MVP-1.3-US62-DELIVERY-EXCEPTIONS-FINAL-ACCEPTANCE-001)
 Delivery US-61 acceptance gate: COMPLETE (MVP-1.3-US61-ANALYTICS-FINAL-ACCEPTANCE-001)
