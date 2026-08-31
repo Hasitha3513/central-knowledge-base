@@ -2,10 +2,10 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V47 (V47: tenant-scoped US-57 Proof of Delivery and evidence)
-Delivery US-56, US-57, US-58: COMPLETE; US-59 through US-62 remain unimplemented
-MVP 1.3 Delivery Operations: 3/7 COMPLETE
-Delivery US-59 decision gate: PRODUCT_DECISIONS_FROZEN; implementation NOT_STARTED
+Schema baseline: Flyway V1–V48 (V48: tenant-scoped US-59 Failed Deliveries, attempts, contacts, escalations)
+Delivery US-56, US-57, US-58, US-59: COMPLETE; US-60 decisions frozen; US-61 through US-62 remain unimplemented
+MVP 1.3 Delivery Operations: 4/7 COMPLETE
+Delivery US-60 decision gate: PRODUCT_DECISIONS_FROZEN; implementation NOT_STARTED
 US-30 Cargo Exceptions: COMPLETE (P2-CARGO-EXCEPTION-001)
 US-29 Freight Reporting: COMPLETE (P2-FREIGHT-REPORTING-001)
 Freight release status: 7/7 COMPLETE
@@ -74,6 +74,18 @@ US-56 publishes no cross-module event because it captures requirements and readi
 - **Offline Policy:** `ONLINE_ONLY_FOR_US59` in MVP Phase 1.3.
 - **RBAC:** `DELIVERY_FAIL_RECORD`, `DELIVERY_FAIL_VIEW`, `DELIVERY_FAIL_ESCALATE`, `DELIVERY_RETURN_INITIATE`.
 - **Persistence (V48):** Forward migration V48 adds tables `delivery_attempt`, `delivery_contact_attempt`, `delivery_escalation` and seeds US-59 permissions.
+
+### US-60 Schedule Re-Delivery Product Decisions
+
+`MVP-1.3-US60-REDELIVERY-PRODUCT-DECISIONS-001` is frozen as follows:
+
+- **Eligibility Gate:** `DeliveryOrder.status == FAILED_ATTEMPT` AND latest `DeliveryAttempt.disposition == REDELIVERY_ELIGIBLE`. `DELIVERED`, `RETURN_TO_BASE`, `DRAFT`, and `ESCALATED` cannot enter redelivery directly.
+- **Lifecycle Transition:** `FAILED_ATTEMPT` $\to$ `READY_FOR_ASSIGNMENT` atomically upon persisting confirmed redelivery schedule. Delivery window is updated to the newly scheduled window.
+- **Schedule Model & History:** Entity `DeliveryRedeliverySchedule` (table `delivery_redelivery_schedule`, V49) capturing `schedulingMethod` (`AUTOMATIC`, `AGENT_ASSISTED`), advisory `customerPreference` (start/end time, notes), `scheduledWindow` (start/end time), status (`CONFIRMED`, `SUPERSEDED`, `CANCELLED`), operator identity, and timestamps. Prior schedules are superseded and retained for audit.
+- **Slot Availability (MVP 1.3):** Validates scheduled windows against operational depot hours and checks concurrent delivery capacity per tenant/window. Advanced dynamic micro-zoning and customer booking portals remain deferred to US-64.
+- **Concurrency & Races:** Optimistic concurrency via `DeliveryOrder.version`. Schedule vs POD race and Schedule vs RTO race fail on version conflict (`409 Conflict`).
+- **RBAC:** `DELIVERY_REDELIVERY_SCHEDULE`, `DELIVERY_REDELIVERY_VIEW`.
+- **Offline & Notification Policy:** `ONLINE_ONLY_FOR_US60` for MVP 1.3. Internal domain event `DeliveryRedeliveryScheduledEvent` emitted. Customer notifications (US-69) deferred.
 
 ## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)
 
