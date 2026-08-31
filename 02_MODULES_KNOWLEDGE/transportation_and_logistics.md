@@ -476,23 +476,37 @@ V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audi
 
 US-56, US-57, US-59, US-60, and US-61 Delivery persistence and indexes are introduced by forward migrations V46, V47, V48, V49, and V50.
 
-V51: US-62 Delivery Exception Management — `delivery_exception_case` table (id, tenant_id, delivery_order_id, delivery_attempt_id, exception_type, severity, status, description, reported_by, reported_at, version, optimistic locking), `delivery_exception_evidence` table (id, tenant_id, exception_case_id, storage_reference, original_filename, sha256_checksum, content_length, detected_content_type, created_by), unique partial index `uk_active_delivery_exception_type (tenant_id, delivery_order_id, exception_type) WHERE status NOT IN ('RESOLVED', 'DISMISSED')`, composite FK `fk_exc_delivery_tenant (delivery_order_id, tenant_id) -> delivery_order (id, tenant_id)`, permissions `DELIVERY_EXCEPTION_REPORT`, `DELIVERY_EXCEPTION_VIEW`, `DELIVERY_EXCEPTION_RESOLVE`, `DELIVERY_EXCEPTION_MANAGER_OVERRIDE`.
+V51: US-62 Delivery Exception Management — `delivery_exception_case` table, `delivery_exception_evidence` table.
+V52: US-63 Delivery Zone Management — `delivery_zone` table, `delivery_order.delivery_zone_id` column and FK, permissions `DELIVERY_ZONE_CREATE`, `DELIVERY_ZONE_VIEW`, `DELIVERY_ZONE_UPDATE`, `DELIVERY_ZONE_ACTIVATE`, `DELIVERY_ZONE_OVERRIDE`.
+V53: US-64 Delivery Slot Management — `delivery_slot` table, `delivery_slot_reservation` table, `delivery_order.delivery_slot_id` column and FK, permissions `DELIVERY_SLOT_CREATE`, `DELIVERY_SLOT_VIEW`, `DELIVERY_SLOT_UPDATE`, `DELIVERY_SLOT_ACTIVATE`, `DELIVERY_SLOT_ASSIGN`, `DELIVERY_SLOT_OVERRIDE`.
+V54: US-65 Delivery Rider Management — `delivery_rider`, `delivery_rider_zone`, `delivery_rider_shift`, `delivery_order_rider_assignment` tables, `delivery_order.current_rider_id` column, permissions `DELIVERY_RIDER_VIEW`, `DELIVERY_RIDER_CREATE`, `DELIVERY_RIDER_UPDATE`, `DELIVERY_RIDER_ACTIVATE`, `DELIVERY_RIDER_ASSIGN`, `DELIVERY_RIDER_OVERRIDE`.
 
-V52: US-63 Delivery Zone Management — `delivery_zone` table (id UUID PK, tenant_id UUID NOT NULL, zone_code VARCHAR(50) NOT NULL, zone_name VARCHAR(100) NOT NULL, description TEXT, zone_type VARCHAR(30) NOT NULL, status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', serviceable BOOLEAN NOT NULL DEFAULT TRUE, daily_capacity INTEGER, depot_location_id UUID, priority INTEGER NOT NULL DEFAULT 0, boundary_geojson JSONB NOT NULL, min_longitude DOUBLE PRECISION NOT NULL, max_longitude DOUBLE PRECISION NOT NULL, min_latitude DOUBLE PRECISION NOT NULL, max_latitude DOUBLE PRECISION NOT NULL, version BIGINT NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL, created_by VARCHAR(255), updated_by VARCHAR(255)). Constraints: `uk_delivery_zone_tenant_code (tenant_id, zone_code)`, `uk_delivery_zone_id_tenant (id, tenant_id)`. Added `delivery_order.delivery_zone_id UUID` column with FK `fk_delivery_order_zone_tenant (delivery_zone_id, tenant_id) -> delivery_zone (id, tenant_id)`. Permissions: `DELIVERY_ZONE_CREATE`, `DELIVERY_ZONE_VIEW`, `DELIVERY_ZONE_UPDATE`, `DELIVERY_ZONE_ACTIVATE`, `DELIVERY_ZONE_OVERRIDE`.
+### US-65 Delivery Rider Management (Implemented)
 
-### US-63 Delivery Zone REST API
+#### Tables
+- **`delivery_rider`**: `id` UUID PK, `tenant_id` UUID NOT NULL, `rider_code` VARCHAR(64) NOT NULL, `driver_id` UUID NOT NULL, `rider_type` VARCHAR(32) NOT NULL, `primary_zone_id` UUID NOT NULL, `max_concurrent_deliveries` INT NOT NULL DEFAULT 3, `status` VARCHAR(32) NOT NULL DEFAULT 'ACTIVE', `version` BIGINT NOT NULL DEFAULT 0, `created_at` TIMESTAMPTZ, `updated_at` TIMESTAMPTZ, `created_by` VARCHAR(128), `updated_by` VARCHAR(128). Constraints: `uk_delivery_rider_code_tenant (tenant_id, rider_code)`, `uk_delivery_rider_id_tenant (id, tenant_id)`, `uk_active_driver_rider (tenant_id, driver_id) WHERE status = 'ACTIVE'`.
+- **`delivery_rider_zone`**: `id` UUID PK, `tenant_id` UUID NOT NULL, `rider_id` UUID NOT NULL, `zone_id` UUID NOT NULL, `zone_role` VARCHAR(32) NOT NULL DEFAULT 'SECONDARY'. Composite unique: `uk_rider_zone_unique (tenant_id, rider_id, zone_id)`.
+- **`delivery_rider_shift`**: `id` UUID PK, `tenant_id` UUID NOT NULL, `rider_id` UUID NOT NULL, `shift_date` DATE NOT NULL, `start_time` TIME NOT NULL, `end_time` TIME NOT NULL, `delivery_slot_id` UUID, `max_capacity` INT NOT NULL DEFAULT 5, `status` VARCHAR(32) NOT NULL DEFAULT 'SCHEDULED', `actual_start_time` TIMESTAMPTZ, `actual_end_time` TIMESTAMPTZ, `version` BIGINT NOT NULL DEFAULT 0.
+- **`delivery_order_rider_assignment`**: `id` UUID PK, `tenant_id` UUID NOT NULL, `delivery_order_id` UUID NOT NULL, `rider_id` UUID NOT NULL, `status` VARCHAR(32) NOT NULL DEFAULT 'ACTIVE', `is_override` BOOLEAN NOT NULL DEFAULT FALSE, `override_reason` TEXT, `assigned_at` TIMESTAMPTZ NOT NULL, `assigned_by` VARCHAR(128) NOT NULL, `unassigned_at` TIMESTAMPTZ, `unassigned_by` VARCHAR(128), `version` BIGINT NOT NULL DEFAULT 0. Unique partial index: `uk_active_delivery_order_rider (tenant_id, delivery_order_id) WHERE status = 'ACTIVE'`.
 
-- `POST /v1/delivery-zones` — Create zone (requires `DELIVERY_ZONE_CREATE`)
-- `GET /v1/delivery-zones` — List zones with optional `status` and `serviceable` filters (requires `DELIVERY_ZONE_VIEW`)
-- `GET /v1/delivery-zones/{id}` — Get zone by ID (requires `DELIVERY_ZONE_VIEW`)
-- `PUT /v1/delivery-zones/{id}` — Update zone with optimistic version check (requires `DELIVERY_ZONE_UPDATE`)
-- `POST /v1/delivery-zones/{id}/activate` — Activate zone (requires `DELIVERY_ZONE_ACTIVATE`)
-- `POST /v1/delivery-zones/{id}/deactivate` — Deactivate zone (requires `DELIVERY_ZONE_ACTIVATE`)
-- `POST /v1/delivery-zones/resolve` — Resolve best-match zone for coordinates using priority DESC → area ASC → updatedAt DESC → zone ID ASC (requires `DELIVERY_ZONE_VIEW`)
-
-### US-63 Domain Model
-
-DeliveryZone aggregate root with pure Java RFC 7946 GeoJSON boundary validation, ray-casting Point-in-Polygon containment, bounding-box pre-filter, Shoelace formula approximate area calculation. Status lifecycle: ACTIVE ↔ INACTIVE. Priority-based overlap resolution for multi-zone coordinate queries. Optimistic locking via JPA @Version. Multi-tenant isolation via `tenant_id` on all queries.
+#### REST API Endpoints
+- `POST /api/v1/deliveries/riders` — Onboard delivery rider (requires `DELIVERY_RIDER_CREATE`)
+- `GET /api/v1/deliveries/riders` — List delivery riders (requires `DELIVERY_RIDER_VIEW`)
+- `GET /api/v1/deliveries/riders/{id}` — Get rider details (requires `DELIVERY_RIDER_VIEW`)
+- `PUT /api/v1/deliveries/riders/{id}` — Update rider profile (requires `DELIVERY_RIDER_UPDATE`)
+- `PATCH /api/v1/deliveries/riders/{id}/activate` — Activate rider (requires `DELIVERY_RIDER_ACTIVATE`)
+- `PATCH /api/v1/deliveries/riders/{id}/deactivate` — Deactivate rider (requires `DELIVERY_RIDER_ACTIVATE`)
+- `PATCH /api/v1/deliveries/riders/{id}/suspend` — Suspend rider (requires `DELIVERY_RIDER_ACTIVATE`)
+- `POST /api/v1/deliveries/riders/{id}/shifts` — Schedule rider shift (requires `DELIVERY_RIDER_UPDATE`)
+- `GET /api/v1/deliveries/riders/{id}/shifts` — List rider shifts (requires `DELIVERY_RIDER_VIEW`)
+- `PATCH /api/v1/deliveries/riders/{id}/shifts/{shiftId}/start` — Start shift (requires `DELIVERY_RIDER_UPDATE`)
+- `PATCH /api/v1/deliveries/riders/{id}/shifts/{shiftId}/end` — End shift (requires `DELIVERY_RIDER_UPDATE`)
+- `PATCH /api/v1/deliveries/riders/{id}/shifts/{shiftId}/cancel` — Cancel shift (requires `DELIVERY_RIDER_UPDATE`)
+- `GET /api/v1/deliveries/riders/available` — Query available riders for zone/slot/date (requires `DELIVERY_RIDER_VIEW`)
+- `POST /api/v1/deliveries/orders/{id}/assign-rider` — Assign rider to order (requires `DELIVERY_RIDER_ASSIGN` or `DELIVERY_RIDER_OVERRIDE`)
+- `POST /api/v1/deliveries/orders/{id}/reassign-rider` — Reassign rider for order (requires `DELIVERY_RIDER_ASSIGN` or `DELIVERY_RIDER_OVERRIDE`)
+- `POST /api/v1/deliveries/orders/{id}/unassign-rider` — Unassign active rider (requires `DELIVERY_RIDER_ASSIGN`)
+- `GET /api/v1/deliveries/orders/{id}/rider-assignments` — Get order rider assignment history (requires `DELIVERY_RIDER_VIEW`)
 
 ## Remaining Suite Integration Work
 

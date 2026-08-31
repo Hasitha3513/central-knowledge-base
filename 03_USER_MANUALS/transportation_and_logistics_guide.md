@@ -334,7 +334,34 @@ graph TD
 
 ---
 
-## 11. 📋 Daily Operational Checklists
+## 11. 🚲 Delivery Rider & Shift Management (US-65)
+
+```mermaid
+flowchart TD
+    A["Driver Management Pool"] -->|Onboard Rider| B["Active Delivery Rider Profile"]
+    B -->|Zone Mapping| C["Primary & Secondary Zones"]
+    B -->|Shift Scheduling| D["Scheduled Shift Window"]
+    D -->|Duty Actions| E["IN_PROGRESS Shift"]
+    E -->|Order Dispatch| F["Assigned to Order"]
+    F -->|Delivered / Done| G["Workload Decrement"]
+```
+
+### 11.1 Onboarding & Eligibility
+- **Driver Bridge:** Riders are onboarded from active, compliant Fleet Drivers.
+- **Zone Alignment:** Each rider has one mandatory Primary Zone and optional Secondary Zones.
+- **Capacity Limits:** `maxConcurrentDeliveries` caps parallel active assignments (default: 3).
+
+### 11.2 Shift Operations
+- **Scheduling:** Dispatchers define operational shift windows with specific dates and order capacities.
+- **Duty Actions:** Riders start duty (`IN_PROGRESS`), execute deliveries, and end duty upon shift completion.
+
+### 11.3 Assignment & Overrides
+- **Zone Matching:** Destination zone must align with rider's primary or secondary zones.
+- **Manager Overrides:** Dispatchers with `DELIVERY_RIDER_OVERRIDE` may assign across zones or exceed capacity limits with a mandatory justification note.
+
+---
+
+## 12. 📋 Daily Operational Checklists
 
 ```mermaid
 flowchart TD

@@ -30,6 +30,10 @@ Compatibility rules: additive optional fields are backward compatible; renames, 
 | `VehicleMeterResetRecorded` | ACTIVE_INTERNAL | Fleet | `resetId`, `vehicleId`, `readingType`, `fromEpoch`, `toEpoch`, `lastReadingValue`, `newMeterValue`, `effectiveAt` | Fleet reading flow | No `tenantId` or standard envelope |
 | `RouteDisruptionCreatedEvent` | ACTIVE_INTERNAL | Routing | `disruptionId`, `routeId`, `disruptionType`, `severity`, `detourRouteId`, `effectiveFrom`, `effectiveUntil` | Spring event adapters | No `tenantId` or standard envelope |
 | `RouteDisruptionResolvedEvent` | ACTIVE_INTERNAL | Routing | `disruptionId`, `routeId`, `resolvedAt`, `resolvedBy` | Spring event adapters | No `tenantId` or standard envelope |
+| `DeliveryRiderOnboardedEvent` | ACTIVE_INTERNAL | Delivery | `tenantId`, `riderId`, `driverId`, `riderCode`, `riderType`, `primaryZoneId`, `onboardedAt`, `actor` | Spring event adapters | Standard tenant envelope |
+| `DeliveryRiderAssignedEvent` | ACTIVE_INTERNAL | Delivery | `tenantId`, `deliveryOrderId`, `riderId`, `assignmentId`, `isOverride`, `assignedAt`, `actor` | Spring event adapters | Standard tenant envelope |
+| `DeliveryRiderReassignedEvent` | ACTIVE_INTERNAL | Delivery | `tenantId`, `deliveryOrderId`, `previousRiderId`, `newRiderId`, `assignmentId`, `isOverride`, `reassignedAt`, `actor` | Spring event adapters | Standard tenant envelope |
+| `DeliveryRiderUnassignedEvent` | ACTIVE_INTERNAL | Delivery | `tenantId`, `deliveryOrderId`, `riderId`, `unassignedAt`, `actor` | Spring event adapters | Standard tenant envelope |
 | `OperationalNotificationEvent` | ACTIVE_INTERNAL | Multiple transportation producers | `eventId`, `eventType`, `aggregateType`, `aggregateId`, `severity`, `title`, `message`, `occurredAt`, `metadata` | Notification | No `tenantId`, version, producer, correlation, or causation fields |
 
 `OperationalNotificationEvent` severities are `INFO`, `WARNING`, and `CRITICAL`. Its event-type catalogue is application-owned and must be reviewed in source before adding a producer.
