@@ -27,10 +27,10 @@ US-56 seeds and enforces its four Delivery permissions through V46 and Spring Se
 | `DELIVERY_REDELIVERY_SCHEDULE` | Schedule or reschedule redelivery attempts | IMPLEMENTED_US60 |
 | `DELIVERY_REDELIVERY_VIEW` | View redelivery schedules and history | IMPLEMENTED_US60 |
 | `DELIVERY_ANALYTICS_VIEW` | View delivery performance analytics, trends, and KPIs | IMPLEMENTED_US61 |
-| `DELIVERY_EXCEPTION_CREATE` | Report specialized delivery exception cases | FROZEN_NOT_SEEDED (US-62) |
-| `DELIVERY_EXCEPTION_VIEW` | View delivery exception cases and history | FROZEN_NOT_SEEDED (US-62) |
-| `DELIVERY_EXCEPTION_MANAGE` | Investigate and update delivery exception cases | FROZEN_NOT_SEEDED (US-62) |
-| `DELIVERY_EXCEPTION_RESOLVE` | Resolve or cancel delivery exception cases | FROZEN_NOT_SEEDED (US-62) |
-| `DELIVERY_EXCEPTION_ESCALATE` | Escalate delivery exception cases | FROZEN_NOT_SEEDED (US-62) |
+| `DELIVERY_EXCEPTION_CREATE` | Report specialized delivery exception cases | IMPLEMENTED (US-62) |
+| `DELIVERY_EXCEPTION_VIEW` | View delivery exception cases and history | IMPLEMENTED (US-62) |
+| `DELIVERY_EXCEPTION_MANAGE` | Investigate and update delivery exception cases | IMPLEMENTED (US-62) |
+| `DELIVERY_EXCEPTION_RESOLVE` | Resolve or cancel delivery exception cases | IMPLEMENTED (US-62) |
+| `DELIVERY_EXCEPTION_ESCALATE` | Escalate delivery exception cases | IMPLEMENTED (US-62) |
 
 Future Delivery APIs must seed and enforce the narrowest applicable permission before marking any US-56 through US-62 story implemented.
