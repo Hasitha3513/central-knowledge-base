@@ -6,7 +6,7 @@ Schema baseline: Flyway V1–V51 (V51: tenant-scoped US-62 Delivery Exceptions c
 Delivery US-56, US-57, US-58, US-59, US-60, US-61, US-62: COMPLETE
 MVP 1.3 Delivery Operations: 7/7 COMPLETE (CLOSED)
 Active Milestone: MVP 1.4 Last-Mile Delivery & Customer Experience (US-63 to US-70)
-US-63 Manage Delivery Zones: PRODUCT_DECISIONS_FROZEN (MVP-1.4-US63-DELIVERY-ZONES-PRODUCT-DECISIONS-001) / IMPLEMENTATION_NOT_STARTED
+US-63 Manage Delivery Zones: IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING (MVP-1.4-US63-DELIVERY-ZONES-IMPLEMENTATION-001) — V52 Flyway, pure Java ray-casting PiP, DeliveryZoneController, DeliveryZoneListPage.tsx
 Delivery US-62 final acceptance gate: COMPLETE (MVP-1.3-US62-DELIVERY-EXCEPTIONS-FINAL-ACCEPTANCE-001)
 Delivery US-61 acceptance gate: COMPLETE (MVP-1.3-US61-ANALYTICS-FINAL-ACCEPTANCE-001)
 Delivery US-60 acceptance gate: COMPLETE (MVP-1.3-US60-REDELIVERY-FINAL-ACCEPTANCE-001)
@@ -473,6 +473,24 @@ Indexes: `(tenant_id, delivery_id)`, `(tenant_id, status)`.
 V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions; V48 US-59 Failed Deliveries, attempts, contact attempts, escalations, and permissions; V49 US-60 Re-Delivery schedules, counter, and permissions; V50 US-61 Delivery Performance Analytics composite query indexes and DELIVERY_ANALYTICS_VIEW permission.
 
 US-56, US-57, US-59, US-60, and US-61 Delivery persistence and indexes are introduced by forward migrations V46, V47, V48, V49, and V50.
+
+V51: US-62 Delivery Exception Management — `delivery_exception_case` table (id, tenant_id, delivery_order_id, delivery_attempt_id, exception_type, severity, status, description, reported_by, reported_at, version, optimistic locking), `delivery_exception_evidence` table (id, tenant_id, exception_case_id, storage_reference, original_filename, sha256_checksum, content_length, detected_content_type, created_by), unique partial index `uk_active_delivery_exception_type (tenant_id, delivery_order_id, exception_type) WHERE status NOT IN ('RESOLVED', 'DISMISSED')`, composite FK `fk_exc_delivery_tenant (delivery_order_id, tenant_id) -> delivery_order (id, tenant_id)`, permissions `DELIVERY_EXCEPTION_REPORT`, `DELIVERY_EXCEPTION_VIEW`, `DELIVERY_EXCEPTION_RESOLVE`, `DELIVERY_EXCEPTION_MANAGER_OVERRIDE`.
+
+V52: US-63 Delivery Zone Management — `delivery_zone` table (id UUID PK, tenant_id UUID NOT NULL, zone_code VARCHAR(50) NOT NULL, zone_name VARCHAR(100) NOT NULL, description TEXT, zone_type VARCHAR(30) NOT NULL, status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', serviceable BOOLEAN NOT NULL DEFAULT TRUE, daily_capacity INTEGER, depot_location_id UUID, priority INTEGER NOT NULL DEFAULT 0, boundary_geojson JSONB NOT NULL, min_longitude DOUBLE PRECISION NOT NULL, max_longitude DOUBLE PRECISION NOT NULL, min_latitude DOUBLE PRECISION NOT NULL, max_latitude DOUBLE PRECISION NOT NULL, version BIGINT NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL, created_by VARCHAR(255), updated_by VARCHAR(255)). Constraints: `uk_delivery_zone_tenant_code (tenant_id, zone_code)`, `uk_delivery_zone_id_tenant (id, tenant_id)`. Added `delivery_order.delivery_zone_id UUID` column with FK `fk_delivery_order_zone_tenant (delivery_zone_id, tenant_id) -> delivery_zone (id, tenant_id)`. Permissions: `DELIVERY_ZONE_CREATE`, `DELIVERY_ZONE_VIEW`, `DELIVERY_ZONE_UPDATE`, `DELIVERY_ZONE_ACTIVATE`, `DELIVERY_ZONE_OVERRIDE`.
+
+### US-63 Delivery Zone REST API
+
+- `POST /v1/delivery-zones` — Create zone (requires `DELIVERY_ZONE_CREATE`)
+- `GET /v1/delivery-zones` — List zones with optional `status` and `serviceable` filters (requires `DELIVERY_ZONE_VIEW`)
+- `GET /v1/delivery-zones/{id}` — Get zone by ID (requires `DELIVERY_ZONE_VIEW`)
+- `PUT /v1/delivery-zones/{id}` — Update zone with optimistic version check (requires `DELIVERY_ZONE_UPDATE`)
+- `POST /v1/delivery-zones/{id}/activate` — Activate zone (requires `DELIVERY_ZONE_ACTIVATE`)
+- `POST /v1/delivery-zones/{id}/deactivate` — Deactivate zone (requires `DELIVERY_ZONE_ACTIVATE`)
+- `POST /v1/delivery-zones/resolve` — Resolve best-match zone for coordinates using priority DESC → area ASC → updatedAt DESC → zone ID ASC (requires `DELIVERY_ZONE_VIEW`)
+
+### US-63 Domain Model
+
+DeliveryZone aggregate root with pure Java RFC 7946 GeoJSON boundary validation, ray-casting Point-in-Polygon containment, bounding-box pre-filter, Shoelace formula approximate area calculation. Status lifecycle: ACTIVE ↔ INACTIVE. Priority-based overlap resolution for multi-zone coordinate queries. Optimistic locking via JPA @Version. Multi-tenant isolation via `tenant_id` on all queries.
 
 ## Remaining Suite Integration Work
 
