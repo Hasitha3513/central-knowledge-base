@@ -2,11 +2,12 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V51 (V51: tenant-scoped US-62 Delivery Exceptions composite indexes, FKs, and RBAC)
+Schema baseline: Flyway V1–V52 (V52: tenant-scoped US-63 Delivery Zones bounding box, GeoJSON polygon, FKs, and RBAC)
 Delivery US-56, US-57, US-58, US-59, US-60, US-61, US-62: COMPLETE
 MVP 1.3 Delivery Operations: 7/7 COMPLETE (CLOSED)
 Active Milestone: MVP 1.4 Last-Mile Delivery & Customer Experience (US-63 to US-70)
-US-63 Manage Delivery Zones: IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING (MVP-1.4-US63-DELIVERY-ZONES-IMPLEMENTATION-001) — V52 Flyway, pure Java ray-casting PiP, DeliveryZoneController, DeliveryZoneListPage.tsx
+US-63 Manage Delivery Zones: COMPLETE (MVP-1.4-US63-DELIVERY-ZONES-FINAL-ACCEPTANCE-001) — V52 Flyway, pure Java ray-casting PiP, DeliveryZoneController, DeliveryZoneListPage.tsx
+Delivery US-63 final acceptance gate: COMPLETE (MVP-1.4-US63-DELIVERY-ZONES-FINAL-ACCEPTANCE-001)
 Delivery US-62 final acceptance gate: COMPLETE (MVP-1.3-US62-DELIVERY-EXCEPTIONS-FINAL-ACCEPTANCE-001)
 Delivery US-61 acceptance gate: COMPLETE (MVP-1.3-US61-ANALYTICS-FINAL-ACCEPTANCE-001)
 Delivery US-60 acceptance gate: COMPLETE (MVP-1.3-US60-REDELIVERY-FINAL-ACCEPTANCE-001)
