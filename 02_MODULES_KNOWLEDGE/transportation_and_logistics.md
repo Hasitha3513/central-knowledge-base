@@ -2,10 +2,10 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V46 (V46: tenant-scoped US-56 Delivery Orders and permissions)
-Delivery US-56: COMPLETE; US-57 through US-62 remain unimplemented
-MVP 1.3 Delivery Operations: 1/7 COMPLETE
-Delivery US-57 decision gate: PRODUCT_DECISIONS_COMPLETE; implementation NOT_STARTED
+Schema baseline: Flyway V1–V47 (V47: tenant-scoped US-57 Proof of Delivery and evidence)
+Delivery US-56, US-57, US-58: COMPLETE; US-59 through US-62 remain unimplemented
+MVP 1.3 Delivery Operations: 3/7 COMPLETE
+Delivery US-59 decision gate: PRODUCT_DECISIONS_FROZEN; implementation NOT_STARTED
 US-30 Cargo Exceptions: COMPLETE (P2-CARGO-EXCEPTION-001)
 US-29 Freight Reporting: COMPLETE (P2-FREIGHT-REPORTING-001)
 Freight release status: 7/7 COMPLETE
@@ -59,19 +59,21 @@ US-56 publishes no cross-module event because it captures requirements and readi
 
 ### US-57 Proof-of-Delivery Product Decisions
 
-`MVP-1.3-US57-POD-PRODUCT-DECISIONS-001` freezes the following without implementing US-57:
+`MVP-1.3-US57-POD-PRODUCT-DECISIONS-001` is implemented and verified (US-57 online POD + US-58 offline POD).
 
-- US-57 is online-only; US-58 owns offline signature/photo, quality/retake, consent and synchronization.
-- A valid POD contains at least one of signature, photo or barcode; any non-empty combination is allowed. Limits: one signature, three photos and one barcode.
-- Signature/photo files are detected/decoded PNG or JPEG with maximum sizes of 2 MiB and 10 MiB respectively. Binary integrity metadata includes SHA-256, detected MIME and content length.
-- Barcode is the normalized Delivery Order number and must match the target `DEL-YYYY-NNNNNN` exactly.
-- Server acceptance time is authoritative UTC; optional device time is audit-only. Latitude/longitude are optional where available, paired and range-validated; absent GPS is non-blocking and no geofence is added.
-- Delivery owns POD/evidence metadata and a provider-neutral evidence-storage port. Multipart remains an inbound-adapter concern; no cloud SDK, JPA blob, public URL, filesystem path or cross-module Document dependency is authorized.
-- One optimistic `DRAFT` POD per Delivery Order may be edited before `FINALIZED`; finalized evidence is immutable and US-57 exposes no deletion/correction workflow.
-- Finalization atomically transitions current `READY_FOR_ASSIGNMENT` to new state `DELIVERED`. This is a transitional minimum and does not fabricate assignment, Rider ownership or `OUT_FOR_DELIVERY` facts.
-- Permissions are `DELIVERY_POD_CAPTURE` and privacy-sensitive `DELIVERY_POD_VIEW`. All rows, storage namespaces, direct-ID operations, audits and streams are server-Tenant scoped.
-- Retention is external to US-57; no duration or malware service is invented. No public POD event or US-61 analytics is implemented.
-- Expected future forward migration is V47 after rechecking the migration head. Current schema remains V1–V46 until implementation.
+### US-59 Failed Deliveries Product Decisions
+
+`MVP-1.3-US59-FAILED-DELIVERIES-PRODUCT-DECISIONS-001` freezes the following without implementing US-59:
+
+- **Failure Reason Taxonomy:** Standardized enums (`CUSTOMER_UNAVAILABLE`, `WRONG_ADDRESS`, `CUSTOMER_REFUSED`, `ACCESS_RESTRICTED`, `DAMAGED_CARGO`, `DOCUMENT_OR_PAYMENT_ISSUE`, `OTHER`). Arbitrary free-text-only status mutation is prohibited; `OTHER` requires mandatory non-empty notes (>= 10 chars).
+- **Delivery Lifecycle Extension:** `READY_FOR_ASSIGNMENT` can transition to `FAILED_ATTEMPT` (non-terminal, redelivery eligible), `RETURN_TO_BASE` (terminal/return custody), or `ESCALATED` (management hold). Finalized `DELIVERED` orders remain immutable and can never be marked failed.
+- **Delivery Attempt & Contact Model:** Separate immutable entities `DeliveryAttempt` and `DeliveryContactAttempt` capturing sequential attempt numbering, UTC timestamps, failure reasons, contact channels (`PHONE`, `SMS`, `WHATSAPP`, `EMAIL`, `IN_PERSON`), contact outcomes, operator IDs, and tenant isolation.
+- **Privacy & PII Protection:** Contact attempts record only channel and outcome metadata; customer phone numbers/emails remain referenced from Customer master and are not duplicated into logs or attempt payloads.
+- **Escalation & RTO Semantics:** Local operational escalation tracking (`status`, `reason`, actor, timestamps). Return-to-Base marks orders as permanently failed in the field and triggers return custody.
+- **Story Boundaries:** US-59 determines that another attempt is needed (`REDELIVERY_ELIGIBLE`). US-60 owns customer time preference collection and slot scheduling. US-61 owns analytics. US-62 owns specialized exception gates.
+- **Offline Policy:** `ONLINE_ONLY_FOR_US59` in MVP Phase 1.3.
+- **RBAC:** `DELIVERY_FAIL_RECORD`, `DELIVERY_FAIL_VIEW`, `DELIVERY_FAIL_ESCALATE`, `DELIVERY_RETURN_INITIATE`.
+- **Expected Persistence:** Forward migration V48 when implementation begins (tables: `delivery_attempt`, `delivery_contact_attempt`, `delivery_escalation`). Current schema remains V1–V47 until implementation.
 
 ## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)
 
