@@ -27,6 +27,6 @@ US-56 seeds and enforces its four Delivery permissions through V46 and Spring Se
 | `DELIVERY_REDELIVERY_SCHEDULE` | Schedule or reschedule redelivery attempts | IMPLEMENTED_US60 |
 | `DELIVERY_REDELIVERY_VIEW` | View redelivery schedules and history | IMPLEMENTED_US60 |
 | `DELIVERY_EXCEPTION_MANAGE` | Manage Delivery exceptions | FROZEN_NOT_SEEDED (US-62) |
-| `DELIVERY_REPORT_VIEW` | View Delivery reports | FROZEN_NOT_SEEDED (US-61) |
+| `DELIVERY_ANALYTICS_VIEW` | View delivery performance analytics, trends, and KPIs | FROZEN_NOT_SEEDED (US-61) |
 
 Future Delivery APIs must seed and enforce the narrowest applicable permission before marking any US-56 through US-62 story implemented.

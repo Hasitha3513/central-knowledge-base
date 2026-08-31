@@ -87,6 +87,24 @@ US-56 publishes no cross-module event because it captures requirements and readi
 - **RBAC:** `DELIVERY_REDELIVERY_SCHEDULE`, `DELIVERY_REDELIVERY_VIEW`.
 - **Offline & Notification Policy:** `ONLINE_ONLY_FOR_US60` for MVP 1.3. Internal domain event `DeliveryRedeliveryScheduledEvent` emitted. Customer notifications (US-69) deferred.
 
+### US-61 Analyze Delivery Performance Product Decisions
+
+`MVP-1.3-US61-ANALYTICS-PRODUCT-DECISIONS-001` is frozen as follows:
+
+- **Mathematical KPIs:**
+  - `Order Success Rate (%)`: $\frac{DELIVERED}{DELIVERED + RETURN\_TO\_BASE} \times 100$ over terminal completed outcomes. In-flight orders excluded from denominator; returns `null` (N/A) when denominator is 0.
+  - `First-Attempt Success Rate (%)`: $\frac{DELIVERED \text{ with 0 failed attempts}}{Total DELIVERED} \times 100$.
+  - `On-Time Delivery Rate (%)`: $\frac{Delivered \text{ with completion} \le \text{committedWindowEnd}}{Total DELIVERED} \times 100$. (Reference window is original `window_end` or latest confirmed redelivery `scheduled_end_time`; actual completion is `proof_of_delivery.accepted_at`).
+  - `Average Delay (Minutes)`: Calculated strictly over late deliveries ($\text{completion} - \text{committedWindowEnd}$).
+  - `Attempt Distribution`: Count of orders grouped by failed attempts (0, 1, 2, 3+).
+  - `Failure Reason Distribution`: Grouped by US-59 `failure_reason` with count and percentage.
+  - `Redelivery Performance`: Total redelivery orders, redelivery rate, and redelivery success rate.
+- **Regional Grouping:** Aggregated by destination location / region via `OrganizationLookupPort`; falls back to `"UNCLASSIFIED"` if location metadata is absent.
+- **Query Bounds & Timezone:** Default 30-day range, maximum 365-day range; daily/weekly/monthly aggregations use tenant operating timezone (`Asia/Colombo`).
+- **Read-Only Invariant:** Strictly read-only operational queries; zero mutation of orders, PODs, attempts, or schedules.
+- **RBAC & Security:** Permission `DELIVERY_ANALYTICS_VIEW` (to be seeded in V50); multi-tenancy derived strictly from `CurrentTenant`. Customer PII and raw binary POD evidence excluded from payloads.
+- **Module Ownership:** Owned by `delivery` module with public read interface `DeliveryReportingQuery` for centralized reporting integration.
+
 ## Phase 1 Freight Manifest Special-Cargo Classification & Cargo Measurements (US-27)
 
 - Manifest item create/update commands and public REST payloads carry nullable `fragile` and `temperatureSensitive` fields without collapsing UNKNOWN to `false`.
