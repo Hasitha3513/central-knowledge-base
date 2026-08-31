@@ -2,9 +2,9 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V49 (V49: tenant-scoped US-60 Re-Delivery schedules and RBAC)
-Delivery US-56, US-57, US-58, US-59, US-60: COMPLETE; US-61 through US-62 remain unimplemented
-MVP 1.3 Delivery Operations: 5/7 COMPLETE
+Schema baseline: Flyway V1–V50 (V50: tenant-scoped US-61 Delivery Performance Analytics composite indexes and RBAC)
+Delivery US-56, US-57, US-58, US-59, US-60: COMPLETE; US-61: IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING; US-62 remains unimplemented
+MVP 1.3 Delivery Operations: 5/7 COMPLETE (US-61 pending acceptance)
 Delivery US-60 acceptance gate: COMPLETE (MVP-1.3-US60-REDELIVERY-FINAL-ACCEPTANCE-001)
 US-30 Cargo Exceptions: COMPLETE (P2-CARGO-EXCEPTION-001)
 US-29 Freight Reporting: COMPLETE (P2-FREIGHT-REPORTING-001)
@@ -466,9 +466,9 @@ Indexes: `(tenant_id, delivery_attempt_id)`.
 
 Indexes: `(tenant_id, delivery_id)`, `(tenant_id, status)`.
 
-V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions; V48 US-59 Failed Deliveries, attempts, contact attempts, escalations, and permissions.
+V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions; V48 US-59 Failed Deliveries, attempts, contact attempts, escalations, and permissions; V49 US-60 Re-Delivery schedules, counter, and permissions; V50 US-61 Delivery Performance Analytics composite query indexes and DELIVERY_ANALYTICS_VIEW permission.
 
-US-56, US-57, and US-59 Delivery persistence is introduced by forward migrations V46, V47, and V48.
+US-56, US-57, US-59, US-60, and US-61 Delivery persistence and indexes are introduced by forward migrations V46, V47, V48, V49, and V50.
 
 ## Remaining Suite Integration Work
 
