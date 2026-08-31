@@ -5,7 +5,8 @@ Source repository: current workspace
 Schema baseline: Flyway V1–V51 (V51: tenant-scoped US-62 Delivery Exceptions composite indexes, FKs, and RBAC)
 Delivery US-56, US-57, US-58, US-59, US-60, US-61, US-62: COMPLETE
 MVP 1.3 Delivery Operations: 7/7 COMPLETE (CLOSED)
-Next Milestone: MVP 1.4 Last-Mile Delivery & Customer Experience (US-63 to US-70)
+Active Milestone: MVP 1.4 Last-Mile Delivery & Customer Experience (US-63 to US-70)
+US-63 Manage Delivery Zones: PRODUCT_DECISIONS_FROZEN (MVP-1.4-US63-DELIVERY-ZONES-PRODUCT-DECISIONS-001) / IMPLEMENTATION_NOT_STARTED
 Delivery US-62 final acceptance gate: COMPLETE (MVP-1.3-US62-DELIVERY-EXCEPTIONS-FINAL-ACCEPTANCE-001)
 Delivery US-61 acceptance gate: COMPLETE (MVP-1.3-US61-ANALYTICS-FINAL-ACCEPTANCE-001)
 Delivery US-60 acceptance gate: COMPLETE (MVP-1.3-US60-REDELIVERY-FINAL-ACCEPTANCE-001)
