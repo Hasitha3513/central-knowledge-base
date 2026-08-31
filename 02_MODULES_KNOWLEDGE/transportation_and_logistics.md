@@ -3,8 +3,9 @@
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
 Schema baseline: Flyway V1–V50 (V50: tenant-scoped US-61 Delivery Performance Analytics composite indexes and RBAC)
-Delivery US-56, US-57, US-58, US-59, US-60: COMPLETE; US-61: IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING; US-62 remains unimplemented
-MVP 1.3 Delivery Operations: 5/7 COMPLETE (US-61 pending acceptance)
+Delivery US-56, US-57, US-58, US-59, US-60, US-61: COMPLETE; US-62 remains unimplemented
+MVP 1.3 Delivery Operations: 6/7 COMPLETE
+Delivery US-61 acceptance gate: COMPLETE (MVP-1.3-US61-ANALYTICS-FINAL-ACCEPTANCE-001)
 Delivery US-60 acceptance gate: COMPLETE (MVP-1.3-US60-REDELIVERY-FINAL-ACCEPTANCE-001)
 US-30 Cargo Exceptions: COMPLETE (P2-CARGO-EXCEPTION-001)
 US-29 Freight Reporting: COMPLETE (P2-FREIGHT-REPORTING-001)
