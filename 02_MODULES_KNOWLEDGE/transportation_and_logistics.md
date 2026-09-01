@@ -8,6 +8,7 @@ MVP 1.3 Delivery Operations: 7/7 COMPLETE (CLOSED)
 US-63 Manage Delivery Zones: COMPLETE (MVP-1.4-US63-DELIVERY-ZONES-FINAL-ACCEPTANCE-001) — V52 Flyway, pure Java ray-casting PiP, DeliveryZoneController, DeliveryZoneListPage.tsx
 US-64 Manage Delivery Slots: COMPLETE (MVP-1.4-US64-DELIVERY-SLOTS-FINAL-ACCEPTANCE-001) — V53 Flyway, DeliverySlotController, DeliverySlotListPage.tsx
 US-65 Manage Riders: COMPLETE (MVP-1.4-US65-RIDERS-FINAL-ACCEPTANCE-001-RERUN) — V54 Flyway, DeliveryRiderController, DeliveryRiderListPage.tsx, deliveryRiders.spec.ts
+US-66 Batch Delivery Orders: PRODUCT_DECISIONS_FROZEN (MVP-1.4-US66-BATCH-DELIVERY-ORDERS-PRODUCT-DECISIONS-001) / IMPLEMENTATION_NOT_STARTED — V55 planned (delivery_batch, delivery_batch_order, atomic clustering, rider capacity integration)
 Delivery US-65 final acceptance gate: COMPLETE (MVP-1.4-US65-RIDERS-FINAL-ACCEPTANCE-001-RERUN)
 Delivery US-64 final acceptance gate: COMPLETE (MVP-1.4-US64-DELIVERY-SLOTS-FINAL-ACCEPTANCE-001)
 Delivery US-63 final acceptance gate: COMPLETE (MVP-1.4-US63-DELIVERY-ZONES-FINAL-ACCEPTANCE-001)
