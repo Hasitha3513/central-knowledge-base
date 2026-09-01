@@ -138,6 +138,24 @@ US-56 publishes no cross-module event because it captures requirements and readi
 
 Flyway V43 implements the first-class Tenant and Tenant membership foundation. V44 adds membership-scoped role assignment and non-null, indexed `tenant_id` ownership to current-scope operational tables across Identity token persistence, Organization, Fleet/Driver, Routing/Trip, Fuel, Freight, Notification, and Offline Sync. Existing physical foreign keys reflect the current modular monolith and are factual documentation, not approval for future cross-module coupling. Historical migrations are immutable.
 
+### P0-02 authoritative table ownership registry
+
+| Owner | Tables |
+| :--- | :--- |
+| tenancy | `tenant` |
+| identity | `app_user`, `app_role`, `app_permission`, `app_user_role`, `app_role_permission`, `refresh_token`, `tenant_membership`, `tenant_membership_role` |
+| organization | `customer`, `department`, `location`, `project`, `vendor` |
+| fleet | `driver`, `driver_license`, `driver_exception`, `driver_violation`, `driver_medical_record`, `driver_drug_test`, `vehicle_category`, `vehicle_type`, `vehicle`, `vehicle_document`, `vehicle_reading`, `vehicle_meter_reset`, `maintenance_schedule`, `lubricant_log` |
+| routing | `route`, `route_stop`, `route_revision`, `route_revision_stop`, `route_disruption` |
+| trip | `trip`, `trip_status_history`, `trip_dispatch`, `trip_operational_event` |
+| fuel | `fuel_station`, `fuel_limit_policy`, `fuel_issue`, `fuel_issue_history`, `fuel_price`, `fuel_purchase`, `fuel_purchase_history`, `bunker_tank`, `bunker_dip_reading`, `bunker_stock_adjustment`, `bunker_stock_movement` |
+| freight | `freight_order`, `freight_order_line`, `cargo_manifest`, `cargo_manifest_item`, `load_plan`, `load_plan_item_placement`, `freight_insurance_policy`, `freight_insurance_claim`, `freight_insurance_settlement`, `cargo_exception`, `cargo_exception_history` |
+| delivery | `delivery_order`, `delivery_number_counter`, `proof_of_delivery`, `pod_evidence`, `delivery_attempt`, `delivery_contact_attempt`, `delivery_escalation`, `delivery_redelivery_schedule`, `delivery_exception_case`, `delivery_exception_evidence`, `delivery_zone`, `delivery_slot`, `delivery_slot_reservation`, `delivery_rider`, `delivery_rider_zone`, `delivery_rider_shift`, `delivery_order_rider_assignment`, `delivery_batch`, `delivery_batch_order`, `delivery_batch_counter` |
+| notification | `notification`, `notification_template`, `notification_rule`, `notification_rule_policy`, `notification_rule_quiet_day`, `notification_rule_execution`, `notification_delivery_attempt` |
+| offlinesync | `offline_sync_operation` |
+
+Entityless join, collection, counter, and permission-catalogue tables remain owned by the listed module. Reporting is a consumer of published query contracts and owns no operational source table. P0-02 found no foreign repository injection or foreign JPA relationship. It baselines two direct-SQL violations for P0-03: Freight reads Fleet-owned `vehicle`, and System sample-data bootstrap accesses Organization-owned `customer` and a multi-owner fixture. Test-only cross-owner SQL setup/cleanup is test infrastructure debt and is not production ownership authority.
+
 ### Tenant foundation tables (V43)
 
 #### Table: `tenant`

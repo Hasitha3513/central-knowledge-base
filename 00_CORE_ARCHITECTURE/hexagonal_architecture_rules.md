@@ -69,3 +69,11 @@ Architecture Remediation Batch `P0-01` establishes a mandatory automated boundar
 - a temporary, explicit legacy baseline for current top-level module dependency edges, with `shared` limited to the approved technical role.
 
 The enforcement is architecture-only. It introduces no runtime behavior, REST contract, event contract, or database-schema change. Baseline membership is not architectural approval: P0-02/P0-03 must replace or govern legacy edges and remove them incrementally. New cross-module edges must be approved in the dependency registry before the baseline is expanded.
+
+## Database Ownership Enforcement Baseline
+
+Architecture Remediation Batch `P0-02` assigns every current Flyway table to exactly one top-level module and adds `DatabaseTableOwnershipArchitectureTest`. The gate requires exact Flyway-table registry coverage, keeps JPA table mappings and repositories inside the declared owner, and rejects new production JDBC access to foreign tables.
+
+Two observed direct-SQL paths are recorded as violations, not approvals: Freight reporting joins Fleet-owned `vehicle`, and the platform `system` sample-data bootstrap probes Organization-owned `customer` before executing a multi-owner fixture. Their exact file/table pairs are temporarily frozen so access cannot expand. Replacing them requires owner-provided reporting/bootstrap contracts or owner-maintained read models and is reserved for P0-03. Historical migrations and physical foreign keys remain immutable factual legacy state.
+
+P0-02 scoped verification passes. Final application commit is blocked by the unrelated `LocalIdentityBootstrapIntegrationTest` permission-count assertion (111 expected versus 128 supplied by the current migration set); the failing test is not suppressed.

@@ -33,6 +33,15 @@
 
 No module may use another module's SQL, JPA repository, entity, table-level join, or physical foreign key. IDs crossing boundaries are UUID logical references. A read model may combine events in its own schema but must not query producer tables.
 
+### P0-02 observed persistence violations
+
+| Consumer | Owner | Table | Current access | Required remediation | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Freight reporting adapter | Fleet | `vehicle` | Direct tenant-qualified JDBC join for capacity facts | Fleet reporting contract or Freight-owned event-fed capacity snapshot | `VIOLATION_BASELINED_FOR_P0-03` |
+| System sample-data bootstrap | Organization and other operational owners | `customer` plus multi-owner fixture | Direct probe followed by shared SQL population | Owner-specific bootstrap ports/runners or test-only provisioning | `VIOLATION_BASELINED_FOR_P0-03` |
+
+The baseline prevents additional foreign-table access; it does not approve either dependency.
+
 ## Integration Review Checklist
 
 Confirm ownership, tenant propagation, data classification, contract version, source of truth, consistency expectation, idempotency, ordering, retry/dead-letter behavior, authorization, observability, retention, and producer/consumer contract tests.
