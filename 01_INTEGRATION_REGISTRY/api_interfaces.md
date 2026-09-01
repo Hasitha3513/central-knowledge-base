@@ -34,6 +34,12 @@ The precise request/response schemas remain authoritative in controller DTOs and
 | Offline sync | `/offline-sync/operations` | Offline Sync | Implemented inbox |
 | Health | `/health` | System | Implemented |
 
+### P0-03 Published Internal Query Contracts
+
+- Fleet publishes `FleetReportingQuery.findVehicle(UUID vehicleId): Optional<FleetVehicleSummary>`. Freight reporting uses it synchronously for tenant-scoped payload and volume capacity facts; consumers do not access Fleet persistence.
+- Organization publishes `CustomerLookup.find(UUID customerId): Optional<CustomerReference>` for tenant-scoped business lookups and `CustomerDataReadiness.anyCustomerExists(): boolean` for the global opt-in local-data readiness probe. Consumers do not access Organization persistence.
+- Both business contracts and the provisioning-readiness contract are in their provider module root packages. Business query adapters enforce the current Tenant context; the readiness result is intentionally global to preserve the existing bootstrap skip behavior. These are internal Java contracts and add or change no REST endpoint, JSON schema, event, or database schema.
+
 ### Freight Manifest Internal Application Contract
 
 `CargoManifestUseCase.ItemCommand` is an internal inbound-port command used by Manifest item create/update orchestration. Its active fields are `version: Long?`, `freightOrderLineId: UUID`, `description: String`, `quantity: Decimal`, `packingInformation: String`, `commodityClassification: String`, `customsApplicable: boolean`, `customsInformation: String?`, `hazardous: boolean`, `hazardousClassification: String?`, `hazardousDetails: String?`, `fragile: Boolean?`, `temperatureSensitive: Boolean?`, `unitWeight: BigDecimal?`, `weightUnit: String?`, `length: BigDecimal?`, `width: BigDecimal?`, `height: BigDecimal?`, and `dimensionUnit: String?`.

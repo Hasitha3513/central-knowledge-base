@@ -33,14 +33,14 @@
 
 No module may use another module's SQL, JPA repository, entity, table-level join, or physical foreign key. IDs crossing boundaries are UUID logical references. A read model may combine events in its own schema but must not query producer tables.
 
-### P0-02 observed persistence violations
+### P0-03 remediated persistence violations
 
 | Consumer | Owner | Table | Current access | Required remediation | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| Freight reporting adapter | Fleet | `vehicle` | Direct tenant-qualified JDBC join for capacity facts | Fleet reporting contract or Freight-owned event-fed capacity snapshot | `VIOLATION_BASELINED_FOR_P0-03` |
-| System sample-data bootstrap | Organization and other operational owners | `customer` plus multi-owner fixture | Direct probe followed by shared SQL population | Owner-specific bootstrap ports/runners or test-only provisioning | `VIOLATION_BASELINED_FOR_P0-03` |
+| Freight reporting adapter | Fleet | `vehicle` | Published synchronous `FleetReportingQuery.findVehicle(UUID)` | Fleet-owned capacity facts; tenant isolation remains enforced by the provider | `REMEDIATED_P0-03` |
+| System sample-data bootstrap | Organization | `customer` readiness | Published synchronous `CustomerDataReadiness.anyCustomerExists()` | Organization owns the global readiness query; the opt-in fixture remains development provisioning only | `REMEDIATED_P0-03` |
 
-The baseline prevents additional foreign-table access; it does not approve either dependency.
+The production foreign-SQL baseline is empty. The approved Java dependency graph permits only listed consumer/provider edges, and all such dependencies must target contracts published in the provider module root package.
 
 ## Integration Review Checklist
 

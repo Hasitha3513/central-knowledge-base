@@ -154,7 +154,7 @@ Flyway V43 implements the first-class Tenant and Tenant membership foundation. V
 | notification | `notification`, `notification_template`, `notification_rule`, `notification_rule_policy`, `notification_rule_quiet_day`, `notification_rule_execution`, `notification_delivery_attempt` |
 | offlinesync | `offline_sync_operation` |
 
-Entityless join, collection, counter, and permission-catalogue tables remain owned by the listed module. Reporting is a consumer of published query contracts and owns no operational source table. P0-02 found no foreign repository injection or foreign JPA relationship. It baselines two direct-SQL violations for P0-03: Freight reads Fleet-owned `vehicle`, and System sample-data bootstrap accesses Organization-owned `customer` and a multi-owner fixture. Test-only cross-owner SQL setup/cleanup is test infrastructure debt and is not production ownership authority.
+Entityless join, collection, counter, and permission-catalogue tables remain owned by the listed module. Reporting is a consumer of published query contracts and owns no operational source table. P0-03 removed the two production-code direct-SQL violations: Freight now reads Fleet capacity through `FleetReportingQuery`, and System checks global sample-data readiness through Organization's `CustomerDataReadiness`. The production foreign-SQL baseline is empty. The opt-in multi-owner development fixture and test-only cross-owner SQL setup/cleanup remain provisioning/test-infrastructure debt and are not production ownership authority.
 
 ### Tenant foundation tables (V43)
 

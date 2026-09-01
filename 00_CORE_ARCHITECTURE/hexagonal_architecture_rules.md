@@ -76,4 +76,12 @@ Architecture Remediation Batch `P0-02` assigns every current Flyway table to exa
 
 Two observed direct-SQL paths are recorded as violations, not approvals: Freight reporting joins Fleet-owned `vehicle`, and the platform `system` sample-data bootstrap probes Organization-owned `customer` before executing a multi-owner fixture. Their exact file/table pairs are temporarily frozen so access cannot expand. Replacing them requires owner-provided reporting/bootstrap contracts or owner-maintained read models and is reserved for P0-03. Historical migrations and physical foreign keys remain immutable factual legacy state.
 
-P0-02 scoped verification passes. Final application commit is blocked by the unrelated `LocalIdentityBootstrapIntegrationTest` permission-count assertion (111 expected versus 128 supplied by the current migration set); the failing test is not suppressed.
+P0-02 verification is complete: the bootstrap expectation was reconciled to the 128 permissions supplied by the current approved migration set, the architecture/bootstrap gate passed 36/36, and the full Java 21 suite passed 1,167 tests with 31 existing conditional skips.
+
+## Published Contract Enforcement
+
+Architecture Remediation Batch `P0-03` replaces the two baselined production-code violations. Freight reporting resolves Fleet-owned vehicle capacity facts through the published `FleetReportingQuery` contract instead of joining `vehicle`. The development sample-data bootstrap asks the Organization-owned `CustomerDataReadiness` contract whether customer data exists instead of directly querying `customer`; the existing opt-in multi-owner SQL fixture remains development provisioning infrastructure and does not grant runtime table ownership.
+
+`ModulithBoundaryEnforcementTest` now treats the recorded dependency set as the approved graph and requires every cross-module Java dependency to target a type published directly in the provider module's root package. `DatabaseTableOwnershipArchitectureTest` has no remaining production foreign-SQL baseline. New dependency edges, nested implementation imports, foreign repositories, foreign JPA entities, and foreign production SQL remain prohibited.
+
+P0-03 verification is complete: compilation passed, the focused architecture and affected integration tests passed, and the full Java 21 regression suite passed 1,168 tests with 31 existing conditional skips. The full-suite command explicitly disabled opt-in development sample-data for unrelated test contexts; `LocalSampleDataBootstrapIntegrationTest` overrides that property and passed with the fixture enabled.
