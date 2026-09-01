@@ -483,6 +483,7 @@ V51: US-62 Delivery Exception Management — `delivery_exception_case` table, `d
 V52: US-63 Delivery Zone Management — `delivery_zone` table, `delivery_order.delivery_zone_id` column and FK, permissions `DELIVERY_ZONE_CREATE`, `DELIVERY_ZONE_VIEW`, `DELIVERY_ZONE_UPDATE`, `DELIVERY_ZONE_ACTIVATE`, `DELIVERY_ZONE_OVERRIDE`.
 V53: US-64 Delivery Slot Management — `delivery_slot` table, `delivery_slot_reservation` table, `delivery_order.delivery_slot_id` column and FK, permissions `DELIVERY_SLOT_CREATE`, `DELIVERY_SLOT_VIEW`, `DELIVERY_SLOT_UPDATE`, `DELIVERY_SLOT_ACTIVATE`, `DELIVERY_SLOT_ASSIGN`, `DELIVERY_SLOT_OVERRIDE`.
 V54: US-65 Delivery Rider Management — `delivery_rider`, `delivery_rider_zone`, `delivery_rider_shift`, `delivery_order_rider_assignment` tables, `delivery_order.current_rider_id` column, permissions `DELIVERY_RIDER_VIEW`, `DELIVERY_RIDER_CREATE`, `DELIVERY_RIDER_UPDATE`, `DELIVERY_RIDER_ACTIVATE`, `DELIVERY_RIDER_ASSIGN`, `DELIVERY_RIDER_OVERRIDE`.
+V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_batch_order`, `delivery_batch_counter` tables, permissions `DELIVERY_BATCH_VIEW`, `DELIVERY_BATCH_CREATE`, `DELIVERY_BATCH_UPDATE`, `DELIVERY_BATCH_ASSIGN`, `DELIVERY_BATCH_DISPATCH`, `DELIVERY_BATCH_CANCEL`.
 
 ### US-65 Delivery Rider Management (Implemented)
 
@@ -510,6 +511,28 @@ V54: US-65 Delivery Rider Management — `delivery_rider`, `delivery_rider_zone`
 - `POST /api/v1/deliveries/orders/{id}/reassign-rider` — Reassign rider for order (requires `DELIVERY_RIDER_ASSIGN` or `DELIVERY_RIDER_OVERRIDE`)
 - `POST /api/v1/deliveries/orders/{id}/unassign-rider` — Unassign active rider (requires `DELIVERY_RIDER_ASSIGN`)
 - `GET /api/v1/deliveries/orders/{id}/rider-assignments` — Get order rider assignment history (requires `DELIVERY_RIDER_VIEW`)
+
+### US-66 Batch Delivery Orders & Clustering (Implemented)
+
+#### Tables
+- **`delivery_batch_counter`**: `tenant_id` UUID NOT NULL, `calendar_year` INT NOT NULL, `current_val` BIGINT NOT NULL DEFAULT 0, PK `(tenant_id, calendar_year)`. Monotonic format `BAT-YYYY-NNNNNN`.
+- **`delivery_batch`**: `id` UUID PK, `tenant_id` UUID NOT NULL, `batch_code` VARCHAR(64) NOT NULL, `delivery_zone_id` UUID NOT NULL, `delivery_slot_id` UUID, `rider_id` UUID, `status` VARCHAR(32) NOT NULL DEFAULT 'DRAFT', `max_batch_size` INT NOT NULL DEFAULT 5, `active_order_count` INT NOT NULL DEFAULT 0, `total_order_count` INT NOT NULL DEFAULT 0, `version` BIGINT NOT NULL DEFAULT 0, `created_at` TIMESTAMPTZ NOT NULL, `updated_at` TIMESTAMPTZ NOT NULL, `created_by` VARCHAR(128) NOT NULL, `updated_by` VARCHAR(128) NOT NULL. Constraints: `uk_delivery_batch_code_tenant (tenant_id, batch_code)`, `uk_delivery_batch_id_tenant (id, tenant_id)`, `fk_delivery_batch_zone_tenant (delivery_zone_id, tenant_id) REFERENCES delivery_zone(id, tenant_id)`.
+- **`delivery_batch_order`**: `id` UUID PK, `tenant_id` UUID NOT NULL, `batch_id` UUID NOT NULL, `delivery_order_id` UUID NOT NULL, `sequence_hint` INT, `status` VARCHAR(32) NOT NULL DEFAULT 'ACTIVE', `added_at` TIMESTAMPTZ NOT NULL, `added_by` VARCHAR(128) NOT NULL, `removed_at` TIMESTAMPTZ, `removed_by` VARCHAR(128), `version` BIGINT NOT NULL DEFAULT 0. Constraints: `uk_active_batch_order (tenant_id, delivery_order_id) WHERE status = 'ACTIVE'`, `fk_delivery_batch_order_batch_tenant (batch_id, tenant_id) REFERENCES delivery_batch(id, tenant_id)`, `fk_delivery_batch_order_order_tenant (delivery_order_id, tenant_id) REFERENCES delivery_order(id, tenant_id)`.
+
+#### REST API Endpoints
+- `GET /api/v1/deliveries/batches` — List/filter delivery batches (requires `DELIVERY_BATCH_VIEW`)
+- `GET /api/v1/deliveries/batches/{id}` — Get batch details (requires `DELIVERY_BATCH_VIEW`)
+- `GET /api/v1/deliveries/batches/{id}/orders` — Get contained batch order memberships (requires `DELIVERY_BATCH_VIEW`)
+- `POST /api/v1/deliveries/batches` — Create manual delivery batch (requires `DELIVERY_BATCH_CREATE`)
+- `POST /api/v1/deliveries/batches/auto-cluster` — Auto-cluster unbatched orders into batches (requires `DELIVERY_BATCH_CREATE`)
+- `PUT /api/v1/deliveries/batches/{id}` — Update batch configuration (requires `DELIVERY_BATCH_UPDATE`)
+- `POST /api/v1/deliveries/batches/{id}/orders` — Add orders to batch (requires `DELIVERY_BATCH_UPDATE`)
+- `DELETE /api/v1/deliveries/batches/{id}/orders/{deliveryOrderId}` — Remove order from batch (requires `DELIVERY_BATCH_UPDATE`)
+- `POST /api/v1/deliveries/batches/{id}/ready` — Mark batch ready (requires `DELIVERY_BATCH_UPDATE`)
+- `POST /api/v1/deliveries/batches/{id}/assign-rider` — Assign rider to batch (requires `DELIVERY_BATCH_ASSIGN`)
+- `POST /api/v1/deliveries/batches/{id}/dispatch` — Dispatch batch (requires `DELIVERY_BATCH_DISPATCH`)
+- `POST /api/v1/deliveries/batches/{id}/complete` — Complete batch (requires `DELIVERY_BATCH_UPDATE`)
+- `POST /api/v1/deliveries/batches/{id}/cancel` — Cancel batch and unbatch active memberships (requires `DELIVERY_BATCH_CANCEL`)
 
 ## Remaining Suite Integration Work
 
