@@ -56,3 +56,16 @@ Each business module is an independently evolvable bounded context. The suite ma
 ## Change Gate
 
 Before implementation, identify the owning module, aggregate, inbound port, outbound ports, affected API/event contracts, tenant boundary, schema change, and knowledge-base files. Stop for architectural approval if ownership or transaction semantics are unclear.
+
+## Automated Enforcement Baseline
+
+Architecture Remediation Batch `P0-01` establishes a mandatory automated boundary gate in `ModulithBoundaryEnforcementTest`:
+
+- Spring Modulith application-module verification and an acyclic top-level module graph;
+- no dependency on another module's Spring Data repository;
+- no JPA entity reference to an entity owned by another module;
+- no operational core-domain dependency on adapters, infrastructure, or platform modules;
+- no Reporting dependency on operational persistence packages; and
+- an explicit allow-list for current top-level module dependency edges, with `shared` limited to the approved technical role.
+
+The enforcement is architecture-only. It introduces no runtime behavior, REST contract, event contract, or database-schema change. New cross-module edges must be approved in the dependency registry before the allow-list is expanded.
