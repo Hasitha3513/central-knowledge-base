@@ -89,10 +89,10 @@ Verified implementation: `TENANT-FOUNDATION-IMPLEMENTATION-001` (2026-08-28)
 | `CurrentTenant` / `TenantExecutionContext` | `IMPLEMENTED` |
 | Per-request server-side membership/Tenant validation | `IMPLEMENTED` |
 | Canonical `CLTS-LK` clean bootstrap | `IMPLEMENTED` |
-| Operational business-row scoping | `IMPLEMENTED_CURRENT_SCOPE` |
-| Repository/job/report isolation | `IMPLEMENTED_CURRENT_SCOPE` |
+| Operational business-row scoping | `HARDENED_P0-04` |
+| Repository/job/report isolation | `HARDENED_P0-04` |
 | Event/cache isolation | `NO_NEW_TENANT_EVENTS_OR_CACHES_IN_RETROFIT_SCOPE` |
-| Overall Tenant isolation | `ACCEPTED_FOR_CURRENT_SCOPE` |
+| Overall Tenant isolation | `ACCEPTED_P0-04_CURRENT_SCOPE` |
 
 Platform `tenancy` owns Tenant lifecycle. Identity owns membership and authenticated resolution; Organization and `shared` do not own Tenant lifecycle. The MVP permits exactly one membership per user; multi-membership is deferred.
 
@@ -109,5 +109,9 @@ No recoverable legacy production database was found. Legacy preservation is `NOT
 ### Operational retrofit acceptance
 
 `TENANT-OPERATIONAL-DATA-RETROFIT-001` completed V44 operational discriminators, membership-scoped role assignment, tenant-aware JPA query/insert enforcement, tenant-qualified direct identifier repository operations, active-Tenant scheduled-job execution, and two-Tenant Freight/Reporting-source isolation acceptance. No JWT contract changed and no US-29 report functionality was introduced.
+
+`P0-04-MULTI-TENANT-ISOLATION-HARDENING` extends the centralized Hibernate Tenant discriminator to every Tenant-owned JPA entity, including Delivery entities added after V44. V57 replaces global operational business-key, notification-execution, and bunker-idempotency uniqueness with Tenant-local constraints. Architecture enforcement rejects Tenant-owned JPA models without the discriminator and inbound request DTOs that declare `tenantId`. PostgreSQL acceptance proves object, list, update, delete, guessed-ID, manipulated-request, and report isolation across Vehicle, Driver, Trip, Route, Vehicle Document, Freight, and Delivery paths. The full Java 21 suite passes 1,173 tests with 31 existing skips.
+
+Legacy `ACTIVE_INTERNAL` Vehicle-reading, Route-disruption, and operational-notification payloads still predate the standard Tenant envelope. They remain internal-only and must be versioned before external activation. Existing legacy physical cross-module foreign keys also remain factual debt pending a separately approved forward-only retirement plan.
 
 US-29 Freight Reporting is `READY_FOR_IMPLEMENTATION`; the next task is `P2-FREIGHT-REPORTING-001`.

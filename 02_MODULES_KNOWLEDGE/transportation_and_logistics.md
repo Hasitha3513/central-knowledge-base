@@ -2,7 +2,7 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V52 (V52: tenant-scoped US-63 Delivery Zones bounding box, GeoJSON polygon, FKs, and RBAC)
+Schema baseline: Flyway V1–V57 (V57: Tenant-local operational business keys, notification execution keys, and bunker idempotency)
 Delivery US-56, US-57, US-58, US-59, US-60, US-61, US-62: COMPLETE
 MVP 1.3 Delivery Operations: 7/7 COMPLETE (CLOSED)
 US-63 Manage Delivery Zones: COMPLETE (MVP-1.4-US63-DELIVERY-ZONES-FINAL-ACCEPTANCE-001) — V52 Flyway, pure Java ray-casting PiP, DeliveryZoneController, DeliveryZoneListPage.tsx
@@ -20,7 +20,7 @@ Delivery US-60 acceptance gate: COMPLETE (MVP-1.3-US60-REDELIVERY-FINAL-ACCEPTAN
 US-30 Cargo Exceptions: COMPLETE (P2-CARGO-EXCEPTION-001)
 US-29 Freight Reporting: COMPLETE (P2-FREIGHT-REPORTING-001)
 Freight release status: 7/7 COMPLETE
-Tenant readiness: FOUNDATION IMPLEMENTED / OPERATIONAL ISOLATION ACCEPTED_FOR_CURRENT_SCOPE
+Tenant readiness: FOUNDATION IMPLEMENTED / OPERATIONAL ISOLATION ACCEPTED_P0-04_CURRENT_SCOPE
 
 ## Mission and Bounded Contexts
 
@@ -136,7 +136,7 @@ US-56 publishes no cross-module event because it captures requirements and readi
 
 ### Schema-wide tenancy status
 
-Flyway V43 implements the first-class Tenant and Tenant membership foundation. V44 adds membership-scoped role assignment and non-null, indexed `tenant_id` ownership to current-scope operational tables across Identity token persistence, Organization, Fleet/Driver, Routing/Trip, Fuel, Freight, Notification, and Offline Sync. Existing physical foreign keys reflect the current modular monolith and are factual documentation, not approval for future cross-module coupling. Historical migrations are immutable.
+Flyway V43 implements the first-class Tenant and Tenant membership foundation. V44 adds membership-scoped role assignment and non-null, indexed `tenant_id` ownership to current-scope operational tables across Identity token persistence, Organization, Fleet/Driver, Routing/Trip, Fuel, Freight, Notification, and Offline Sync. V57 replaces legacy global operational business-key constraints with Tenant-local uniqueness for Organization, Fleet/Driver, Routing/Trip, Fuel, and Freight; it also Tenant-scopes notification execution keys and bunker movement idempotency. Existing physical foreign keys reflect the current modular monolith and are factual documentation, not approval for future cross-module coupling. Historical migrations are immutable.
 
 ### P0-02 authoritative table ownership registry
 
@@ -495,7 +495,7 @@ Indexes: `(tenant_id, delivery_attempt_id)`.
 
 Indexes: `(tenant_id, delivery_id)`, `(tenant_id, status)`.
 
-V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions; V48 US-59 Failed Deliveries, attempts, contact attempts, escalations, and permissions; V49 US-60 Re-Delivery schedules, counter, and permissions; V50 US-61 Delivery Performance Analytics composite query indexes and DELIVERY_ANALYTICS_VIEW permission.
+V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions; V48 US-59 Failed Deliveries, attempts, contact attempts, escalations, and permissions; V49 US-60 Re-Delivery schedules, counter, and permissions; V50 US-61 Delivery Performance Analytics composite query indexes and DELIVERY_ANALYTICS_VIEW permission; V51–V56 Delivery exceptions, zones, slots, riders, batches, and rider transport mode; V57 Tenant-local operational business keys and idempotency constraints.
 
 US-56, US-57, US-59, US-60, and US-61 Delivery persistence and indexes are introduced by forward migrations V46, V47, V48, V49, and V50.
 
