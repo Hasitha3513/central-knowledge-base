@@ -10,6 +10,7 @@
 - Identity administrators may assign only roles whose active permissions are a subset of the administrator's current server-resolved permissions. They may not update or delete a global role template while it is assigned outside their Tenant.
 - JWT role and permission claims are informational token contents; every bearer request reloads the active user, active membership, active Tenant, active roles, and active permissions from server-side state.
 - Offline Sync is the documented dynamic-permission exception at the HTTP edge: the batch requires authentication and the application service authorizes each operation against its existing operation-specific permission.
+- US-70 customer self-service uses possession authorization, not operator RBAC: a 256-bit opaque token is bound server-side to one Tenant, Delivery, Customer/contact context, expiry, and allow-listed actions. Public HTTP matching never makes the resource public; invalid, expired, revoked, mismatched, and cross-Tenant credentials fail closed. Customer principals receive no `DELIVERY_*`, `NOTIFICATION_*`, Identity role, or tenant membership. Automated Notification-time issuance and internal lifecycle/security revocation are frozen; manual operator token administration API/UI is deferred and no new permission is frozen.
 
 ## P0-05 Contextual Authorization Decisions
 

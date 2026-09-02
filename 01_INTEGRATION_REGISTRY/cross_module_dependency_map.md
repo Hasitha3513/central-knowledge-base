@@ -16,8 +16,8 @@
 | Projects | Finance | budgets and actual costs | Events/API | PROPOSED |
 | Sales/CRM | Inventory | available-to-promise | API | PROPOSED |
 | Sales/CRM | Transportation | shipment plan and delivery status | Commands/API and events | PROPOSED |
-| Delivery (Transportation internal) | Freight, Trip, Organization, Notification, Offline Sync | Organization-owned customer/location references; Delivery-owned evidence, failed-attempt, redelivery, exception, zone, slot, Rider, batch, ETA, Planner, and US-69 customer-notification facts; Offline Sync for POD | Public provider-neutral ports, standard-envelope local events, and OfflineOperationHandler only; no direct repositories/JPA/tables | US56–US69_ACCEPTED; US70_NEXT_ACTIVE_NOT_STARTED |
-| Notification | Delivery, Organization | US-69 committed Delivery facts and tenant-scoped active Customer display/contact projection | Delivery version-1 after-commit events through the System integration bridge plus Organization public `CustomerNotificationContactLookup`; no source repository/entity/table access | US69_ACCEPTED |
+| Delivery (Transportation internal) | Freight, Trip, Organization, Notification, Offline Sync | Organization-owned customer/location/contact references; Delivery-owned evidence, failed-attempt, redelivery, exception, zone, slot, Rider, batch, ETA, Planner, US-69 customer-notification facts, and frozen US-70 token-scoped self-service projection/submissions; Notification-owned Email/SMS preferences; Offline Sync for POD | Public provider-neutral ports, standard-envelope local events, and OfflineOperationHandler only; no direct repositories/JPA/tables | US56–US69_ACCEPTED; US70_DECISIONS_FROZEN_NOT_IMPLEMENTED |
+| Notification | Delivery, Organization | US-69 committed Delivery facts, tenant-scoped active Customer display/contact projection, and a transient US-70 self-service link immediately before provider delivery | Delivery version-1 after-commit events, Organization public `CustomerNotificationContactLookup`, and frozen Delivery public `CustomerSelfServiceLinkIssuer`; no raw token persistence and no source repository/entity/table access | US69_ACCEPTED; US70_LINK_CONTRACT_FROZEN_NOT_IMPLEMENTED |
 
 ## Ownership Decisions
 
@@ -29,6 +29,7 @@
 - Inventory owns stock balances and movements; Procurement owns purchasing intent and purchase-order lifecycle.
 - Sales/CRM owns prospects, customer relationships, quotations, and sales orders. Customer-master ownership requires an ADR because transportation currently owns a `customer` table/API.
 - For current US-69 scope, Organization's existing Customer model is the authoritative contact source. Notification owns only channel preferences and accepted destination snapshots; this does not settle future suite-wide Sales/CRM customer-master ownership.
+- US-70 does not create a Customer/Recipient-to-Identity relationship. Delivery owns opaque per-Delivery access tokens and customer submissions; Organization remains Customer/contact authority and Notification remains Email/SMS preference/delivery authority. Customer requests do not bypass US-60 scheduling or US-64 slot capacity.
 - Project Management owns projects, work structures, milestones, and project budgets. Current transportation `project` references are legacy and require ownership reconciliation.
 
 ## Forbidden Edges
