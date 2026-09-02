@@ -326,6 +326,8 @@ The Planner is read-only: opening it or selecting a navigation action does not i
 
 Notifications are generated from committed out-for-delivery, ETA-risk, completion, failed-attempt, and redelivery facts. With no explicit preference profile, a valid customer Email address is enabled and SMS is disabled. SMS is used only after explicit enablement. Preference changes affect future events; an already accepted notification keeps its normalized destination snapshot for deterministic retry.
 
+**Known acceptance blocker:** the current implementation emits the out-for-delivery notice when a Batch becomes `READY`, before it is actually `DISPATCHED`. Treat that notice as unaccepted behavior until the trigger is moved to committed Batch dispatch and the negative readiness/positive dispatch regressions pass.
+
 The timeline is read-only and exposes masked destinations only. It provides no send, resend, retry, provider, or message-body action. Do not place OTPs, access/gate codes, credentials, free-text failure notes, Rider private data, or other secrets in notification workflows. Customer portal/login, customer preference UI, tracking links, push, WhatsApp, voice, callbacks, and manual resend remain unavailable in US-69.
 
 ---
