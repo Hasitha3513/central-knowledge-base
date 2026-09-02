@@ -175,7 +175,7 @@ P0-05 hardens the existing Identity model without schema changes. Identity admin
 | notification | `notification`, `notification_template`, `notification_rule`, `notification_rule_policy`, `notification_rule_quiet_day`, `notification_rule_execution`, `notification_delivery_attempt` |
 | offlinesync | `offline_sync_operation` |
 
-Entityless join, collection, counter, and permission-catalogue tables remain owned by the listed module. Reporting is a consumer of published query contracts and owns no operational source table. P0-03 removed the two production-code direct-SQL violations: Freight now reads Fleet capacity through `FleetReportingQuery`, and System checks global sample-data readiness through Organization's `CustomerDataReadiness`. The production foreign-SQL baseline is empty. The opt-in multi-owner development fixture and test-only cross-owner SQL setup/cleanup remain provisioning/test-infrastructure debt and are not production ownership authority.
+Entityless join, collection, counter, and permission-catalogue tables remain owned by the listed module. Reporting is a consumer of published query contracts and owns no operational source table. P0-03 removed the two production-code direct-SQL violations: Freight reads Fleet capacity through `FleetReportingQuery`, while the development-only System fixture no longer probes an Organization-owned table or repository. The production foreign-SQL baseline is empty. The opt-in multi-owner development fixture and test-only cross-owner SQL setup/cleanup remain provisioning/test-infrastructure debt and are not production ownership authority.
 
 ### Tenant foundation tables (V43)
 

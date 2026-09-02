@@ -84,6 +84,8 @@ Architecture Remediation Batch `P0-03` replaces the two baselined production-cod
 
 `ModulithBoundaryEnforcementTest` now treats the recorded dependency set as the approved graph and requires every cross-module Java dependency to target a type published directly in the provider module's root package. `DatabaseTableOwnershipArchitectureTest` has no remaining production foreign-SQL baseline. New dependency edges, nested implementation imports, foreign repositories, foreign JPA entities, and foreign production SQL remain prohibited.
 
+Development PostgreSQL provisioning executes the idempotent `postgresql-sample-data.sql` fixture on every enabled application startup after Flyway has established the schema. Both Docker and local `run.sh` startup explicitly enable this development-only bootstrap. PostgreSQL's pre-schema container initialization directory is not used for the multi-owner fixture; H2 tests retain their dialect-specific fixture. Because the fixture is conflict-safe, the former cross-module Organization readiness query is no longer required.
+
 P0-03 verification is complete: compilation passed, the focused architecture and affected integration tests passed, and the full Java 21 regression suite passed 1,168 tests with 31 existing conditional skips. The full-suite command explicitly disabled opt-in development sample-data for unrelated test contexts; `LocalSampleDataBootstrapIntegrationTest` overrides that property and passed with the fixture enabled.
 
 ## Aggregate Boundary Enforcement
