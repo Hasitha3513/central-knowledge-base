@@ -34,9 +34,19 @@ Compatibility rules: additive optional fields are backward compatible; renames, 
 | `DeliveryRiderAssignedEvent` | ACTIVE_INTERNAL | Delivery | `tenantId`, `deliveryOrderId`, `riderId`, `assignmentId`, `isOverride`, `assignedAt`, `actor` | Spring event adapters | Standard tenant envelope |
 | `DeliveryRiderReassignedEvent` | ACTIVE_INTERNAL | Delivery | `tenantId`, `deliveryOrderId`, `previousRiderId`, `newRiderId`, `assignmentId`, `isOverride`, `reassignedAt`, `actor` | Spring event adapters | Standard tenant envelope |
 | `DeliveryRiderUnassignedEvent` | ACTIVE_INTERNAL | Delivery | `tenantId`, `deliveryOrderId`, `riderId`, `unassignedAt`, `actor` | Spring event adapters | Standard tenant envelope |
-| `OperationalNotificationEvent` | ACTIVE_INTERNAL | Multiple transportation producers | `eventId`, `eventType`, `aggregateType`, `aggregateId`, `severity`, `title`, `message`, `occurredAt`, `metadata` | Notification | No `tenantId`, version, producer, correlation, or causation fields |
+| `OperationalNotificationEvent` | ACTIVE_INTERNAL | Multiple transportation producers | `eventId`, `eventType`, `aggregateType`, `aggregateId`, `severity`, `title`, `message`, `occurredAt`, `metadata`, `tenantId`, `schemaVersion` | Notification | Tenant and schema identity are explicit; producer/correlation/causation remain absent because current local consumers do not use them |
 
-`OperationalNotificationEvent` severities are `INFO`, `WARNING`, and `CRITICAL`. Its event-type catalogue is application-owned and must be reviewed in source before adding a producer.
+`OperationalNotificationEvent` severities are `INFO`, `WARNING`, and `CRITICAL`. Its event-type catalogue is application-owned and must be reviewed in source before adding a producer. Notification infrastructure enriches a missing `tenantId` from the authoritative execution context at publication time; it never accepts client Tenant authority. Version `1` is the current local schema. Existing source constructors remain compatible, but every event delivered through the production publisher contains Tenant identity.
+
+## P0-07 Local Event Delivery Semantics
+
+- Aggregate/application state and invariant-supporting history, allocation, stock, dispatch, meter, and delivery writes remain in their owning module's single ACID transaction.
+- Spring-local secondary reactions are registered against the active transaction and emitted only after a successful commit. A rollback emits nothing.
+- A local consumer exception is logged after commit and cannot roll back or misrepresent the already-committed primary operation.
+- Notification rule execution deduplicates by its stable execution key derived from event, rule, channel, and recipient. SMTP delivery is independently claimed and retried from database-backed Notification records with a stable attempt idempotency key.
+- Delivery ETA cache invalidation is a local after-commit reaction. Repeated eviction is intentionally idempotent.
+- Ordering is local publication order only; consumers must not assume global ordering. Where order matters, it is scoped to one aggregate and its version/time facts.
+- The current Spring event path is not durable across process failure. It must not be described as guaranteed integration delivery. A database outbox/inbox is required before any external or independently retryable consumer is approved; no Kafka or RabbitMQ infrastructure is approved by P0-07.
 
 ## Proposed Suite Event Families
 

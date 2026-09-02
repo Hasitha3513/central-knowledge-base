@@ -57,7 +57,9 @@ All current cross-aggregate references are IDs/value references. The only Delive
 
 ## Published Events
 
-Current internal event types are `VehicleReadingRecorded`, `VehicleReadingCorrected`, `VehicleMeterResetRecorded`, `RouteDisruptionCreatedEvent`, `RouteDisruptionResolvedEvent`, and `OperationalNotificationEvent`. Exact payloads and tenant deficiencies are registered in `../01_INTEGRATION_REGISTRY/event_contracts.md`.
+Current internal event types are `VehicleReadingRecorded`, `VehicleReadingCorrected`, `VehicleMeterResetRecorded`, `RouteDisruptionCreatedEvent`, `RouteDisruptionResolvedEvent`, and `OperationalNotificationEvent`. Exact payloads and remaining tenant deficiencies are registered in `../01_INTEGRATION_REGISTRY/event_contracts.md`. P0-07 makes all production Spring-local publication transaction-aware: events registered inside an owning transaction are delivered only after commit, never after rollback. `OperationalNotificationEvent` now carries explicit `tenantId` and `schemaVersion`; Notification infrastructure resolves Tenant identity from the authoritative execution context.
+
+Primary state transitions—including Trip assignment/dispatch/start/complete, Fuel Issue stock/history/reading changes, Fleet readings, and Delivery order/batch/rider changes—remain synchronous owning-module ACID operations. Delivery ETA cache eviction and notification generation are secondary local after-commit reactions. Notification execution-key checks and database-backed email delivery claims provide duplicate protection where side effects matter. No implemented reporting projection or general external event export currently justifies a durable broker/outbox; local events are explicitly non-durable and a future outbox/inbox boundary requires separate approval.
 
 US-56 publishes no cross-module event because it captures requirements and readiness only; no downstream workflow is triggered. Future Delivery events require registration before implementation.
 
