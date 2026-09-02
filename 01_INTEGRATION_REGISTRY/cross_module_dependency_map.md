@@ -16,7 +16,8 @@
 | Projects | Finance | budgets and actual costs | Events/API | PROPOSED |
 | Sales/CRM | Inventory | available-to-promise | API | PROPOSED |
 | Sales/CRM | Transportation | shipment plan and delivery status | Commands/API and events | PROPOSED |
-| Delivery (Transportation internal) | Freight, Trip, Organization, Notification, Offline Sync | customer/location references active for US-56; US-57 uses Delivery-owned evidence storage; Offline Sync boundary frozen for US-58; other listed facts remain future-slice contracts | Delivery-owned provider-neutral ports and OfflineOperationHandler port only; no direct repositories/JPA/tables | US56_US57_IMPLEMENTED; US58_DECISIONS_FROZEN; US59–62_PENDING |
+| Delivery (Transportation internal) | Freight, Trip, Organization, Notification, Offline Sync | Organization-owned customer/location references; Delivery-owned evidence, failed-attempt, redelivery, exception, zone, slot, Rider, batch, ETA, and Planner facts; US-69 customer communications; Offline Sync for POD | Public provider-neutral ports, standard-envelope local events, and OfflineOperationHandler only; no direct repositories/JPA/tables | US56–US68_IMPLEMENTED; US69_DECISIONS_FROZEN; US70_DEFERRED |
+| Notification | Delivery, Organization | US-69 committed Delivery facts and tenant-scoped active Customer display/contact projection | Delivery version-1 after-commit events plus Organization public `CustomerNotificationContactLookup`; no source repository/entity/table access | US69_DECISIONS_FROZEN_NOT_IMPLEMENTED |
 
 ## Ownership Decisions
 
@@ -27,6 +28,7 @@
 - Finance owns ledgers, invoices, payments, tax accounting, and financial posting—not operational source facts.
 - Inventory owns stock balances and movements; Procurement owns purchasing intent and purchase-order lifecycle.
 - Sales/CRM owns prospects, customer relationships, quotations, and sales orders. Customer-master ownership requires an ADR because transportation currently owns a `customer` table/API.
+- For current US-69 scope, Organization's existing Customer model is the authoritative contact source. Notification owns only channel preferences and accepted destination snapshots; this does not settle future suite-wide Sales/CRM customer-master ownership.
 - Project Management owns projects, work structures, milestones, and project budgets. Current transportation `project` references are legacy and require ownership reconciliation.
 
 ## Forbidden Edges

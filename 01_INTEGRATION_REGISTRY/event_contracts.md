@@ -2,7 +2,7 @@
 
 All domain events crossing module boundaries must be documented here with their JSON payload specifications.
 
-Statuses: `ACTIVE_INTERNAL` exists in current source but is not yet a tenant-ready external contract; `PROPOSED` requires approval and implementation.
+Statuses: `ACTIVE_INTERNAL` exists in current source but is not yet a tenant-ready external contract; `FROZEN_NOT_IMPLEMENTED` is approved for the named story but absent from production source; `PROPOSED` requires approval and implementation.
 
 ## Standard Domain Event Envelope
 
@@ -47,6 +47,37 @@ Compatibility rules: additive optional fields are backward compatible; renames, 
 - Delivery ETA cache invalidation is a local after-commit reaction. Repeated eviction is intentionally idempotent.
 - Ordering is local publication order only; consumers must not assume global ordering. Where order matters, it is scoped to one aggregate and its version/time facts.
 - The current Spring event path is not durable across process failure. It must not be described as guaranteed integration delivery. A database outbox/inbox is required before any external or independently retryable consumer is approved; no Kafka or RabbitMQ infrastructure is approved by P0-07.
+
+## US-69 Delivery Customer Notification Events
+
+Status for every contract in this section: `FROZEN_NOT_IMPLEMENTED`. Producer: Delivery. Consumer: Notification. Version: 1. Transport: Spring-local after-commit publication. Delivery semantics: best-effort handoff; no outbox and no crash-recovery guarantee. Ordering is publication order within the local process only; consumers use event time and must not assume global order. Replay idempotency is `(tenantId,eventId)`, followed by the Notification execution key `(tenantId,eventId,ruleId,channel,normalizedRecipient)`. Security classification is internal operational data. Events are not durably retained independently; resulting Notification audit records follow Notification retention. Version 1 carries no separate correlation/causation identifiers; `eventId` is the trace identity, and adding such optional fields is backward compatible.
+
+Common envelope:
+
+```json
+{
+  "eventId": "UUID",
+  "eventType": "String",
+  "tenantId": "UUID",
+  "occurredAt": "OffsetDateTime",
+  "version": 1,
+  "aggregateType": "DELIVERY_ORDER",
+  "aggregateId": "UUID",
+  "payload": {}
+}
+```
+
+Exact version-1 payloads:
+
+| `eventType` | Trigger | Exact `payload` fields |
+| :--- | :--- | :--- |
+| `DELIVERY_OUT_FOR_DELIVERY` | US-66 commits batch `DISPATCHED`; one event per active member order | `customerId: UUID`, `deliveryNumber: String`, `status: "OUT_FOR_DELIVERY"`, `actor: String` |
+| `DELIVERY_ETA_RISK_CHANGED` | US-67 order calculation changes/initially observes current SLA as `AT_RISK` or `LATE` | `customerId: UUID`, `deliveryNumber: String`, `estimatedArrivalAt: OffsetDateTime`, `slaStatus: "AT_RISK" | "LATE"`, `actor: String` |
+| `DELIVERY_COMPLETED` | US-57 commits POD finalization and order `DELIVERED` | `customerId: UUID`, `deliveryNumber: String`, `status: "DELIVERED"`, `completedAt: OffsetDateTime`, `actor: String` |
+| `DELIVERY_FAILED_ATTEMPT_RECORDED` | US-59 commits a failed attempt | `customerId: UUID`, `deliveryNumber: String`, `status: "FAILED_ATTEMPT"`, `failureDisposition: "REDELIVERY_ELIGIBLE" | "RETURN_TO_BASE_REQUIRED" | "ESCALATED"`, `actor: String` |
+| `DELIVERY_REDELIVERY_SCHEDULED` | US-60 commits schedule/reschedule | `customerId: UUID`, `deliveryNumber: String`, `status: "CONFIRMED"`, `scheduleId: UUID`, `scheduledWindowStart: OffsetDateTime`, `scheduledWindowEnd: OffsetDateTime`, `actor: String` |
+
+`aggregateId` is the Delivery Order ID. Tenant/event/time/version and payload values are produced from trusted committed Delivery state. Phone, email, message body, Customer/Rider aggregate, delivery instructions, free-text failure reason, coordinates, OTP/access secret, provider data, and credentials are prohibited. Notification maps these facts into its existing `OperationalNotificationEvent` and US-77 catalogue; it does not query or recalculate ETA. The ETA rule uses `slaStatus` as its milestone with a 1,440-minute suppression window so a cache-empty restart cannot immediately duplicate the same risk notice. `AT_RISK` to `LATE` remains a distinct milestone.
 
 ## Proposed Suite Event Families
 
