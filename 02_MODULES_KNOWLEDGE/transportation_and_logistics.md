@@ -591,12 +591,14 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
   - `POST /api/v1/deliveries/batches/{batchId}/eta/calculate` — Force recalculation of batch ETA (requires `DELIVERY_BATCH_UPDATE`)
 - **Final Acceptance**: `MVP-1.4-US67-LAST-MILE-ETA-FINAL-ACCEPTANCE-001-RERUN` accepted the feature. Full Maven verify: 1,195 tests with 0 failures/errors and 15 skips; architecture 40/40; real PostgreSQL-backed Chromium ETA acceptance 6/6. Tenant-B IDOR returns 404, tenant spoofing is ineffective, and a `DELIVERY_VIEW`-only user receives 403 on direct single-order calculate.
 
-### US-68 Handle Last-Mile Exceptions (Product Decisions Frozen / Implementation Not Started)
+### US-68 Handle Last-Mile Exceptions (Implementation Complete / Acceptance Pending)
 
 - **Owner and Boundary**: Delivery-owned Last-Mile Planner orchestration, not a new generic exception aggregate. It routes rider no-show/replacement to Rider and Batch assignment, multiple attempts/access/payment to US-59, wrong-address investigation to US-62 plus Location, contactless delivery to US-57 POD, and scheduling to US-60.
 - **No New Persistence or API Family**: Existing `delivery_attempt`, `delivery_escalation`, and `delivery_exception_case` remain authoritative. No `LastMileException` table, new permissions, or `/last-mile-exceptions` API is approved. A future durable-fact proposal must re-evaluate the then-current Flyway head before choosing a migration number.
 - **Operational Rules**: Reporting alone does not change DeliveryOrder status, batch membership/sequence, slot/zone master data, or ETA. Actual failed attempts use US-59 lifecycle/disposition; real Rider/batch/destination mutations use existing US-67 invalidation. No route optimisation, GPS/telematics, customer notification (US-69), or customer self-service (US-70) is in scope.
 - **Security**: Tenant and actor are server-derived; existing method-level permissions apply. Raw access codes, PINs, OTPs, credentials, copied contact data, and live location are prohibited. The workflow is online-only and requires normal tenant/IDOR/version/after-commit controls.
+- **Implemented Planner Projection**: `GET /api/v1/deliveries/{id}/last-mile-planner` composes the tenant-scoped Delivery Order, failed-attempt history, escalation history, and US-62 exception cases into a read-only context with available links/actions. It accepts `DELIVERY_FAIL_VIEW` or `DELIVERY_EXCEPTION_VIEW`; it creates no attempt/case, schedules no redelivery, changes no Rider/Batch, calculates no ETA, sends no notification, and persists no US-68 state.
+- **Technical Verification**: Full Maven verification passed 1,200 tests with 0 failures/errors and 15 skips; architecture passed 45/45; the real PostgreSQL-backed US-68 Chromium suite passed 3/3 and retained US-67 at 6/6. Flyway remains V57 and US-68 has no migration. Final product acceptance is still pending.
 
 ## Remaining Suite Integration Work
 

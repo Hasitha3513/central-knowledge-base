@@ -305,6 +305,17 @@ stateDiagram-v2
    - 🗓️ **Custom Date Range:** Select date within the 30-day scheduling horizon.
 4. Click **Confirm & Schedule**. The order resets to `READY_FOR_ASSIGNMENT` with the new committed delivery window.
 
+### 9.5 Use the Last-Mile Planner (`US-68`, Acceptance Pending)
+
+**Permissions Required:** `DELIVERY_FAIL_VIEW` or `DELIVERY_EXCEPTION_VIEW`
+
+1. Open a Delivery Order details page and review the **Last-Mile Planner** section.
+2. Use its failed-attempt, active-exception, and open-escalation counts to classify the current field situation.
+3. Select the suggested action to navigate to the existing owning workflow, such as recording an actual failed attempt, reviewing a specialized exception, reassigning a Rider, reviewing Batch context, recalculating ETA, escalating, or scheduling redelivery when eligible.
+4. Complete the action in that owning workflow with its own required permission and validation rules.
+
+The Planner is read-only: opening it or selecting a navigation action does not itself change Delivery status, create an exception, schedule redelivery, assign a Rider, mutate a Batch, or calculate ETA. Do not enter raw gate/door codes, PINs, OTPs, credentials, copied contact details, or live-location data. Cross-tenant Delivery IDs remain inaccessible. This workflow is implemented but remains subject to final product acceptance.
+
 ---
 
 ## 10. 📊 Delivery Performance Analytics (`US-61`)
