@@ -43,14 +43,14 @@ Compatibility rules: additive optional fields are backward compatible; renames, 
 - Aggregate/application state and invariant-supporting history, allocation, stock, dispatch, meter, and delivery writes remain in their owning module's single ACID transaction.
 - Spring-local secondary reactions are registered against the active transaction and emitted only after a successful commit. A rollback emits nothing.
 - A local consumer exception is logged after commit and cannot roll back or misrepresent the already-committed primary operation.
-- Notification rule execution deduplicates by its stable execution key derived from event, rule, channel, and recipient. SMTP delivery is independently claimed and retried from database-backed Notification records with a stable attempt idempotency key.
+- Notification rule execution deduplicates by its stable execution key derived from event, rule, channel, and recipient. Email/SMS delivery is independently claimed and retried from database-backed Notification records with a stable attempt idempotency key.
 - Delivery ETA cache invalidation is a local after-commit reaction. Repeated eviction is intentionally idempotent.
 - Ordering is local publication order only; consumers must not assume global ordering. Where order matters, it is scoped to one aggregate and its version/time facts.
 - The current Spring event path is not durable across process failure. It must not be described as guaranteed integration delivery. A database outbox/inbox is required before any external or independently retryable consumer is approved; no Kafka or RabbitMQ infrastructure is approved by P0-07.
 
 ## US-69 Delivery Customer Notification Events
 
-Status for every contract in this section: `FROZEN_NOT_IMPLEMENTED`. Producer: Delivery. Consumer: Notification. Version: 1. Transport: Spring-local after-commit publication. Delivery semantics: best-effort handoff; no outbox and no crash-recovery guarantee. Ordering is publication order within the local process only; consumers use event time and must not assume global order. Replay idempotency is `(tenantId,eventId)`, followed by the Notification execution key `(tenantId,eventId,ruleId,channel,normalizedRecipient)`. Security classification is internal operational data. Events are not durably retained independently; resulting Notification audit records follow Notification retention. Version 1 carries no separate correlation/causation identifiers; `eventId` is the trace identity, and adding such optional fields is backward compatible.
+Status for every contract in this section: `IMPLEMENTED_US69 / ACCEPTANCE_PENDING`. Producer: Delivery. Consumer: Notification through the System integration bridge. Version: 1. Transport: Spring-local after-commit publication. Delivery semantics: best-effort handoff; no outbox and no crash-recovery guarantee. Ordering is publication order within the local process only; consumers use event time and must not assume global order. Replay idempotency is `(tenantId,eventId)`, followed by the Notification execution key `(tenantId,eventId,ruleId,channel,normalizedRecipient)`. Security classification is internal operational data. Events are not durably retained independently; resulting Notification audit records follow Notification retention. Version 1 carries no separate correlation/causation identifiers; `eventId` is the trace identity, and adding such optional fields is backward compatible.
 
 Common envelope:
 
@@ -78,6 +78,8 @@ Exact version-1 payloads:
 | `DELIVERY_REDELIVERY_SCHEDULED` | US-60 commits schedule/reschedule | `customerId: UUID`, `deliveryNumber: String`, `status: "CONFIRMED"`, `scheduleId: UUID`, `scheduledWindowStart: OffsetDateTime`, `scheduledWindowEnd: OffsetDateTime`, `actor: String` |
 
 `aggregateId` is the Delivery Order ID. Tenant/event/time/version and payload values are produced from trusted committed Delivery state. Phone, email, message body, Customer/Rider aggregate, delivery instructions, free-text failure reason, coordinates, OTP/access secret, provider data, and credentials are prohibited. Notification maps these facts into its existing `OperationalNotificationEvent` and US-77 catalogue; it does not query or recalculate ETA. The ETA rule uses `slaStatus` as its milestone with a 1,440-minute suppression window so a cache-empty restart cannot immediately duplicate the same risk notice. `AT_RISK` to `LATE` remains a distinct milestone.
+
+The implementation enforces the exact common/event-specific payload-key sets and rejects missing, blank, or additional fields. Nested publication from the Delivery fact's after-commit callback is dispatched immediately rather than registered against the already-finished transaction phase. Provider/consumer failure remains isolated from committed Delivery state. Technical closure passed full Maven 1,220/0/0/15, architecture 42/42, and real PostgreSQL-backed Chromium 6/6; final product acceptance remains pending.
 
 ## Proposed Suite Event Families
 

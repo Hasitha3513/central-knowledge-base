@@ -316,6 +316,18 @@ stateDiagram-v2
 
 The Planner is read-only: opening it or selecting a navigation action does not itself change Delivery status, create an exception, schedule redelivery, assign a Rider, mutate a Batch, or calculate ETA. Do not enter raw gate/door codes, PINs, OTPs, credentials, copied contact details, or live-location data. Cross-tenant Delivery IDs remain inaccessible.
 
+### 9.6 Review Delivery Customer Notifications (`US-69`)
+
+**Permissions Required:** `NOTIFICATION_RULE_VIEW` to view the timeline and effective preferences; `NOTIFICATION_RULE_MANAGE` to replace a preference profile through the API.
+
+1. Open a Delivery Order details page and locate **Customer notification timeline**.
+2. Review the event/template label, Email or SMS channel, current status, masked destination, created/sent time, attempt count, and safe failure category.
+3. Treat `SENT` as provider/local-adapter acceptance; it is not proof that the recipient's device displayed the message.
+
+Notifications are generated from committed out-for-delivery, ETA-risk, completion, failed-attempt, and redelivery facts. With no explicit preference profile, a valid customer Email address is enabled and SMS is disabled. SMS is used only after explicit enablement. Preference changes affect future events; an already accepted notification keeps its normalized destination snapshot for deterministic retry.
+
+The timeline is read-only and exposes masked destinations only. It provides no send, resend, retry, provider, or message-body action. Do not place OTPs, access/gate codes, credentials, free-text failure notes, Rider private data, or other secrets in notification workflows. Customer portal/login, customer preference UI, tracking links, push, WhatsApp, voice, callbacks, and manual resend remain unavailable in US-69.
+
 ---
 
 ## 10. 📊 Delivery Performance Analytics (`US-61`)

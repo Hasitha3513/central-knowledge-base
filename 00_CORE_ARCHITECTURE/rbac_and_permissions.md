@@ -62,3 +62,15 @@ US-56 seeds and enforces its four Delivery permissions through V46 and Spring Se
 | `DELIVERY_RIDER_OVERRIDE` | Override rider zone mismatch or capacity | IMPLEMENTED (US-65) |
 
 Future Delivery APIs must seed and enforce the narrowest applicable permission before marking any story implemented.
+
+## Notification Permission Catalogue
+
+US-69 reuses the existing US-77 Notification permissions; it introduces no Delivery notification-send permission.
+
+| Permission | Purpose | Implementation status |
+| :--- | :--- | :--- |
+| `NOTIFICATION_VIEW` | View the authenticated internal user's own IN_APP notification inbox | IMPLEMENTED_US77 |
+| `NOTIFICATION_RULE_VIEW` | View Notification rules, templates, masked delivery/attempt diagnostics, and effective customer notification preferences within the active Tenant | IMPLEMENTED_US77_US69 |
+| `NOTIFICATION_RULE_MANAGE` | Manage rules/templates and replace a same-Tenant customer's complete Email/SMS preference profile | IMPLEMENTED_US77_US69 |
+
+US-69 history and preference reads require `NOTIFICATION_RULE_VIEW`; preference replacement requires `NOTIFICATION_RULE_MANAGE`. Literal external `/api/v1/...` paths and servlet-context-relative paths are covered by security regressions. Customer identifiers resolve under the server-derived Tenant, cross-Tenant targets return safe `404`, and client-supplied Tenant or recipient authority is never accepted.

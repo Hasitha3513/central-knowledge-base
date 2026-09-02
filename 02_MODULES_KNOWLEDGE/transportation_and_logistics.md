@@ -2,7 +2,7 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V57 (V57: Tenant-local operational business keys, notification execution keys, and bunker idempotency)
+Schema baseline: Flyway V1–V58 (V58: US-69 Delivery customer notifications)
 Delivery US-56, US-57, US-58, US-59, US-60, US-61, US-62: COMPLETE
 MVP 1.3 Delivery Operations: 7/7 COMPLETE (CLOSED)
 US-63 Manage Delivery Zones: COMPLETE (MVP-1.4-US63-DELIVERY-ZONES-FINAL-ACCEPTANCE-001) — V52 Flyway, pure Java ray-casting PiP, DeliveryZoneController, DeliveryZoneListPage.tsx
@@ -11,7 +11,7 @@ US-65 Manage Riders: COMPLETE (MVP-1.4-US65-RIDERS-FINAL-ACCEPTANCE-001-RERUN) �
 US-66 Batch Delivery Orders: COMPLETE (MVP-1.4-US66-BATCH-DELIVERY-ORDERS-FINAL-ACCEPTANCE-001) — V55 Flyway, DeliveryBatchController, DeliveryBatchListPage.tsx, deliveryBatches.spec.ts
 US-67 Calculate Last-Mile ETA: COMPLETE (MVP-1.4-US67-LAST-MILE-ETA-FINAL-ACCEPTANCE-001-RERUN) — HEURISTIC_ONLY computed projection, RiderEtaContextPort, tenant-scoped generation-aware cache/invalidation, V56 Rider transport-mode migration; current Flyway head V57. Final acceptance: Maven 1,195/0/0/15, architecture 40/40, and real PostgreSQL-backed Chromium 6/6 PASS.
 US-68 Handle Last-Mile Exceptions: COMPLETE (MVP-1.4-US68-LAST-MILE-EXCEPTIONS-FINAL-ACCEPTANCE-001) — read-only Delivery Planner projection over US-59/60/62/57/65/66/67 capabilities; no migration, aggregate, persistence, permission, or duplicate API family. Final acceptance: Maven 1,200/0/0/15, architecture 45/45, and real PostgreSQL-backed Chromium 3/3 PASS.
-US-69 Receive Delivery Notifications: PRODUCT DECISIONS FROZEN / IMPLEMENTATION NOT_STARTED — Delivery-owned facts feed the existing US-77 Notification rule/template/attempt engine; Email and provider-neutral SMS are MVP, while customer IN_APP identity and OTP transport are explicitly deferred. Current Flyway head remains V57; V58 is only the expected implementation migration if still free.
+US-69 Receive Delivery Notifications: IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING — five Delivery-owned after-commit facts feed the existing US-77 Notification rule/template/attempt engine; Tenant-scoped preferences, Organization contact projection, Email/provider-neutral SMS, masked diagnostics, and Delivery timeline are implemented by V58. Technical closure: Maven 1,220/0/0/15, architecture 42/42, real PostgreSQL-backed Chromium 6/6.
 Delivery US-66 final acceptance gate: COMPLETE (MVP-1.4-US66-BATCH-DELIVERY-ORDERS-FINAL-ACCEPTANCE-001)
 Delivery US-65 final acceptance gate: COMPLETE (MVP-1.4-US65-RIDERS-FINAL-ACCEPTANCE-001-RERUN)
 Delivery US-64 final acceptance gate: COMPLETE (MVP-1.4-US64-DELIVERY-SLOTS-FINAL-ACCEPTANCE-001)
@@ -59,7 +59,7 @@ All current cross-aggregate references are IDs/value references. The only Delive
 
 ## Published Events
 
-Current internal event types are `VehicleReadingRecorded`, `VehicleReadingCorrected`, `VehicleMeterResetRecorded`, `RouteDisruptionCreatedEvent`, `RouteDisruptionResolvedEvent`, and `OperationalNotificationEvent`. Exact payloads and remaining tenant deficiencies are registered in `../01_INTEGRATION_REGISTRY/event_contracts.md`. P0-07 makes all production Spring-local publication transaction-aware: events registered inside an owning transaction are delivered only after commit, never after rollback. `OperationalNotificationEvent` now carries explicit `tenantId` and `schemaVersion`; Notification infrastructure resolves Tenant identity from the authoritative execution context.
+Current internal event types include `VehicleReadingRecorded`, `VehicleReadingCorrected`, `VehicleMeterResetRecorded`, `RouteDisruptionCreatedEvent`, `RouteDisruptionResolvedEvent`, the five version-1 `DeliveryCustomerNotificationEvent` types, and `OperationalNotificationEvent`. Exact payloads and remaining tenant deficiencies are registered in `../01_INTEGRATION_REGISTRY/event_contracts.md`. P0-07 makes all production Spring-local publication transaction-aware: events registered inside an owning transaction are delivered only after commit, never after rollback. `OperationalNotificationEvent` carries explicit `tenantId` and `schemaVersion`; Notification infrastructure resolves Tenant identity from the authoritative execution context.
 
 Primary state transitions—including Trip assignment/dispatch/start/complete, Fuel Issue stock/history/reading changes, Fleet readings, and Delivery order/batch/rider changes—remain synchronous owning-module ACID operations. Delivery ETA cache eviction and notification generation are secondary local after-commit reactions. Notification execution-key checks and database-backed email delivery claims provide duplicate protection where side effects matter. No implemented reporting projection or general external event export currently justifies a durable broker/outbox; local events are explicitly non-durable and a future outbox/inbox boundary requires separate approval.
 
@@ -174,7 +174,7 @@ P0-05 hardens the existing Identity model without schema changes. Identity admin
 | fuel | `fuel_station`, `fuel_limit_policy`, `fuel_issue`, `fuel_issue_history`, `fuel_price`, `fuel_purchase`, `fuel_purchase_history`, `bunker_tank`, `bunker_dip_reading`, `bunker_stock_adjustment`, `bunker_stock_movement` |
 | freight | `freight_order`, `freight_order_line`, `cargo_manifest`, `cargo_manifest_item`, `load_plan`, `load_plan_item_placement`, `freight_insurance_policy`, `freight_insurance_claim`, `freight_insurance_settlement`, `cargo_exception`, `cargo_exception_history` |
 | delivery | `delivery_order`, `delivery_number_counter`, `proof_of_delivery`, `pod_evidence`, `delivery_attempt`, `delivery_contact_attempt`, `delivery_escalation`, `delivery_redelivery_schedule`, `delivery_exception_case`, `delivery_exception_evidence`, `delivery_zone`, `delivery_slot`, `delivery_slot_reservation`, `delivery_rider`, `delivery_rider_zone`, `delivery_rider_shift`, `delivery_order_rider_assignment`, `delivery_batch`, `delivery_batch_order`, `delivery_batch_counter` |
-| notification | `notification`, `notification_template`, `notification_rule`, `notification_rule_policy`, `notification_rule_quiet_day`, `notification_rule_execution`, `notification_delivery_attempt` |
+| notification | `notification`, `notification_template`, `notification_rule`, `notification_rule_policy`, `notification_rule_quiet_day`, `notification_rule_execution`, `notification_delivery_attempt`, `customer_notification_preference` |
 | offlinesync | `offline_sync_operation` |
 
 Entityless join, collection, counter, and permission-catalogue tables remain owned by the listed module. Reporting is a consumer of published query contracts and owns no operational source table. P0-03 removed the two production-code direct-SQL violations: Freight reads Fleet capacity through `FleetReportingQuery`, while the development-only System fixture no longer probes an Organization-owned table or repository. The production foreign-SQL baseline is empty. The opt-in multi-owner development fixture and test-only cross-owner SQL setup/cleanup remain provisioning/test-infrastructure debt and are not production ownership authority.
@@ -289,7 +289,7 @@ V43 deterministically seeds UUID `4f8b6a3b-2c1e-4d89-9a72-f9e4c5b3671a`, `CLTS-L
 | :--- | :--- | :--- | :--- | :--- |
 | `trip_operational_event` | Checkpoint, delay, and incident timeline | `id UUID` | trip, event_type, occurred_at, actor, location/coordinates, delay/incident/checkpoint details, created_at | trip reference; type-specific checks; trip/time and type indexes |
 
-### Notification and offline-sync tables (V25–V29)
+### Notification and offline-sync tables (V25–V29, V58)
 
 | Table | Purpose | Primary key | Key columns | Constraints / indexes |
 | :--- | :--- | :--- | :--- | :--- |
@@ -299,8 +299,28 @@ V43 deterministically seeds UUID `4f8b6a3b-2c1e-4d89-9a72-f9e4c5b3671a`, `CLTS-L
 | `notification_rule_policy` | Quiet hours/suppression/escalation policy | `rule_id UUID` | timezone, quiet settings, suppression window, escalation settings, audit/version | FK rule cascade; window/time checks |
 | `notification_rule_quiet_day` | Quiet weekdays | `(rule_id,day_of_week)` | rule, weekday | FK policy; weekday check |
 | `notification_rule_execution` | Rule decision audit | `id UUID` | execution/event/aggregate/rule/recipient/channel/outcome/suppression/control/failure/timestamps | unique execution key; FKs; channel/outcome checks; audit indexes |
-| `notification_delivery_attempt` | Durable email attempt | `id UUID` | notification, attempt number/state/due/start/end/error/provider/created | unique notification/attempt; attempt/state checks; due/history indexes |
+| `notification_delivery_attempt` | Durable Email/SMS attempt | `id UUID` | notification, attempt number/state/due/start/end/error/provider/created | unique notification/attempt; attempt/state checks; due/history indexes |
+| `customer_notification_preference` | Complete customer Email/SMS operational preference profile | `id UUID` | tenant, logical customer reference, channel flags, audit/version | unique and indexed `(tenant_id, customer_id)`; no Organization FK |
 | `offline_sync_operation` | Idempotent server inbox | `operation_id UUID` | operation type/version, actor/client, aggregate, request hash, result/version, processed/created | actor FK; version/result checks; actor/aggregate indexes |
+
+#### Table: `customer_notification_preference`
+
+- **Purpose:** Stores the Notification-owned complete operational Email/SMS preference profile for one Customer.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, Indexed)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY | Preference profile identifier |
+| `tenant_id` | UUID | NO | - | UNIQUE with `customer_id`; indexed | Authoritative Tenant scope |
+| `customer_id` | UUID | NO | - | Logical FK -> Organization `customer(id)`; no physical FK | Same-Tenant Customer reference validated through the public lookup |
+| `email_enabled` | BOOLEAN | NO | - | - | Whether future operational Delivery Email is enabled |
+| `sms_enabled` | BOOLEAN | NO | - | - | Whether future operational Delivery SMS is explicitly enabled |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Creation timestamp |
+| `updated_at` | TIMESTAMPTZ | NO | - | - | Last replacement timestamp |
+| `version` | BIGINT | NO | `0` | Optimistic version | Concurrency-control version |
+
+V58 also permits `SMS` in Notification channel constraints, permits `EVENT_CUSTOMER` in rule recipient types, expands `notification.recipient` to `VARCHAR(320)`, adds `(tenant_id, aggregate_type, aggregate_id, created_at DESC)` on `notification_rule_execution`, and seeds ten version-1 templates plus ten Tenant-scoped rules for the five frozen Delivery events.
 
 ### Routing history and freight tables (V30–V42)
 
@@ -518,7 +538,7 @@ Indexes: `(tenant_id, delivery_attempt_id)`.
 
 Indexes: `(tenant_id, delivery_id)`, `(tenant_id, status)`.
 
-V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions; V48 US-59 Failed Deliveries, attempts, contact attempts, escalations, and permissions; V49 US-60 Re-Delivery schedules, counter, and permissions; V50 US-61 Delivery Performance Analytics composite query indexes and DELIVERY_ANALYTICS_VIEW permission; V51–V56 Delivery exceptions, zones, slots, riders, batches, and rider transport mode; V57 Tenant-local operational business keys and idempotency constraints.
+V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions; V48 US-59 Failed Deliveries, attempts, contact attempts, escalations, and permissions; V49 US-60 Re-Delivery schedules, counter, and permissions; V50 US-61 Delivery Performance Analytics composite query indexes and DELIVERY_ANALYTICS_VIEW permission; V51–V56 Delivery exceptions, zones, slots, riders, batches, and rider transport mode; V57 Tenant-local operational business keys and idempotency constraints; V58 US-69 Delivery customer preferences, Email/SMS templates/rules, channel/recipient constraint extensions, and history index.
 
 US-56, US-57, US-59, US-60, and US-61 Delivery persistence and indexes are introduced by forward migrations V46, V47, V48, V49, and V50.
 
@@ -602,18 +622,19 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
 - **Implemented Planner Projection**: `GET /api/v1/deliveries/{id}/last-mile-planner` composes the tenant-scoped Delivery Order, failed-attempt history, escalation history, and US-62 exception cases into a read-only context with available links/actions. It accepts `DELIVERY_FAIL_VIEW` or `DELIVERY_EXCEPTION_VIEW`; it creates no attempt/case, schedules no redelivery, changes no Rider/Batch, calculates no ETA, sends no notification, and persists no US-68 state.
 - **Final Acceptance**: `MVP-1.4-US68-LAST-MILE-EXCEPTIONS-FINAL-ACCEPTANCE-001` accepted the read-only Planner. Full Maven verification passed 1,200 tests with 0 failures/errors and 15 skips; architecture passed 45/45; the real PostgreSQL-backed US-68 Chromium suite passed 3/3 and retained US-67 at 6/6. Flyway remains V57 and US-68 has no migration.
 
-### US-69 Receive Delivery Notifications (Decisions Frozen; Not Implemented)
+### US-69 Receive Delivery Notifications (Implementation Complete; Acceptance Pending)
 
 - **Requirement and boundary**: Customers/recipients receive operational delivery status, ETA-risk, completion, failure, and redelivery notices. Delivery owns the committed facts; Notification owns US-77 rule evaluation, versioned templates, recipient resolution, delivery attempts, provider abstraction, retry, status, and diagnostics. US-68 Planner never sends. US-69 creates no second rules engine.
-- **Frozen events**: Version-1 `DELIVERY_OUT_FOR_DELIVERY`, `DELIVERY_ETA_RISK_CHANGED`, `DELIVERY_COMPLETED`, `DELIVERY_FAILED_ATTEMPT_RECORDED`, and `DELIVERY_REDELIVERY_SCHEDULED` are approved but not implemented. They use the standard event identity/Tenant/time/version envelope, aggregate type `DELIVERY_ORDER`, and safe payload identifiers/projections. They contain no phone, email, free-text notes, OTP, access code, coordinates, provider data, or whole aggregate. Publication is local after commit; the current handoff is not crash-durable.
+- **Implemented events**: Version-1 `DELIVERY_OUT_FOR_DELIVERY`, `DELIVERY_ETA_RISK_CHANGED`, `DELIVERY_COMPLETED`, `DELIVERY_FAILED_ATTEMPT_RECORDED`, and `DELIVERY_REDELIVERY_SCHEDULED` use the standard event identity/Tenant/time/version envelope, aggregate type `DELIVERY_ORDER`, and exact allow-listed payload fields including the server-derived actor. They contain no phone, email, free-text notes, OTP, access code, coordinates, provider data, or whole aggregate. Publication is local after commit; the current handoff is not crash-durable.
 - **ETA rule**: Notification consumes a Delivery-owned order ETA risk fact only when the new US-67 SLA state is `AT_RISK` or `LATE` and the prior current cache state is absent/different. `slaStatus` is the suppression milestone with a 1,440-minute window. Notification never calculates or polls ETA.
 - **Recipient and consent**: Organization remains canonical owner of Customer phone/email and exposes a new tenant-aware `CustomerNotificationContactLookup`; Notification stores only logical `customer_id` preferences plus normalized destination snapshots on accepted notification/execution records. With no profile, operational Email is enabled when valid and SMS is disabled; once a profile exists, only explicitly enabled channels are eligible. No marketing behavior is approved.
 - **Channels/providers**: Email reuses the existing SMTP/provider-neutral port. SMS is added behind a provider-neutral Notification port with a deterministic/local MVP adapter that never logs destination/body; no SMS vendor SDK is approved. Customer IN_APP/push is deferred until US-70 supplies an authenticated customer-user relationship. WhatsApp, callbacks/receipts, manual send/resend, and real-provider selection are deferred.
 - **Templates and privacy**: Existing global, versioned, channel-specific Notification templates remain authoritative; tenant rules select compatible templates. Allowed variables are limited to delivery number/status, customer display name, ETA/SLA, completion time, failure disposition, and redelivery window. No tenant template override/localization framework, secret, raw internal UUID, copied customer aggregate, or provider payload is approved.
 - **Reliability**: End-to-end semantics are `BEST_EFFORT` because local after-commit handoff is non-durable. Once persisted, Email/SMS use the existing three-attempt durable retry schedule (1 minute, then 2 minutes) and tenant-qualified execution dedupe. `SENT` means provider/local-adapter acceptance, not device delivery. Delivery state never changes because Notification failed.
-- **Persistence expectation**: Implementation requires Notification-owned `customer_notification_preference(id, tenant_id, customer_id, email_enabled, sms_enabled, created_at, updated_at, version)`, unique `(tenant_id, customer_id)`, plus SMS/`EVENT_CUSTOMER` constraint extensions, recipient width alignment to 320, and a `(tenant_id, aggregate_type, aggregate_id, created_at DESC)` execution index. `customer_id` is a logical Organization reference with no cross-module physical FK. Historical migrations remain immutable; use `V58__delivery_notifications_us69.sql` only if V58 is still free.
+- **Persistence**: `V58__delivery_notifications_us69.sql` creates Notification-owned `customer_notification_preference(id, tenant_id, customer_id, email_enabled, sms_enabled, created_at, updated_at, version)`, unique `(tenant_id, customer_id)`, plus SMS/`EVENT_CUSTOMER` constraint extensions, recipient width alignment to 320, and a `(tenant_id, aggregate_type, aggregate_id, created_at DESC)` execution index. `customer_id` is a logical Organization reference with no cross-module physical FK. Historical migrations remain immutable.
 - **Security/API/UX**: Existing `NOTIFICATION_RULE_VIEW` protects tenant-scoped history/preference reads and `NOTIFICATION_RULE_MANAGE` protects preference writes. Notification owns the aggregate-filtered delivery diagnostics and preference APIs; there is no Delivery notification CRUD/send endpoint. The only new operator UX is a masked read-only Notifications timeline on Delivery Order details. US-70 retains customer portal/login/preference UI and secure tracking-link ownership.
-- **Program state**: MVP 1.4 remains 6/8, overall remains 63/87, and deferred remains 24/87. Next task is `MVP-1.4-US69-DELIVERY-NOTIFICATIONS-IMPLEMENTATION-001`.
+- **Technical verification**: Complete Maven passed 1,220 tests with 0 failures/errors and 15 skips; architecture passed 42/42; Checkstyle, PMD, and SpotBugs passed; frontend TypeScript, 57-file/254-test Vitest, production build, and changed-file lint passed; the real PostgreSQL-backed Chromium suite passed 6/6. Final acceptance has not started.
+- **Program state**: US-69 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`. MVP 1.4 remains 6/8, overall remains 63/87, and deferred remains 24/87. Next task is `MVP-1.4-US69-DELIVERY-NOTIFICATIONS-FINAL-ACCEPTANCE-001`.
 
 ## Remaining Suite Integration Work
 

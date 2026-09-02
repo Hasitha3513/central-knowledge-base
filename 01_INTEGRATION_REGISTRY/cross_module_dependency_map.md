@@ -16,8 +16,8 @@
 | Projects | Finance | budgets and actual costs | Events/API | PROPOSED |
 | Sales/CRM | Inventory | available-to-promise | API | PROPOSED |
 | Sales/CRM | Transportation | shipment plan and delivery status | Commands/API and events | PROPOSED |
-| Delivery (Transportation internal) | Freight, Trip, Organization, Notification, Offline Sync | Organization-owned customer/location references; Delivery-owned evidence, failed-attempt, redelivery, exception, zone, slot, Rider, batch, ETA, and Planner facts; US-69 customer communications; Offline Sync for POD | Public provider-neutral ports, standard-envelope local events, and OfflineOperationHandler only; no direct repositories/JPA/tables | US56–US68_IMPLEMENTED; US69_DECISIONS_FROZEN; US70_DEFERRED |
-| Notification | Delivery, Organization | US-69 committed Delivery facts and tenant-scoped active Customer display/contact projection | Delivery version-1 after-commit events plus Organization public `CustomerNotificationContactLookup`; no source repository/entity/table access | US69_DECISIONS_FROZEN_NOT_IMPLEMENTED |
+| Delivery (Transportation internal) | Freight, Trip, Organization, Notification, Offline Sync | Organization-owned customer/location references; Delivery-owned evidence, failed-attempt, redelivery, exception, zone, slot, Rider, batch, ETA, Planner, and US-69 customer-notification facts; Offline Sync for POD | Public provider-neutral ports, standard-envelope local events, and OfflineOperationHandler only; no direct repositories/JPA/tables | US56–US69_IMPLEMENTED; US69_ACCEPTANCE_PENDING; US70_DEFERRED |
+| Notification | Delivery, Organization | US-69 committed Delivery facts and tenant-scoped active Customer display/contact projection | Delivery version-1 after-commit events through the System integration bridge plus Organization public `CustomerNotificationContactLookup`; no source repository/entity/table access | US69_IMPLEMENTED_ACCEPTANCE_PENDING |
 
 ## Ownership Decisions
 
