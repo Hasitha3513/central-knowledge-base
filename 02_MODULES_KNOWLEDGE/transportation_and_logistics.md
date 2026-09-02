@@ -9,7 +9,7 @@ US-63 Manage Delivery Zones: COMPLETE (MVP-1.4-US63-DELIVERY-ZONES-FINAL-ACCEPTA
 US-64 Manage Delivery Slots: COMPLETE (MVP-1.4-US64-DELIVERY-SLOTS-FINAL-ACCEPTANCE-001) — V53 Flyway, DeliverySlotController, DeliverySlotListPage.tsx
 US-65 Manage Riders: COMPLETE (MVP-1.4-US65-RIDERS-FINAL-ACCEPTANCE-001-RERUN) — V54 Flyway, DeliveryRiderController, DeliveryRiderListPage.tsx, deliveryRiders.spec.ts
 US-66 Batch Delivery Orders: COMPLETE (MVP-1.4-US66-BATCH-DELIVERY-ORDERS-FINAL-ACCEPTANCE-001) — V55 Flyway, DeliveryBatchController, DeliveryBatchListPage.tsx, deliveryBatches.spec.ts
-US-67 Calculate Last-Mile ETA: IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING (MVP-1.4-US67-FULL-TECHNICAL-CLOSURE-001) — HEURISTIC_ONLY computed projection, RiderEtaContextPort, tenant-scoped generation-aware cache/invalidation, V56 Rider transport-mode migration; current Flyway head V57. Final acceptance remains required.
+US-67 Calculate Last-Mile ETA: COMPLETE (MVP-1.4-US67-LAST-MILE-ETA-FINAL-ACCEPTANCE-001-RERUN) — HEURISTIC_ONLY computed projection, RiderEtaContextPort, tenant-scoped generation-aware cache/invalidation, V56 Rider transport-mode migration; current Flyway head V57. Final acceptance: Maven 1,195/0/0/15, architecture 40/40, and real PostgreSQL-backed Chromium 6/6 PASS.
 Delivery US-66 final acceptance gate: COMPLETE (MVP-1.4-US66-BATCH-DELIVERY-ORDERS-FINAL-ACCEPTANCE-001)
 Delivery US-65 final acceptance gate: COMPLETE (MVP-1.4-US65-RIDERS-FINAL-ACCEPTANCE-001-RERUN)
 Delivery US-64 final acceptance gate: COMPLETE (MVP-1.4-US64-DELIVERY-SLOTS-FINAL-ACCEPTANCE-001)
@@ -575,7 +575,7 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
 - `POST /api/v1/deliveries/batches/{id}/complete` — Complete batch (requires `DELIVERY_BATCH_UPDATE`)
 - `POST /api/v1/deliveries/batches/{id}/cancel` — Cancel batch and unbatch active memberships (requires `DELIVERY_BATCH_CANCEL`)
 
-### US-67 Calculate Last-Mile ETA (Implementation Complete / Acceptance Pending)
+### US-67 Calculate Last-Mile ETA (Complete)
 
 #### Architecture & Contract
 - **Domain Owner**: `com.transportlogistics.app.delivery` (orchestrates order/batch ETA calculation and SLA status projection).
@@ -589,7 +589,7 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
   - `POST /api/v1/deliveries/orders/{orderId}/eta/calculate` — Force recalculation of single order ETA (requires `DELIVERY_UPDATE`; literal `/api/v1` matcher and method security both enforced)
   - `GET /api/v1/deliveries/batches/{batchId}/eta` — Get multi-stop batch cumulative ETA projection (requires `DELIVERY_BATCH_VIEW`)
   - `POST /api/v1/deliveries/batches/{batchId}/eta/calculate` — Force recalculation of batch ETA (requires `DELIVERY_BATCH_UPDATE`)
-- **Technical Verification**: Full Maven verify 1,195 tests with 0 failures/errors and 15 skips; architecture 40/40; real PostgreSQL-backed Chromium ETA acceptance 6/6. Tenant-B IDOR returns 404, tenant spoofing is ineffective, and a `DELIVERY_VIEW`-only user receives 403 on direct single-order calculate. This is technical closure evidence, not final story acceptance.
+- **Final Acceptance**: `MVP-1.4-US67-LAST-MILE-ETA-FINAL-ACCEPTANCE-001-RERUN` accepted the feature. Full Maven verify: 1,195 tests with 0 failures/errors and 15 skips; architecture 40/40; real PostgreSQL-backed Chromium ETA acceptance 6/6. Tenant-B IDOR returns 404, tenant spoofing is ineffective, and a `DELIVERY_VIEW`-only user receives 403 on direct single-order calculate.
 
 ## Remaining Suite Integration Work
 
