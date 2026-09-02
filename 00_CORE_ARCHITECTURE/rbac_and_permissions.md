@@ -5,6 +5,17 @@
 - Runtime authority comes from authenticated identity, active server-side tenant membership, and role-template permissions assigned through tenant membership.
 - Frontend visibility is not authorization.
 - New backend actions must be enforced server-side and seeded through forward-only migrations before public API exposure.
+- HTTP authorization is fail-closed: public/self-service routes and permission rules are explicit, and unmatched routes are denied.
+- `IDENTITY_MANAGE` authorizes Tenant-local identity administration only. User reads, lists, updates, deactivation, and new membership creation are constrained to the authenticated actor's active Tenant.
+- Identity administrators may assign only roles whose active permissions are a subset of the administrator's current server-resolved permissions. They may not update or delete a global role template while it is assigned outside their Tenant.
+- JWT role and permission claims are informational token contents; every bearer request reloads the active user, active membership, active Tenant, active roles, and active permissions from server-side state.
+- Offline Sync is the documented dynamic-permission exception at the HTTP edge: the batch requires authentication and the application service authorizes each operation against its existing operation-specific permission.
+
+## P0-05 Contextual Authorization Decisions
+
+- Implemented contextual facts: active Tenant membership, target-user Tenant ownership, actor permission ceiling, and cross-Tenant role-assignment protection.
+- No generic ABAC/policy engine was introduced.
+- No creator-versus-approver segregation rule was added because current Trip records and approved contracts do not provide an authoritative creator fact. This remains a governance/data-model prerequisite, not an implicit runtime rule.
 
 ## Delivery Operations Permission Catalogue
 

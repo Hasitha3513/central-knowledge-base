@@ -138,6 +138,8 @@ US-56 publishes no cross-module event because it captures requirements and readi
 
 Flyway V43 implements the first-class Tenant and Tenant membership foundation. V44 adds membership-scoped role assignment and non-null, indexed `tenant_id` ownership to current-scope operational tables across Identity token persistence, Organization, Fleet/Driver, Routing/Trip, Fuel, Freight, Notification, and Offline Sync. V57 replaces legacy global operational business-key constraints with Tenant-local uniqueness for Organization, Fleet/Driver, Routing/Trip, Fuel, and Freight; it also Tenant-scopes notification execution keys and bunker movement idempotency. Existing physical foreign keys reflect the current modular monolith and are factual documentation, not approval for future cross-module coupling. Historical migrations are immutable.
 
+P0-05 hardens the existing Identity model without schema changes. Identity administration resolves an explicit application context from the authenticated request: Tenant ID, actor, and current server-side permissions. User lookup/list/mutation is Tenant-scoped, user creation assigns membership to the actor's Tenant, permission grants are capped by the actor's current permission set, and role templates assigned in another Tenant cannot be updated or deleted. Unmatched HTTP routes deny by default. JWT structure remains unchanged and embedded authorities are not trusted without server-side reload.
+
 ### P0-02 authoritative table ownership registry
 
 | Owner | Tables |

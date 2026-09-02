@@ -56,6 +56,8 @@ This manual explains how to complete day-to-day transportation and logistics wor
 
 The system is strictly **permission-controlled** and **tenant-isolated**. Users only see records, actions, and menu items matching their assigned organization role.
 
+Organization administrators with `IDENTITY_MANAGE` can administer users only in their own active organization. New users are enrolled into that organization automatically. An administrator cannot assign a role containing permissions the administrator does not currently hold, and cannot change or remove a role template that is also assigned in another organization. Cross-organization user identifiers are reported as unavailable.
+
 ### 📌 Current-Scope Rules & Invariants
 - 🔒 **Vehicle Allocation:** Reserving a vehicle means assigning an eligible vehicle to a trip. There is no separate provisional hold.
 - 📄 **Compliance Documents:** Recording a document captures metadata and a verified file reference or URL.

@@ -14,7 +14,7 @@ The precise request/response schemas remain authoritative in controller DTOs and
 
 | Capability | Implemented route family | Owner | Status / notes |
 | :--- | :--- | :--- | :--- |
-| Identity | `/auth`, `/users`, `/roles` | Identity | Login, refresh, and bearer requests revalidate active membership/Tenant server-side; assignments use `tenant_membership_role` with global role/permission definitions; JWT contract unchanged |
+| Identity | `/auth`, `/users`, `/roles` | Identity | Login, refresh, and bearer requests revalidate active membership/Tenant server-side. `/users` administration is limited to the actor's active Tenant; new users join that Tenant. Role/user grants cannot exceed the actor's current permissions, and global role templates assigned outside the actor Tenant cannot be mutated. Assignments use `tenant_membership_role`; JWT and REST schemas are unchanged. |
 | Organization reference data | `/customers`, `/departments`, `/locations`, `/projects`, `/vendors` | Organization | Implemented; some ownership will need suite-level reconciliation |
 | Fleet and drivers | `/vehicles`, `/vehicle-categories`, `/vehicle-types`, `/drivers` | Fleet | Implemented |
 | Fleet compliance/usage | `/vehicles/{id}/documents`, `/readings`, `/meter-resets`, `/maintenance-schedules`, `/lubricant-logs`; driver licenses/exceptions/violations/medical/drug tests | Fleet | Implemented; HRM/Maintenance ownership must be resolved before extraction |
@@ -31,7 +31,7 @@ The precise request/response schemas remain authoritative in controller DTOs and
 | Delivery Zones (US-63) | `POST/GET /v1/delivery-zones`, `GET/PUT /v1/delivery-zones/{id}`, `POST /v1/delivery-zones/{id}/activate`, `/deactivate`, `POST /v1/delivery-zones/resolve` | Delivery | Implemented GeoJSON polygon zone management, PiP resolution, and serviceability controls |
 | Delivery Slots (US-64) | `POST/GET /api/v1/deliveries/slots`, `GET/PUT /api/v1/deliveries/slots/{id}`, `PATCH /api/v1/deliveries/slots/{id}/activate`, `/close`, `POST /api/v1/deliveries/slots/{id}/reserve`, `POST /api/v1/deliveries/orders/{id}/assign-slot`, `GET /api/v1/deliveries/slots/available` | Delivery | Implemented time-window capacity slots, reservation concurrency control, cutoffs, and overrides |
 | Delivery Riders (US-65) | `POST/GET /api/v1/deliveries/riders`, `GET/PUT /api/v1/deliveries/riders/{id}`, `PATCH /api/v1/deliveries/riders/{id}/activate`, `/deactivate`, `/suspend`, `POST/GET /api/v1/deliveries/riders/{id}/shifts`, `PATCH /api/v1/deliveries/riders/{id}/shifts/{shiftId}/start`, `/end`, `/cancel`, `GET /api/v1/deliveries/riders/available`, `POST /api/v1/deliveries/orders/{id}/assign-rider`, `POST /api/v1/deliveries/orders/{id}/reassign-rider`, `POST /api/v1/deliveries/orders/{id}/unassign-rider`, `GET /api/v1/deliveries/orders/{id}/rider-assignments` | Delivery | Implemented rider onboarding, duty shift schedules, concurrency-safe order assignment, and cross-zone/capacity overrides |
-| Offline sync | `/offline-sync/operations` | Offline Sync | Implemented inbox |
+| Offline sync | `/offline-sync/operations` | Offline Sync | Implemented inbox; HTTP requires authentication and each batch item is authorized in the application service using its existing operation-specific permission |
 | Health | `/health` | System | Implemented |
 
 ### P0-03 Published Internal Query Contracts
