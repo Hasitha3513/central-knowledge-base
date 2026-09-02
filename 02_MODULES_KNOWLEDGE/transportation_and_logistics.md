@@ -38,6 +38,23 @@ Transportation manages fleet master/usage, drivers (legacy ownership), routing, 
 | Notification | Rule, Policy, Template, Notification, Delivery Attempt | event routing, suppression, escalation, delivery diagnostics |
 | Offline Sync | Offline Operation | idempotent command inbox and conflict outcomes |
 
+## P0-06 Aggregate Catalogue and Boundaries
+
+| Aggregate root | Owned entities / value objects | Protected invariants and transaction boundary | Repository | Referenced aggregates | Module owner |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Vehicle | Vehicle identity, registration, classification references, ownership, capacity and operational state | Required explicit Category/Type references; registration and capacity/meter/status rules; one Vehicle write | `VehicleRepository` | Category ID, Type ID | Fleet |
+| Vehicle Document | Document identity, type/number, validity, mandatory/status/audit facts | Document date/status consistency and active duplicate prevention; one document write | `VehicleDocumentRepository` | Vehicle ID | Fleet |
+| Driver | Driver identity, employee/contact and operational state | Addressed root identity is immutable across update/deactivation; one Driver write | `DriverRepository` | None | Fleet |
+| Driver Qualification / Availability records | Licence, medical, drug-test, exception and violation roots; `DriverAvailability` result value | Each record protects its own validity/status lifecycle; availability composes read-only eligibility reasons | Focused repository per independently managed record | Driver ID; Trip assignment queried through published boundary | Fleet |
+| Trip | Current Trip order, assignment-state and execution fields | Order validity, assignment completeness/overlap, lifecycle, actual times and odometer progression within the existing Trip transaction | `TripRepository`; separate dispatch/history/event repositories are audit/evidence stores | Customer, Department, Project, Route, Vehicle, Driver and Type IDs | Trip |
+| Route | Ordered stop-location ID values | Distinct origin/destination, positive distance/duration, unique bounded stops; one Route write | `RouteRepository` | Location IDs | Routing |
+| Fuel Issue | Fuel issue facts and lifecycle; issue history is immutable audit | Draft validity, authorization/issue/cancel transitions, limits, price snapshot and bunker deduction transaction | `FuelIssueRepository`; `FuelIssueHistoryRepository` for audit | Vehicle, Trip, Driver, Station and Actor IDs | Fuel |
+| Delivery | Narrow roots for Order, POD, failed attempt/contact/escalation, redelivery, exception case/evidence, zone, slot/reservation, rider/shift/assignment and batch/membership | Each root protects its own lifecycle and concurrency rules; Delivery Exception evidence is parent-owned and cascaded only by its Exception Case | Focused root/read repositories | Customer, Location, Driver, Trip/Freight and related Delivery root IDs | Delivery |
+
+P0-06 deliberately retains Trip as one current aggregate because order, assignment state, dispatch/start/complete transitions and concurrency are presently one consistency boundary. `TripDispatch`, `TripHistoryEntry`, and `TripOperationalEvent` are independently persisted audit/evidence, not a JPA object graph. Vehicle does not own allocations: existing Vehicle/Driver allocations are Trip assignment facts, queried through allocation/eligibility contracts. Vehicle documents and Driver qualifications remain separate roots because they have independent identity, lifecycle, authorization, query, and retention needs.
+
+All current cross-aggregate references are IDs/value references. The only Delivery JPA object graph is `DeliveryExceptionCaseEntity -> DeliveryExceptionEvidenceEntity`, matching the parent-owned evidence lifecycle. P0-06 adds automated enforcement against unreviewed JPA associations and cascades. No repository was removed: repositories for histories, evidence, independent compliance records, and read models remain justified and do not grant cross-module access.
+
 ## Published Events
 
 Current internal event types are `VehicleReadingRecorded`, `VehicleReadingCorrected`, `VehicleMeterResetRecorded`, `RouteDisruptionCreatedEvent`, `RouteDisruptionResolvedEvent`, and `OperationalNotificationEvent`. Exact payloads and tenant deficiencies are registered in `../01_INTEGRATION_REGISTRY/event_contracts.md`.
