@@ -2,7 +2,7 @@
 
 ## Ownership and MVP scope
 
-The top-level `integration` bounded context owns provider-neutral external connectivity, declarative mapping, configuration lifecycle, health, external exchange/attempt state, and safe audit facts. US-73 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING` at Flyway V61.
+The top-level `integration` bounded context owns provider-neutral external connectivity, declarative mapping, configuration lifecycle, health, external exchange/attempt state, and safe audit facts. US-73 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING` at Flyway V61 and has passed independent technical closure.
 
 Phase 1 implements only `FILE_EXCHANGE / FILE_JSON_V1 / OUTBOUND` through `GOVERNED_OUTBOUND_JSON_FILE_EXCHANGE`, with `US73_PLATFORM_PROBE_V1` as the only registered source contract and `INTERNAL_OPERATIONAL_NON_SENSITIVE` as the only accepted classification. Integration consumes the shared P1-01 durable envelope through handler `integration-outbound-exchange`; it does not own or duplicate `integration_outbox_event`.
 
@@ -147,4 +147,4 @@ Unique idempotency key: `(tenant_id, configuration_id, source_event_id, mapping_
 
 ## Verification status
 
-Implementation evidence is controlled-sandbox only and does not constitute final product acceptance: Maven 1276/0/0 with 15 skips; architecture 44/44; PostgreSQL Flyway V1-V61; Chromium 6/6; Vitest 260/260; Checkstyle, PMD, SpotBugs, TypeScript, build, and changed-file lint pass.
+Independent technical closure evidence is controlled-sandbox only and does not constitute final product acceptance: focused Integration 24/24; P1-01 plus US-69/70 regression 40/40; Maven 1276/0/0 with 15 skips in 4:56; architecture 44/44; PostgreSQL Flyway V1-V61; real Chromium 6/6 in 1.3 minutes; Vitest 60 files/260 tests; Checkstyle, PMD, SpotBugs, TypeScript, production build, and changed-file lint pass. The 71 global ESLint errors remain confined to eight unchanged Delivery files, with zero US-73-introduced errors. Next task: `US-73-EXTERNAL-INTEGRATIONS-FINAL-ACCEPTANCE-001`.

@@ -2,7 +2,7 @@
 
 ## Current availability
 
-US-73 is implementation-complete and acceptance-pending. The current screen supports only a governed outbound JSON file exchange in the controlled sandbox. It is an Integration platform workflow, not an ERP, accounting, CRM, HRMS, fuel-card, telematics, payment, insurance, DMS/OCR, REST, webhook, or inbound-file connector.
+US-73 is implementation-complete, independently technically closed, and acceptance-pending. The current screen supports only a governed outbound JSON file exchange in the controlled sandbox. It is an Integration platform workflow, not an ERP, accounting, CRM, HRMS, fuel-card, telematics, payment, insurance, DMS/OCR, REST, webhook, or inbound-file connector.
 
 ## Prerequisites and permissions
 
