@@ -332,6 +332,8 @@ The timeline is read-only and exposes masked destinations only. It provides no s
 
 ### 9.7 Use Customer Self-Service (`US-70`)
 
+**Availability:** Implemented and accepted for MVP 1.4. The milestone is 8/8 complete and closed.
+
 **Navigation:** Open the HTTPS magic link from an operational Delivery Email or SMS. It opens the public `/track` page; no customer username, password, operator account, or OTP is required.
 
 1. Open the link on the intended device. The page consumes the opaque token from the URL fragment, removes the fragment immediately, and keeps access only in browser memory.

@@ -2,12 +2,12 @@
 
 ## Delivery Operations
 
-### US-70 Customer Self-Service (Frozen; Not Implemented)
+### US-70 Customer Self-Service (Implemented and Accepted)
 
 - Access has no client-set status column. It is effective `ACTIVE` only while `revoked_at IS NULL`, server time is before `expires_at`, the bound Tenant/Delivery/Customer/contact/action checks pass, and the active-token cap is satisfied. Revocation is terminal; expiry is a derived terminal condition. Re-entry for the same Notification delivery-attempt issuance key rotates the hash in the same access record and immediately invalidates the prior raw token.
 - `DELIVERY_PREFERENCE`, `REDELIVERY_REQUEST`, and `ISSUE` submissions start `SUBMITTED`. A later operator-authorized workflow may move a preference/redelivery request to terminal `ACCEPTED`, `DECLINED`, or `SUPERSEDED`; customer self-service cannot choose outcome status. An accepted request does not itself mutate Delivery—the established US-60/US-64 action remains authoritative.
 - `FEEDBACK` is created as terminal `RECORDED`; duplicate submission is prevented by Tenant/Delivery/Customer uniqueness and request idempotency.
-- These are `FROZEN_NOT_IMPLEMENTED_US70` lifecycles and add no current DeliveryOrder state. Existing US-56–US-69 transitions and events remain unchanged.
+- These are `IMPLEMENTED_ACCEPTED_US70` lifecycles and add no current DeliveryOrder state. Final acceptance confirmed the V59 persistence constraints, fail-closed access lifecycle, and non-binding submission behavior. Existing US-56–US-69 transitions and events remain unchanged.
 
 The accepted US-56 implementation contains only the current production Delivery states below. Earlier foundation documents discussed later candidate states, but they are not implemented authority.
 
