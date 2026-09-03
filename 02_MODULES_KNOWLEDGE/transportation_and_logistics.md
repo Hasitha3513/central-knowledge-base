@@ -13,7 +13,7 @@ US-67 Calculate Last-Mile ETA: COMPLETE (MVP-1.4-US67-LAST-MILE-ETA-FINAL-ACCEPT
 US-68 Handle Last-Mile Exceptions: COMPLETE (MVP-1.4-US68-LAST-MILE-EXCEPTIONS-FINAL-ACCEPTANCE-001) — read-only Delivery Planner projection over US-59/60/62/57/65/66/67 capabilities; no migration, aggregate, persistence, permission, or duplicate API family. Final acceptance: Maven 1,200/0/0/15, architecture 45/45, and real PostgreSQL-backed Chromium 3/3 PASS.
 US-69 Receive Delivery Notifications: COMPLETE (MVP-1.4-US69-DELIVERY-NOTIFICATIONS-FINAL-ACCEPTANCE-001-RERUN) — Batch `READY` emits zero `DELIVERY_OUT_FOR_DELIVERY` events; committed `DISPATCHED` emits exactly one per active member; removed members and rollback emit zero. Final evidence: Maven 1,223/0/0/15, architecture 42/42, and real PostgreSQL-backed Chromium 7/7 PASS.
 US-70 Use Customer Self-Service: COMPLETE (MVP-1.4-US70-CUSTOMER-SELF-SERVICE-FINAL-ACCEPTANCE-001) — V59 opaque per-Delivery magic-link access; customer-safe tracking/preferences/issues/feedback and non-binding redelivery requests; no Customer-to-app_user association, direct slot scheduling, IN_APP, OTP, Rider data, or POD evidence exposure. Final evidence: focused 28/28, PostgreSQL 4/4, Maven 1,238/0/0/15, architecture 42/42, frontend Vitest 259/259, and real PostgreSQL-backed Chromium 9/9 PASS.
-MVP 1.4 Last-Mile Delivery: 8/8 COMPLETE (CLOSED). Overall register: 65/87 COMPLETE and 22/87 DEFERRED.
+MVP 1.4 Last-Mile Delivery: 8/8 COMPLETE (CLOSED). Overall register: 66/87 COMPLETE and 21/87 REMAINING after US-73 final acceptance.
 P1-01 Event Contract Durability and Envelope Hardening: COMPLETE — 32 events inventoried; the US-69 five-type family uses the shared V60 outbox with at-least-once delivery, while nine consumed local events remain after-commit and 22 unconsumed events remain unchanged. Program accounting is unchanged.
 Delivery US-66 final acceptance gate: COMPLETE (MVP-1.4-US66-BATCH-DELIVERY-ORDERS-FINAL-ACCEPTANCE-001)
 Delivery US-65 final acceptance gate: COMPLETE (MVP-1.4-US65-RIDERS-FINAL-ACCEPTANCE-001-RERUN)
@@ -761,9 +761,9 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
 
 ### Governed full-product completion plan
 
-`DEFERRED-BACKLOG-REPRIORITIZATION-001` is complete as a planning task. Story accounting remains 65 / 87 accepted and 22 / 87 remaining. The exact remainder is US-35, US-37, US-38, US-46, US-47, US-48 through US-55, US-72, US-73, US-76, US-78, US-82, and US-84 through US-87. US-88, US-89, and US-90 remain undefined.
+`DEFERRED-BACKLOG-REPRIORITIZATION-001` is complete as a planning task. Following US-73 final acceptance, story accounting is 66 / 87 accepted and 21 / 87 remaining. The exact remainder is US-35, US-37, US-38, US-46, US-47, US-48 through US-55, US-72, US-76, US-78, US-82, and US-84 through US-87. US-88, US-89, and US-90 remain undefined.
 
-The remaining stories are reprioritized into five governed waves: (A) US-73/78 integration and exception foundations; (B) US-37/35/38 Fuel and US-46/47 financial links; (C) US-48..55 GPS/tracking; (D) US-72/76 compliance/mobile; and (E) US-85/84/87/82/86 integrity, resilience, risk, analytics, and disruption. US-73 is implementation-complete, technically closed, and acceptance-pending; it is not yet counted as accepted. The single next task is `US-73-EXTERNAL-INTEGRATIONS-FINAL-ACCEPTANCE-001`.
+The remaining stories are reprioritized into five governed waves: (A) US-73/78 integration and exception foundations; (B) US-37/35/38 Fuel and US-46/47 financial links; (C) US-48..55 GPS/tracking; (D) US-72/76 compliance/mobile; and (E) US-85/84/87/82/86 integrity, resilience, risk, analytics, and disruption. US-73 is COMPLETE and counted as accepted; Wave A remains open for US-78. The single next task is `US-78-OPERATIONAL-EXCEPTIONS-PRODUCT-DECISIONS-001`.
 
 The authoritative DOCX/UML titles govern over stale roadmap aliases: US-35 Manage Fuel Cards, US-37 Analyze Fuel Performance, US-38 Handle Fuel Exceptions, US-46 Process Driver Payroll Link, US-47 Manage Transport Billing, and US-48..55 Track Vehicles Live / Manage Geofences / Monitor Speed / Monitor Idle Time / Monitor Route Deviations / Replay Journeys / View Tracking Dashboard / Handle GPS Edge Cases.
 
@@ -773,13 +773,14 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 2. Resolve driver, customer, project, vendor, maintenance, billing, tracking, integration, compliance, and operational-exception ownership through story-scoped ADR/product decisions.
 3. Replace cross-boundary physical references with logical IDs/contracts as modules become independent.
 
-### US-73 Implemented Integration Platform Boundary
+### US-73 Accepted Integration Platform Boundary
 
-- Owner: dedicated top-level `integration` context; status `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`.
+- Owner: dedicated top-level `integration` context; status `COMPLETE` after independent final acceptance.
 - Only accepted implementation target: Tenant-owned `FILE_EXCHANGE` / `FILE_JSON_V1` / `OUTBOUND`, evidenced by real isolated filesystem I/O at `CONTROLLED_SANDBOX` tier.
 - Integration configuration, immutable declarative mappings, exchange/attempt state, health, credential references, and Integration audit are owned by Integration. No raw secret, operator-controlled path/URL, arbitrary script, foreign repository/table, or cross-module SQL is allowed.
 - P1-01 remains the sole durable event outbox. The frozen handler is `integration-outbound-exchange`; no second outbox/inbox, broker, exactly-once, or global ordering is approved.
 - V61 creates the Integration-owned `integration_configuration`, `integration_mapping`, `integration_exchange`, `integration_exchange_attempt`, and `integration_audit_event` tables, all Tenant-owned with Tenant-consistent same-module constraints and Tenant-leading indexes. The exact schema is documented in `integration_module.md`; the current Flyway head is V61.
 - ERP, Accounting, CRM, HRMS, fuel-vendor, telematics, payment, insurance, DMS, API, webhook, inbound, and bidirectional capabilities remain future consumers requiring separate contract/security/acceptance decisions.
+- Final acceptance passed all three source criteria with focused Integration 24/24, P1-01 plus US-69/70 regressions 40/40, Maven 1,276/0/0 with 15 skips in 05:04, architecture 44/44, static/frontend gates, and real PostgreSQL/filesystem Chromium 6/6. Program accounting is 66/87 accepted and 21/87 remaining; next task is `US-78-OPERATIONAL-EXCEPTIONS-PRODUCT-DECISIONS-001`.
 
 The foundation, operational repository isolation, scheduled-job isolation, Freight isolation, and Reporting-source isolation are `ACCEPTED_FOR_CURRENT_SCOPE`. US-29 Freight Reporting is `IMPLEMENTED`: Reporting exposes tenant-scoped summaries, pageable shipment/capacity results, insurance/claim/settlement/exception distributions, and a 5,000-row bounded CSV export through the Freight-owned public query boundary. Missing cargo measurements or vehicle capacity facts produce `INCOMPLETE`; they are never inferred. Access requires `FREIGHT_REPORT_VIEW`, while export independently requires `FREIGHT_REPORT_EXPORT`. Legacy preservation and backfill remain not applicable to this clean-initialization environment.

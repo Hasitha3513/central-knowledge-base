@@ -1,8 +1,8 @@
 # ADR-US73: External Integration Boundary
 
-- **Status:** Accepted decision; `IMPLEMENTED_ACCEPTANCE_PENDING_US73`
+- **Status:** Accepted and implemented; `COMPLETE_US73`
 - **Decision task:** `US-73-EXTERNAL-INTEGRATIONS-PRODUCT-DECISIONS-001`
-- **Story accounting:** Unchanged at 65 / 87 accepted and 22 / 87 remaining
+- **Story accounting:** 66 / 87 accepted and 21 / 87 remaining
 
 ## Context
 
@@ -27,5 +27,5 @@ US-73 requires administrators to configure supported external exchanges and to s
 
 - The acceptance proof is deliberately narrow but real: configure, test, activate, exchange through the filesystem, observe retry/failure and audit evidence, prove Tenant/RBAC isolation, disable, and prove no new exchange starts.
 - No public webhook, raw-payload read, secret read, manual retry, arbitrary send, delete, or reconciliation mutation API is approved.
-- Implementation proceeds in four slices: configuration/security, mapping/probe, durable exchange/retry, and UI/real acceptance. Product acceptance remains pending until implementation, technical closure, and hostile final acceptance complete.
-- V61 implements the five Tenant-owned Integration tables and six permissions. Independent technical closure passed focused Integration 24/24, P1-01 plus US-69/70 regression 40/40, PostgreSQL/Flyway V1-V61, real filesystem exchange, Chromium 6/6, Maven 1276/0/0 with 15 skips, architecture 44/44, and all scoped static/frontend gates. The next task is `US-73-EXTERNAL-INTEGRATIONS-FINAL-ACCEPTANCE-001`; program accounting remains 65/87 accepted.
+- Implementation completed in four slices: configuration/security, mapping/probe, durable exchange/retry, and UI/real acceptance. Independent hostile final acceptance is complete.
+- V61 implements the five Tenant-owned Integration tables and six permissions. Final acceptance passed all 3 source criteria, focused Integration 24/24, P1-01 plus US-69/70 regression 40/40, PostgreSQL/Flyway V1-V61, real filesystem exchange, Chromium 6/6, Maven 1276/0/0 with 15 skips in 05:04, architecture 44/44, and all scoped static/frontend gates. US-73 is COMPLETE; the next task is `US-78-OPERATIONAL-EXCEPTIONS-PRODUCT-DECISIONS-001`; program accounting is 66/87 accepted.

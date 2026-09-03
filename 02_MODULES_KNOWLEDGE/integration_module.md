@@ -2,7 +2,7 @@
 
 ## Ownership and MVP scope
 
-The top-level `integration` bounded context owns provider-neutral external connectivity, declarative mapping, configuration lifecycle, health, external exchange/attempt state, and safe audit facts. US-73 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING` at Flyway V61 and has passed independent technical closure.
+The top-level `integration` bounded context owns provider-neutral external connectivity, declarative mapping, configuration lifecycle, health, external exchange/attempt state, and safe audit facts. US-73 is `COMPLETE` at Flyway V61 after independent technical closure and hostile final acceptance.
 
 Phase 1 implements only `FILE_EXCHANGE / FILE_JSON_V1 / OUTBOUND` through `GOVERNED_OUTBOUND_JSON_FILE_EXCHANGE`, with `US73_PLATFORM_PROBE_V1` as the only registered source contract and `INTERNAL_OPERATIONAL_NON_SENSITIVE` as the only accepted classification. Integration consumes the shared P1-01 durable envelope through handler `integration-outbound-exchange`; it does not own or duplicate `integration_outbox_event`.
 
@@ -147,4 +147,4 @@ Unique idempotency key: `(tenant_id, configuration_id, source_event_id, mapping_
 
 ## Verification status
 
-Independent technical closure evidence is controlled-sandbox only and does not constitute final product acceptance: focused Integration 24/24; P1-01 plus US-69/70 regression 40/40; Maven 1276/0/0 with 15 skips in 4:56; architecture 44/44; PostgreSQL Flyway V1-V61; real Chromium 6/6 in 1.3 minutes; Vitest 60 files/260 tests; Checkstyle, PMD, SpotBugs, TypeScript, production build, and changed-file lint pass. The 71 global ESLint errors remain confined to eight unchanged Delivery files, with zero US-73-introduced errors. Next task: `US-73-EXTERNAL-INTEGRATIONS-FINAL-ACCEPTANCE-001`.
+Independent final acceptance passed all three source criteria under the controlled-sandbox evidence tier: focused Integration 24/24; P1-01 plus US-69/70 regression 40/40; Maven 1276/0/0 with 15 skips in 05:04; architecture 44/44; PostgreSQL Flyway V1-V61; real Chromium 6/6 in 1.3 minutes; Vitest 60 files/260 tests; Checkstyle, PMD, SpotBugs, TypeScript, production build, and changed-file lint pass. The 71 global ESLint errors remain confined to eight unchanged Delivery files, with zero US-73-introduced errors. Acceptance means the Integration platform capability is complete; no named ERP/vendor ecosystem is connected. Next task: `US-78-OPERATIONAL-EXCEPTIONS-PRODUCT-DECISIONS-001`.
