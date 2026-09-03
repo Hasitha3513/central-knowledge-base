@@ -1,5 +1,19 @@
 # State Machines and Lifecycles
 
+## External Integration (US-73 Frozen, Not Implemented)
+
+### Configuration lifecycle
+
+`DRAFT -> ACTIVE -> DISABLED`; `DISABLED -> ACTIVE` is allowed only after a successful probe against the current configuration version within 15 minutes. `ACTIVE` configuration and mapping are immutable; material change requires disablement and an immutable next mapping version. There is no delete state or route. Disabling stops new exchange claims/attempts until re-enabled.
+
+Lifecycle is independent of derived provider health: `UNKNOWN`, `HEALTHY`, `DEGRADED`, `UNAVAILABLE`, or `AUTH_FAILED`. A transient provider failure changes health and exchange outcome but never silently disables configuration or marks synchronization successful.
+
+### External exchange lifecycle
+
+`PENDING -> IN_PROGRESS -> SUCCEEDED` for success. Retryable failure produces `IN_PROGRESS -> RETRY_SCHEDULED -> IN_PROGRESS`; five total attempts are bounded to immediate, 30-second, 2-minute, 10-minute, and 30-minute scheduling. Exhaustion or permanent failure produces terminal `FAILED`. A five-minute lease recovers abandoned `IN_PROGRESS` claims without changing the stable idempotency identity. Historical attempts and terminal state cannot be edited, manually retried, or marked successful in US-73.
+
+These lifecycles are `FROZEN_NOT_IMPLEMENTED_US73`; they add no state to any Transportation, Delivery, Finance, HRM, Fuel, Tracking, Compliance, or Document aggregate.
+
 ## Delivery Operations
 
 ### US-70 Customer Self-Service (Implemented and Accepted)

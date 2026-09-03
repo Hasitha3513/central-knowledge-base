@@ -155,6 +155,7 @@ US-56 publishes no cross-module event because it captures requirements and readi
 - Publishes trip/freight execution, vehicle usage, route disruption, fuel, and delivery facts after contracts are approved.
 - Consumes HRM driver qualification, Maintenance hold/release, Finance controls/posting outcomes, Sales order/customer references, and Inventory parts/fuel references through registered contracts.
 - Current local `driver`, `customer`, `project`, `vendor`, and `maintenance_schedule` ownership is legacy. Extraction or reassignment requires ADRs and compatibility plans.
+- US-73 freezes a separate top-level Integration context; Transportation retains every business fact and rule. No Transportation event family is approved for external delivery by US-73. The only frozen executable contract is Integration's own non-sensitive `US73_PLATFORM_PROBE_V1` for controlled-sandbox evidence. Future Transportation-to-Integration contracts require their own exact payload, classification, ownership, retention, and consumer tests.
 
 ## Database Schema Data Dictionary
 
@@ -762,7 +763,7 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
 
 `DEFERRED-BACKLOG-REPRIORITIZATION-001` is complete as a planning task. Story accounting remains 65 / 87 accepted and 22 / 87 remaining. The exact remainder is US-35, US-37, US-38, US-46, US-47, US-48 through US-55, US-72, US-73, US-76, US-78, US-82, and US-84 through US-87. US-88, US-89, and US-90 remain undefined.
 
-The remaining stories are reprioritized into five governed waves: (A) US-73/78 integration and exception foundations; (B) US-37/35/38 Fuel and US-46/47 financial links; (C) US-48..55 GPS/tracking; (D) US-72/76 compliance/mobile; and (E) US-85/84/87/82/86 integrity, resilience, risk, analytics, and disruption. None is marked complete by this plan. The single next task is `US-73-EXTERNAL-INTEGRATIONS-PRODUCT-DECISIONS-001`.
+The remaining stories are reprioritized into five governed waves: (A) US-73/78 integration and exception foundations; (B) US-37/35/38 Fuel and US-46/47 financial links; (C) US-48..55 GPS/tracking; (D) US-72/76 compliance/mobile; and (E) US-85/84/87/82/86 integrity, resilience, risk, analytics, and disruption. US-73 product decisions are frozen but the story is not implemented or accepted. The single next task is `US-73-EXTERNAL-INTEGRATIONS-IMPLEMENTATION-001`.
 
 The authoritative DOCX/UML titles govern over stale roadmap aliases: US-35 Manage Fuel Cards, US-37 Analyze Fuel Performance, US-38 Handle Fuel Exceptions, US-46 Process Driver Payroll Link, US-47 Manage Transport Billing, and US-48..55 Track Vehicles Live / Manage Geofences / Monitor Speed / Monitor Idle Time / Monitor Route Deviations / Replay Journeys / View Tracking Dashboard / Handle GPS Edge Cases.
 
@@ -771,5 +772,14 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 1. Apply the P1-01 canonical Tenant/version/aggregate envelope whenever a new consumed cross-module contract is approved; do not modernize unused events without a real consumer.
 2. Resolve driver, customer, project, vendor, maintenance, billing, tracking, integration, compliance, and operational-exception ownership through story-scoped ADR/product decisions.
 3. Replace cross-boundary physical references with logical IDs/contracts as modules become independent.
+
+### US-73 Frozen Integration Platform Boundary
+
+- Owner: dedicated top-level `integration` context; status `PRODUCT_DECISIONS_FROZEN / IMPLEMENTATION_NOT_STARTED`.
+- Only accepted implementation target: Tenant-owned `FILE_EXCHANGE` / `FILE_JSON_V1` / `OUTBOUND`, evidenced by real isolated filesystem I/O at `CONTROLLED_SANDBOX` tier.
+- Integration configuration, immutable declarative mappings, exchange/attempt state, health, credential references, and Integration audit are owned by Integration. No raw secret, operator-controlled path/URL, arbitrary script, foreign repository/table, or cross-module SQL is allowed.
+- P1-01 remains the sole durable event outbox. The frozen handler is `integration-outbound-exchange`; no second outbox/inbox, broker, exactly-once, or global ordering is approved.
+- Expected future Integration tables are `integration_configuration`, `integration_mapping`, `integration_exchange`, `integration_exchange_attempt`, and `integration_audit_event`, all Tenant-owned. They do not exist yet, no exact schema is authoritative, and no migration after current head V60 is reserved by product decisions.
+- ERP, Accounting, CRM, HRMS, fuel-vendor, telematics, payment, insurance, DMS, API, webhook, inbound, and bidirectional capabilities remain future consumers requiring separate contract/security/acceptance decisions.
 
 The foundation, operational repository isolation, scheduled-job isolation, Freight isolation, and Reporting-source isolation are `ACCEPTED_FOR_CURRENT_SCOPE`. US-29 Freight Reporting is `IMPLEMENTED`: Reporting exposes tenant-scoped summaries, pageable shipment/capacity results, insurance/claim/settlement/exception distributions, and a 5,000-row bounded CSV export through the Freight-owned public query boundary. Missing cargo measurements or vehicle capacity facts produce `INCOMPLETE`; they are never inferred. Access requires `FREIGHT_REPORT_VIEW`, while export independently requires `FREIGHT_REPORT_EXPORT`. Legacy preservation and backfill remain not applicable to this clean-initialization environment.

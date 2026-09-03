@@ -75,3 +75,18 @@ US-69 reuses the existing US-77 Notification permissions; it introduces no Deliv
 | `NOTIFICATION_RULE_MANAGE` | Manage rules/templates and replace a same-Tenant customer's complete Email/SMS preference profile | IMPLEMENTED_US77_US69 |
 
 US-69 history and preference reads require `NOTIFICATION_RULE_VIEW`; preference replacement requires `NOTIFICATION_RULE_MANAGE`. Literal external `/api/v1/...` paths and servlet-context-relative paths are covered by security regressions. Customer identifiers resolve under the server-derived Tenant, cross-Tenant targets return safe `404`, and client-supplied Tenant or recipient authority is never accepted.
+
+## External Integration Permission Catalogue
+
+US-73 freezes these permissions as `FROZEN_NOT_SEEDED_US73`. They become runtime authority only after forward-migration seeding and server-side enforcement during implementation.
+
+| Permission | Purpose | Implementation status |
+| :--- | :--- | :--- |
+| `INTEGRATION_VIEW` | View same-Tenant configurations, mappings, health, and masked exchange status | FROZEN_NOT_SEEDED_US73 |
+| `INTEGRATION_MANAGE` | Create and update `DRAFT` or `DISABLED` configurations and declarative mappings | FROZEN_NOT_SEEDED_US73 |
+| `INTEGRATION_TEST` | Run the bounded, non-business connection probe | FROZEN_NOT_SEEDED_US73 |
+| `INTEGRATION_ACTIVATE` | Enable or disable an eligible same-Tenant configuration | FROZEN_NOT_SEEDED_US73 |
+| `INTEGRATION_AUDIT_VIEW` | View same-Tenant Integration audit and masked attempt diagnostics | FROZEN_NOT_SEEDED_US73 |
+| `INTEGRATION_RECONCILE` | Reserved for a later approved reconciliation mutation workflow; grants no US-73 action | RESERVED_NOT_SEEDED |
+
+Activation of future `FINANCIAL` or `RESTRICTED` exchanges requires a different authorized actor from the last configuration author. The accepted non-sensitive filesystem probe does not require dual control. Frontend visibility never substitutes for backend authorization, and all Tenant scope comes from active server-side context.

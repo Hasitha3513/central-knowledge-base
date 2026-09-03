@@ -95,6 +95,23 @@ Exact version-1 payloads:
 
 The implementation enforces the exact common/event-specific payload-key sets and rejects missing, blank, or additional fields. P1-01 persists the frozen Delivery fact in the originating transaction and invokes the bridge later through the durable worker; provider/consumer failure remains isolated from committed Delivery state. Duplicate delivery is safe through Notification's execution key. Final US-69 acceptance passed full Maven 1,223/0/0/15, architecture 42/42, and real PostgreSQL-backed Chromium 7/7; P1-01 hardening later passed full Maven 1,250/0/0/15 and architecture 45/45. US-69 remains complete.
 
+## US-73 Controlled-Sandbox Contract (Frozen, Not Implemented)
+
+`US73_PLATFORM_PROBE_V1` is the only event contract approved for the US-73 executable adapter. It is a non-business acceptance fact produced by an Integration-owned acceptance coordinator and consumed by the Integration handler named `integration-outbound-exchange` through the shared P1-01 outbox. It does not represent ERP, accounting, CRM, HRMS, fuel-vendor, telematics, payment, insurance, DMS, API, webhook, or file-import interoperability.
+
+| Envelope field | Frozen value / rule |
+| :--- | :--- |
+| `tenantId` | Trusted active Tenant UUID; never accepted from payload |
+| `eventId` | Stable UUID reused for retries/replay |
+| `eventType` | `US73_PLATFORM_PROBE_V1` |
+| `eventVersion` | `1` |
+| `occurredAt` | Trusted committed UTC instant |
+| `aggregateType` | `INTEGRATION_CONFIGURATION` |
+| `aggregateId` | Same-Tenant Integration configuration UUID |
+| `payload` | Exactly `probeId: UUID`, `probeType: "CONTROLLED_SANDBOX"`, and `sequence: long` |
+
+Classification is `INTERNAL_OPERATIONAL_NON_SENSITIVE`; payloads are capped at 32 KiB and additional fields are rejected. The consumer accepts the event idempotently using `(tenant_id, configuration_id, source_event_id, mapping_version_id)`, snapshots the immutable mapping version/hash, and then owns the external-delivery lifecycle. P1-01 delivery to Integration and external file delivery are both at-least-once; neither is globally ordered or exactly-once. This contract is `FROZEN_NOT_IMPLEMENTED_US73` and must not be emitted before the US-73 implementation task supplies producer/consumer and contract tests.
+
 ## Proposed Suite Event Families
 
 These are discovery-level integration points, not approved payload contracts:
