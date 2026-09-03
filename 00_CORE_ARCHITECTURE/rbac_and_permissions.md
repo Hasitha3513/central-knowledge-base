@@ -78,15 +78,15 @@ US-69 history and preference reads require `NOTIFICATION_RULE_VIEW`; preference 
 
 ## External Integration Permission Catalogue
 
-US-73 freezes these permissions as `FROZEN_NOT_SEEDED_US73`. They become runtime authority only after forward-migration seeding and server-side enforcement during implementation.
+US-73 seeds these permissions through V61 and enforces them server-side on the literal and effective Integration routes. US-73 remains implementation-complete and acceptance-pending.
 
 | Permission | Purpose | Implementation status |
 | :--- | :--- | :--- |
-| `INTEGRATION_VIEW` | View same-Tenant configurations, mappings, health, and masked exchange status | FROZEN_NOT_SEEDED_US73 |
-| `INTEGRATION_MANAGE` | Create and update `DRAFT` or `DISABLED` configurations and declarative mappings | FROZEN_NOT_SEEDED_US73 |
-| `INTEGRATION_TEST` | Run the bounded, non-business connection probe | FROZEN_NOT_SEEDED_US73 |
-| `INTEGRATION_ACTIVATE` | Enable or disable an eligible same-Tenant configuration | FROZEN_NOT_SEEDED_US73 |
-| `INTEGRATION_AUDIT_VIEW` | View same-Tenant Integration audit and masked attempt diagnostics | FROZEN_NOT_SEEDED_US73 |
-| `INTEGRATION_RECONCILE` | Reserved for a later approved reconciliation mutation workflow; grants no US-73 action | RESERVED_NOT_SEEDED |
+| `INTEGRATION_VIEW` | View same-Tenant configurations, mappings, health, and masked exchange status | IMPLEMENTED_US73 |
+| `INTEGRATION_MANAGE` | Create and update `DRAFT` or `DISABLED` configurations and declarative mappings | IMPLEMENTED_US73 |
+| `INTEGRATION_TEST` | Run the bounded, non-business connection probe | IMPLEMENTED_US73 |
+| `INTEGRATION_ACTIVATE` | Enable or disable an eligible same-Tenant configuration | IMPLEMENTED_US73 |
+| `INTEGRATION_AUDIT_VIEW` | View same-Tenant Integration exchange and masked attempt diagnostics | IMPLEMENTED_US73 |
+| `INTEGRATION_RECONCILE` | Reserved for a later approved reconciliation mutation workflow; grants no US-73 action | SEEDED_RESERVED_NO_ROUTE_US73 |
 
 Activation of future `FINANCIAL` or `RESTRICTED` exchanges requires a different authorized actor from the last configuration author. The accepted non-sensitive filesystem probe does not require dual control. Frontend visibility never substitutes for backend authorization, and all Tenant scope comes from active server-side context.

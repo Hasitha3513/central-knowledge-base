@@ -1,6 +1,6 @@
 # State Machines and Lifecycles
 
-## External Integration (US-73 Frozen, Not Implemented)
+## External Integration (US-73 Implemented, Acceptance Pending)
 
 ### Configuration lifecycle
 
@@ -12,7 +12,7 @@ Lifecycle is independent of derived provider health: `UNKNOWN`, `HEALTHY`, `DEGR
 
 `PENDING -> IN_PROGRESS -> SUCCEEDED` for success. Retryable failure produces `IN_PROGRESS -> RETRY_SCHEDULED -> IN_PROGRESS`; five total attempts are bounded to immediate, 30-second, 2-minute, 10-minute, and 30-minute scheduling. Exhaustion or permanent failure produces terminal `FAILED`. A five-minute lease recovers abandoned `IN_PROGRESS` claims without changing the stable idempotency identity. Historical attempts and terminal state cannot be edited, manually retried, or marked successful in US-73.
 
-These lifecycles are `FROZEN_NOT_IMPLEMENTED_US73`; they add no state to any Transportation, Delivery, Finance, HRM, Fuel, Tracking, Compliance, or Document aggregate.
+These lifecycles are `IMPLEMENTED_ACCEPTANCE_PENDING_US73`; they add no state to any Transportation, Delivery, Finance, HRM, Fuel, Tracking, Compliance, or Document aggregate.
 
 ## Delivery Operations
 
