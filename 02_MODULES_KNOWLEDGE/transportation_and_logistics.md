@@ -758,8 +758,18 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
 
 ## Remaining Suite Integration Work
 
+### Governed full-product completion plan
+
+`DEFERRED-BACKLOG-REPRIORITIZATION-001` is complete as a planning task. Story accounting remains 65 / 87 accepted and 22 / 87 remaining. The exact remainder is US-35, US-37, US-38, US-46, US-47, US-48 through US-55, US-72, US-73, US-76, US-78, US-82, and US-84 through US-87. US-88, US-89, and US-90 remain undefined.
+
+The remaining stories are reprioritized into five governed waves: (A) US-73/78 integration and exception foundations; (B) US-37/35/38 Fuel and US-46/47 financial links; (C) US-48..55 GPS/tracking; (D) US-72/76 compliance/mobile; and (E) US-85/84/87/82/86 integrity, resilience, risk, analytics, and disruption. None is marked complete by this plan. The single next task is `US-73-EXTERNAL-INTEGRATIONS-PRODUCT-DECISIONS-001`.
+
+The authoritative DOCX/UML titles govern over stale roadmap aliases: US-35 Manage Fuel Cards, US-37 Analyze Fuel Performance, US-38 Handle Fuel Exceptions, US-46 Process Driver Payroll Link, US-47 Manage Transport Billing, and US-48..55 Track Vehicles Live / Manage Geofences / Monitor Speed / Monitor Idle Time / Monitor Route Deviations / Replay Journeys / View Tracking Dashboard / Handle GPS Edge Cases.
+
+After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all UML, implementation, and accepted contracts without silently reopening accepted stories or inventing IDs. Full Maintenance Management beyond US-07 linkage, Workshop, Work Orders, Job Cards, Parts Inventory, and Inspection Management remain `OUTSIDE_CURRENT_87_STORY_REGISTER` unless separately authorized. Only after parity disposition should `FULL-PLATFORM-END-TO-END-ACCEPTANCE-001` run.
+
 1. Apply the P1-01 canonical Tenant/version/aggregate envelope whenever a new consumed cross-module contract is approved; do not modernize unused events without a real consumer.
-2. Resolve driver, customer, project, vendor, and maintenance ownership through ADRs.
+2. Resolve driver, customer, project, vendor, maintenance, billing, tracking, integration, compliance, and operational-exception ownership through story-scoped ADR/product decisions.
 3. Replace cross-boundary physical references with logical IDs/contracts as modules become independent.
 
 The foundation, operational repository isolation, scheduled-job isolation, Freight isolation, and Reporting-source isolation are `ACCEPTED_FOR_CURRENT_SCOPE`. US-29 Freight Reporting is `IMPLEMENTED`: Reporting exposes tenant-scoped summaries, pageable shipment/capacity results, insurance/claim/settlement/exception distributions, and a 5,000-row bounded CSV export through the Freight-owned public query boundary. Missing cargo measurements or vehicle capacity facts produce `INCOMPLETE`; they are never inferred. Access requires `FREIGHT_REPORT_VIEW`, while export independently requires `FREIGHT_REPORT_EXPORT`. Legacy preservation and backfill remain not applicable to this clean-initialization environment.

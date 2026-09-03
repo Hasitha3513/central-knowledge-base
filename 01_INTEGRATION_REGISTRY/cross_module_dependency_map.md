@@ -48,3 +48,17 @@ The production foreign-SQL baseline is empty. The approved Java dependency graph
 ## Integration Review Checklist
 
 Confirm ownership, tenant propagation, data classification, contract version, source of truth, consistency expectation, idempotency, ordering, retry/dead-letter behavior, authorization, observability, retention, and producer/consumer contract tests.
+
+## Full-Product 87-Story Planning Boundary
+
+`DEFERRED-BACKLOG-REPRIORITIZATION-001` confirms 65 / 87 accepted and exactly 22 remaining stories: US-35, US-37, US-38, US-46, US-47, US-48 through US-55, US-72, US-73, US-76, US-78, US-82, and US-84 through US-87. They are planned, not accepted, in five waves:
+
+1. US-73 external integrations and US-78 operational-exception lifecycle;
+2. US-37/35/38 Fuel plus US-46 payroll link and US-47 transport billing;
+3. US-48 through US-55 provider-neutral GPS/tracking;
+4. US-72 compliance and US-76 mobile operations;
+5. US-85/84/87/82/86 integrity, resilience, user risk, analytics, and disruption.
+
+Expected future owners are planning hypotheses that require their story-level product/architecture gate. Existing `fuel`, `driver`, `offlinesync`, `reporting`, `identity`, and `system` boundaries retain their data. Distinct `integration`, `operations`, `tracking`, `compliance`, and `billing` contexts are justified candidates because each has an independent lifecycle and schema; no implementation is approved until ARB ratification. Finance continues to own ledger/payment/tax posting and HRM/payroll continues to own final salary processing.
+
+The queue head is `US-73-EXTERNAL-INTEGRATIONS-PRODUCT-DECISIONS-001`. Its minimum acceptance boundary must not imply that every named ecosystem is implemented. Any durable family must reuse the P1-01 shared boundary after explicit producer/consumer/payload/idempotency approval; no second outbox, broker, exactly-once claim, foreign repository, or cross-module SQL is authorized.
