@@ -14,13 +14,13 @@ Lifecycle is independent of derived provider health: `UNKNOWN`, `HEALTHY`, `DEGR
 
 These lifecycles are `IMPLEMENTED_ACCEPTED_US73`; they add no state to any Transportation, Delivery, Finance, HRM, Fuel, Tracking, Compliance, or Document aggregate.
 
-## Operational Exception Case (US-78 Frozen, Not Implemented)
+## Operational Exception Case (US-78 Implemented, Acceptance Pending)
 
 `OPEN -> ACKNOWLEDGED -> IN_PROGRESS -> RESOLVED -> CLOSED` is the standard path. `OPEN -> IN_PROGRESS` is permitted only as an explicit acknowledge-and-start command. Resolution validation rejection produces `RESOLVED -> IN_PROGRESS`. An authorized reasoned reopen for recurrence or ineffective resolution produces `CLOSED -> IN_PROGRESS`. Direct `OPEN -> RESOLVED/CLOSED` and `ACKNOWLEDGED -> CLOSED` are forbidden.
 
 Escalation is a monotonic `L0..L3` level/history fact, not a lifecycle state. Acknowledgement stops the response clock; resolution stops the resolution clock. Closure requires completed required corrective actions, approved required RCA, successful resolution validation, and `OPERATIONAL_EXCEPTION_CLOSE`. For high/critical cases, closer differs from resolver and RCA approver differs from RCA author. Optimistic versions govern every mutable case/action/RCA transition.
 
-Corrective-action states are `OPEN -> IN_PROGRESS -> COMPLETED`, with reasoned `OPEN/IN_PROGRESS -> CANCELLED`. US-78 never uses those transitions to mutate the source aggregate. This lifecycle is `FROZEN_NOT_IMPLEMENTED_US78` and adds no state to Routing, Delivery, Trip, Freight, Driver/Fleet, Fuel, Tracking, Notification, Document, or customer aggregates.
+Corrective-action states are `OPEN -> IN_PROGRESS -> COMPLETED`, with reasoned `OPEN/IN_PROGRESS -> CANCELLED`. US-78 never uses those transitions to mutate the source aggregate. This lifecycle is `IMPLEMENTED_US78_ACCEPTANCE_PENDING` and adds no state to Routing, Delivery, Trip, Freight, Driver/Fleet, Fuel, Tracking, Notification, Document, or customer aggregates.
 
 ## Delivery Operations
 

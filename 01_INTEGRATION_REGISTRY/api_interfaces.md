@@ -77,13 +77,35 @@ Omitted or explicit `null` values remain UNKNOWN; the adapter never defaults the
 
 The first-party Manifest UI provides input fields for special cargo classification and physical cargo measurements. Historical UNKNOWN classifications are rendered as `CLASSIFICATION REQUIRED`, and missing measurements as `WEIGHT REQUIRED` / `DIMENSIONS REQUIRED`. Permissions remain `CARGO_MANIFEST_VIEW`, `CARGO_MANIFEST_MANAGE`, and `CARGO_MANIFEST_FINALIZE`.
 
-## US-78 Operations API (Frozen, Not Implemented)
+## US-78 Operations API (Implemented, Acceptance Pending)
 
-Operations owns authenticated `/api/v1/operational-exceptions` list/detail/history routes and explicit commands for `classify`, `acknowledge`, `assign`, `start`, `escalate`, corrective-action create/start/complete, RCA record/approve, `resolve`, `close`, `reject-resolution`, and `reopen`. Every mutation carries the expected version. There is no manual create, generic PATCH/status, delete, source mutation, arbitrary send, raw-evidence, customer, or export route.
+Operations implements authenticated `/api/v1/operational-exceptions` list/detail/history routes and explicit commands for `classify`, `acknowledge`, `assign`, `start`, `escalate`, corrective-action create/start/complete, RCA record/approve, `resolve`, `close`, `reject-resolution`, and `reopen`. Every mutation carries the expected version. There is no manual create, generic PATCH/status, delete, source mutation, arbitrary send, raw-evidence, customer, or export route.
 
 List filters are limited to status, severity, category, source module, assigned user/role, SLA status, and opened date range. Pagination defaults to 20 and caps at 100; history defaults to 50 and caps at 200. Safe sort keys are `openedAt`, `updatedAt`, `severity`, `responseDueAt`, `resolutionDueAt`, and `status`. Search is limited to exact/prefix case reference, registered summary code, or exact source UUID. Cross-Tenant IDs return safe not-found and requests cannot set Tenant/source/case/audit/SLA/escalation/approval authority.
 
-The public cross-module intake is the Operations-root `OperationalExceptionFactV1` event contract, not a REST create API. Routing and Delivery are the first frozen producers. Source correction remains a separate call to the source owner's published use case.
+The public cross-module intake is the Operations-root `OperationalExceptionFactV1` event contract, not a REST create API. Routing and Delivery are the active V62 producers. Source correction remains a separate call to the source owner's published use case. Implementation is `IMPLEMENTED_US78_ACCEPTANCE_PENDING`.
+
+Exact implemented routes and authority:
+
+| Method and path | Permission |
+| :--- | :--- |
+| `GET /api/v1/operational-exceptions` | `OPERATIONAL_EXCEPTION_VIEW` |
+| `GET /api/v1/operational-exceptions/{id}` | `OPERATIONAL_EXCEPTION_VIEW`; RCA fields additionally gated by `OPERATIONAL_EXCEPTION_RCA` |
+| `GET /api/v1/operational-exceptions/{id}/history` | `OPERATIONAL_EXCEPTION_AUDIT_VIEW` |
+| `POST /api/v1/operational-exceptions/{id}/classify` | `OPERATIONAL_EXCEPTION_MANAGE` |
+| `POST /api/v1/operational-exceptions/{id}/acknowledge` | `OPERATIONAL_EXCEPTION_MANAGE` |
+| `POST /api/v1/operational-exceptions/{id}/assign` | `OPERATIONAL_EXCEPTION_ASSIGN`, or `MANAGE` for validated self-assignment only |
+| `POST /api/v1/operational-exceptions/{id}/start` | `OPERATIONAL_EXCEPTION_MANAGE` |
+| `POST /api/v1/operational-exceptions/{id}/escalate` | `OPERATIONAL_EXCEPTION_ESCALATE` |
+| `POST /api/v1/operational-exceptions/{id}/corrective-actions` | `OPERATIONAL_EXCEPTION_MANAGE` |
+| `POST /api/v1/operational-exceptions/{id}/corrective-actions/{actionId}/start` | `OPERATIONAL_EXCEPTION_MANAGE` |
+| `POST /api/v1/operational-exceptions/{id}/corrective-actions/{actionId}/complete` | `OPERATIONAL_EXCEPTION_MANAGE` |
+| `POST /api/v1/operational-exceptions/{id}/rca` | `OPERATIONAL_EXCEPTION_RCA` |
+| `POST /api/v1/operational-exceptions/{id}/rca/approve` | `OPERATIONAL_EXCEPTION_RCA` plus SoD |
+| `POST /api/v1/operational-exceptions/{id}/resolve` | `OPERATIONAL_EXCEPTION_MANAGE` |
+| `POST /api/v1/operational-exceptions/{id}/close` | `OPERATIONAL_EXCEPTION_CLOSE` plus closure/SoD rules |
+| `POST /api/v1/operational-exceptions/{id}/reject-resolution` | `OPERATIONAL_EXCEPTION_CLOSE` |
+| `POST /api/v1/operational-exceptions/{id}/reopen` | `OPERATIONAL_EXCEPTION_CLOSE` |
 
 ## Proposed Cross-Module Interfaces
 

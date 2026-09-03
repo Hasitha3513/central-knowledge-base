@@ -91,18 +91,18 @@ US-73 seeds these permissions through V61 and enforces them server-side on the l
 
 Activation of future `FINANCIAL` or `RESTRICTED` exchanges requires a different authorized actor from the last configuration author. The accepted non-sensitive filesystem probe does not require dual control. Frontend visibility never substitutes for backend authorization, and all Tenant scope comes from active server-side context.
 
-## Operational Exception Permission Catalogue (Frozen, Not Implemented)
+## Operational Exception Permission Catalogue (Implemented, Acceptance Pending)
 
-US-78 freezes seven narrow Operations permissions. They are not seeded until the forward US-78 implementation migration and must be enforced on literal `/api/v1/operational-exceptions/**` routes and use cases.
+US-78 V62 seeds seven narrow Operations permissions. They are enforced on every literal `/api/v1/operational-exceptions/**` route, its effective servlet-context form, and the owning use case.
 
 | Permission | Purpose | Status |
 | :--- | :--- | :--- |
-| `OPERATIONAL_EXCEPTION_VIEW` | View same-Tenant queue and non-sensitive case detail | FROZEN_NOT_IMPLEMENTED_US78 |
-| `OPERATIONAL_EXCEPTION_MANAGE` | Acknowledge/start, classify with reason, manage notes/actions, and resolve | FROZEN_NOT_IMPLEMENTED_US78 |
-| `OPERATIONAL_EXCEPTION_ASSIGN` | Assign, reassign, and reasoned unassign to validated user/role queue | FROZEN_NOT_IMPLEMENTED_US78 |
-| `OPERATIONAL_EXCEPTION_ESCALATE` | Perform manual escalation without changing severity | FROZEN_NOT_IMPLEMENTED_US78 |
-| `OPERATIONAL_EXCEPTION_RCA` | View, author, and approve sensitive RCA subject to SoD | FROZEN_NOT_IMPLEMENTED_US78 |
-| `OPERATIONAL_EXCEPTION_CLOSE` | Validate/reject resolution, close, and reasoned reopen | FROZEN_NOT_IMPLEMENTED_US78 |
-| `OPERATIONAL_EXCEPTION_AUDIT_VIEW` | View full immutable case history | FROZEN_NOT_IMPLEMENTED_US78 |
+| `OPERATIONAL_EXCEPTION_VIEW` | View same-Tenant queue and non-sensitive case detail | IMPLEMENTED_US78_ACCEPTANCE_PENDING |
+| `OPERATIONAL_EXCEPTION_MANAGE` | Acknowledge/start, classify with reason, manage notes/actions, and resolve | IMPLEMENTED_US78_ACCEPTANCE_PENDING |
+| `OPERATIONAL_EXCEPTION_ASSIGN` | Assign and reassign to validated user/role queue | IMPLEMENTED_US78_ACCEPTANCE_PENDING |
+| `OPERATIONAL_EXCEPTION_ESCALATE` | Perform manual escalation without changing severity | IMPLEMENTED_US78_ACCEPTANCE_PENDING |
+| `OPERATIONAL_EXCEPTION_RCA` | View, author, and approve sensitive RCA subject to SoD | IMPLEMENTED_US78_ACCEPTANCE_PENDING |
+| `OPERATIONAL_EXCEPTION_CLOSE` | Validate/reject resolution, close, and reasoned reopen | IMPLEMENTED_US78_ACCEPTANCE_PENDING |
+| `OPERATIONAL_EXCEPTION_AUDIT_VIEW` | View full immutable case history | IMPLEMENTED_US78_ACCEPTANCE_PENDING |
 
 Contextual authorization is explicit: active Tenant, case Tenant, category/sensitivity, severity, assignment, lifecycle state, and recorded SoD actors. For high/critical cases the closer differs from the resolver and the RCA approver differs from the RCA author. Low/medium cases do not require dual control. No generic ABAC engine, customer/external authority, or cross-Tenant admin bypass is approved.
