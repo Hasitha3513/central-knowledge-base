@@ -2,18 +2,19 @@
 
 Lifecycle: IN DEVELOPMENT
 Source repository: current workspace
-Schema baseline: Flyway V1–V59 (V59: US-70 Customer self-service)
+Schema baseline: Flyway V1–V60 (V60: P1-01 shared durable-event outbox)
 Delivery US-56, US-57, US-58, US-59, US-60, US-61, US-62: COMPLETE
 MVP 1.3 Delivery Operations: 7/7 COMPLETE (CLOSED)
 US-63 Manage Delivery Zones: COMPLETE (MVP-1.4-US63-DELIVERY-ZONES-FINAL-ACCEPTANCE-001) — V52 Flyway, pure Java ray-casting PiP, DeliveryZoneController, DeliveryZoneListPage.tsx
 US-64 Manage Delivery Slots: COMPLETE (MVP-1.4-US64-DELIVERY-SLOTS-FINAL-ACCEPTANCE-001) — V53 Flyway, DeliverySlotController, DeliverySlotListPage.tsx
 US-65 Manage Riders: COMPLETE (MVP-1.4-US65-RIDERS-FINAL-ACCEPTANCE-001-RERUN) — V54 Flyway, DeliveryRiderController, DeliveryRiderListPage.tsx, deliveryRiders.spec.ts
 US-66 Batch Delivery Orders: COMPLETE (MVP-1.4-US66-BATCH-DELIVERY-ORDERS-FINAL-ACCEPTANCE-001) — V55 Flyway, DeliveryBatchController, DeliveryBatchListPage.tsx, deliveryBatches.spec.ts
-US-67 Calculate Last-Mile ETA: COMPLETE (MVP-1.4-US67-LAST-MILE-ETA-FINAL-ACCEPTANCE-001-RERUN) — HEURISTIC_ONLY computed projection, RiderEtaContextPort, tenant-scoped generation-aware cache/invalidation, V56 Rider transport-mode migration; current Flyway head V57. Final acceptance: Maven 1,195/0/0/15, architecture 40/40, and real PostgreSQL-backed Chromium 6/6 PASS.
+US-67 Calculate Last-Mile ETA: COMPLETE (MVP-1.4-US67-LAST-MILE-ETA-FINAL-ACCEPTANCE-001-RERUN) — HEURISTIC_ONLY computed projection, RiderEtaContextPort, tenant-scoped generation-aware cache/invalidation, V56 Rider transport-mode migration; acceptance-time Flyway head V57. Final acceptance: Maven 1,195/0/0/15, architecture 40/40, and real PostgreSQL-backed Chromium 6/6 PASS.
 US-68 Handle Last-Mile Exceptions: COMPLETE (MVP-1.4-US68-LAST-MILE-EXCEPTIONS-FINAL-ACCEPTANCE-001) — read-only Delivery Planner projection over US-59/60/62/57/65/66/67 capabilities; no migration, aggregate, persistence, permission, or duplicate API family. Final acceptance: Maven 1,200/0/0/15, architecture 45/45, and real PostgreSQL-backed Chromium 3/3 PASS.
 US-69 Receive Delivery Notifications: COMPLETE (MVP-1.4-US69-DELIVERY-NOTIFICATIONS-FINAL-ACCEPTANCE-001-RERUN) — Batch `READY` emits zero `DELIVERY_OUT_FOR_DELIVERY` events; committed `DISPATCHED` emits exactly one per active member; removed members and rollback emit zero. Final evidence: Maven 1,223/0/0/15, architecture 42/42, and real PostgreSQL-backed Chromium 7/7 PASS.
 US-70 Use Customer Self-Service: COMPLETE (MVP-1.4-US70-CUSTOMER-SELF-SERVICE-FINAL-ACCEPTANCE-001) — V59 opaque per-Delivery magic-link access; customer-safe tracking/preferences/issues/feedback and non-binding redelivery requests; no Customer-to-app_user association, direct slot scheduling, IN_APP, OTP, Rider data, or POD evidence exposure. Final evidence: focused 28/28, PostgreSQL 4/4, Maven 1,238/0/0/15, architecture 42/42, frontend Vitest 259/259, and real PostgreSQL-backed Chromium 9/9 PASS.
 MVP 1.4 Last-Mile Delivery: 8/8 COMPLETE (CLOSED). Overall register: 65/87 COMPLETE and 22/87 DEFERRED.
+P1-01 Event Contract Durability and Envelope Hardening: COMPLETE — 32 events inventoried; the US-69 five-type family uses the shared V60 outbox with at-least-once delivery, while nine consumed local events remain after-commit and 22 unconsumed events remain unchanged. Program accounting is unchanged.
 Delivery US-66 final acceptance gate: COMPLETE (MVP-1.4-US66-BATCH-DELIVERY-ORDERS-FINAL-ACCEPTANCE-001)
 Delivery US-65 final acceptance gate: COMPLETE (MVP-1.4-US65-RIDERS-FINAL-ACCEPTANCE-001-RERUN)
 Delivery US-64 final acceptance gate: COMPLETE (MVP-1.4-US64-DELIVERY-SLOTS-FINAL-ACCEPTANCE-001)
@@ -61,9 +62,9 @@ All current cross-aggregate references are IDs/value references. The only Delive
 
 ## Published Events
 
-Current internal event types include `VehicleReadingRecorded`, `VehicleReadingCorrected`, `VehicleMeterResetRecorded`, `RouteDisruptionCreatedEvent`, `RouteDisruptionResolvedEvent`, the five version-1 `DeliveryCustomerNotificationEvent` types, and `OperationalNotificationEvent`. Exact payloads and remaining tenant deficiencies are registered in `../01_INTEGRATION_REGISTRY/event_contracts.md`. P0-07 makes all production Spring-local publication transaction-aware: events registered inside an owning transaction are delivered only after commit, never after rollback. `OperationalNotificationEvent` carries explicit `tenantId` and `schemaVersion`; Notification infrastructure resolves Tenant identity from the authoritative execution context.
+P1-01 inventoried 32 production event classes or persisted event records: 22 have no consumer, nine remain local after-commit, and the five-type `DeliveryCustomerNotificationEvent` family is the one durable-internal family. Exact classifications, payloads, and consumers are registered in `../01_INTEGRATION_REGISTRY/event_contracts.md` and the application P1-01 architecture record. P0-07 continues to govern local publication: events registered inside an owning transaction are delivered only after commit, never after rollback. `OperationalNotificationEvent` now implements the canonical version-1 envelope with explicit Tenant and aggregate identity but remains local because Notification already persists and retries channel work.
 
-Primary state transitions—including Trip assignment/dispatch/start/complete, Fuel Issue stock/history/reading changes, Fleet readings, and Delivery order/batch/rider changes—remain synchronous owning-module ACID operations. Delivery ETA cache eviction and notification generation are secondary local after-commit reactions. Notification execution-key checks and database-backed email delivery claims provide duplicate protection where side effects matter. No implemented reporting projection or general external event export currently justifies a durable broker/outbox; local events are explicitly non-durable and a future outbox/inbox boundary requires separate approval.
+Primary state transitions—including Trip assignment/dispatch/start/complete, Fuel Issue stock/history/reading changes, Fleet readings, and Delivery order/batch/rider changes—remain synchronous owning-module ACID operations. Delivery ETA cache eviction and `OperationalNotificationEvent` handling remain secondary local after-commit reactions. V60 atomically persists only accepted US-69 Delivery facts through the shared technical outbox; a Tenant-aware worker delivers them outside the source transaction with bounded retries. Notification execution keys provide the consumer inbox/dedupe boundary. No external broker, global ordering, exactly-once claim, general event export, or rewrite of unused events is approved.
 
 US-56 publishes no cross-module event because it captures requirements and readiness only; no downstream workflow is triggered. Future Delivery events require registration before implementation.
 
@@ -178,6 +179,7 @@ P0-05 hardens the existing Identity model without schema changes. Identity admin
 | delivery | `delivery_order`, `delivery_number_counter`, `proof_of_delivery`, `pod_evidence`, `delivery_attempt`, `delivery_contact_attempt`, `delivery_escalation`, `delivery_redelivery_schedule`, `delivery_exception_case`, `delivery_exception_evidence`, `delivery_zone`, `delivery_slot`, `delivery_slot_reservation`, `delivery_rider`, `delivery_rider_zone`, `delivery_rider_shift`, `delivery_order_rider_assignment`, `delivery_batch`, `delivery_batch_order`, `delivery_batch_counter` |
 | notification | `notification`, `notification_template`, `notification_rule`, `notification_rule_policy`, `notification_rule_quiet_day`, `notification_rule_execution`, `notification_delivery_attempt`, `customer_notification_preference` |
 | offlinesync | `offline_sync_operation` |
+| shared technical events | `integration_outbox_event` |
 
 Entityless join, collection, counter, and permission-catalogue tables remain owned by the listed module. Reporting is a consumer of published query contracts and owns no operational source table. P0-03 removed the two production-code direct-SQL violations: Freight reads Fleet capacity through `FleetReportingQuery`, while the development-only System fixture no longer probes an Organization-owned table or repository. The production foreign-SQL baseline is empty. The opt-in multi-owner development fixture and test-only cross-owner SQL setup/cleanup remain provisioning/test-infrastructure debt and are not production ownership authority.
 
@@ -391,6 +393,39 @@ Indexes: `(tenant_id, delivery_order_id, customer_id)`, active `(tenant_id, expi
 Indexes: unique `(tenant_id, access_id, submission_type, idempotency_key)`; unique active feedback `(tenant_id, delivery_order_id, customer_id) WHERE submission_type = 'FEEDBACK' AND status <> 'SUPERSEDED'`; and `(tenant_id, delivery_order_id, customer_id, submission_type, created_at DESC)`.
 
 V59 also appends only the controlled `[[SELF_SERVICE_LINK]]` placeholder to the five US-69 Delivery Email/SMS template families. The provider worker replaces it transiently at final send; raw tokens are not persisted in Notification records.
+
+### Durable internal event table (V60)
+
+#### Table: `integration_outbox_event`
+
+- **Purpose:** Atomically records explicitly approved durable internal events for bounded Tenant-aware background delivery.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, Indexed)
+- **Owner:** Shared technical event boundary; business modules publish only through `DurableEventPublisher`.
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY | Outbox row identity |
+| `event_id` | UUID | NO | - | UNIQUE with Tenant and consumer; indexed with Tenant | Stable logical event identity reused across retries |
+| `tenant_id` | UUID | NO | - | Tenant-qualified polling and retention indexes | Trusted Tenant processing scope |
+| `consumer_name` | VARCHAR(100) | NO | - | UNIQUE with Tenant and event | Explicit registered durable consumer |
+| `event_type` | VARCHAR(100) | NO | - | - | Stable event contract type |
+| `event_version` | INTEGER | NO | - | CHECK `>= 1` | Explicit contract version |
+| `aggregate_type` | VARCHAR(100) | NO | - | - | Owning aggregate type |
+| `aggregate_id` | UUID | NO | - | Logical aggregate reference only | Owning aggregate identity |
+| `payload` | JSONB | NO | - | Deterministic, allow-listed, maximum 32 KiB in application | Minimal consumer facts; never entities or secrets |
+| `occurred_at` | TIMESTAMPTZ | NO | - | - | Source event occurrence time |
+| `status` | VARCHAR(24) | NO | `'PENDING'` | CHECK in `PENDING`, `PROCESSING`, `RETRY`, `PUBLISHED`, `FAILED`, `UNSUPPORTED` | Delivery lifecycle |
+| `attempt_count` | INTEGER | NO | `0` | CHECK from 0 through 5 | Bounded claim count |
+| `next_attempt_at` | TIMESTAMPTZ | NO | - | Partial ready/retry index | Earliest next claim time |
+| `locked_until` | TIMESTAMPTZ | YES | NULL | Partial processing index | Recoverable claim lease expiry |
+| `published_at` | TIMESTAMPTZ | YES | NULL | - | Successful consumer acknowledgement time |
+| `last_error_code` | VARCHAR(80) | YES | NULL | Sanitized code only | Retry/terminal diagnostic without payload/provider body |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Row creation time |
+| `updated_at` | TIMESTAMPTZ | NO | - | Partial terminal-status retention index | Last lifecycle update |
+| `row_version` | BIGINT | NO | `0` | Optimistic version | Concurrent update guard |
+
+Constraints/indexes: unique `(tenant_id,event_id,consumer_name)`; ready/retry `(tenant_id,status,next_attempt_at,occurred_at)`; stale claims `(tenant_id,status,locked_until)`; terminal retention `(tenant_id,status,updated_at)`; and event identity `(tenant_id,event_id)`. Claims are bounded to 50 per Tenant with a five-minute lease and at most five attempts. Published rows are retained at least 30 days and failed/unsupported rows at least 90 days; purge is not automatic and requires a separately approved Tenant-qualified action.
 
 ### Routing history and freight tables (V30–V42)
 
@@ -608,7 +643,7 @@ Indexes: `(tenant_id, delivery_attempt_id)`.
 
 Indexes: `(tenant_id, delivery_id)`, `(tenant_id, status)`.
 
-V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions; V48 US-59 Failed Deliveries, attempts, contact attempts, escalations, and permissions; V49 US-60 Re-Delivery schedules, counter, and permissions; V50 US-61 Delivery Performance Analytics composite query indexes and DELIVERY_ANALYTICS_VIEW permission; V51–V56 Delivery exceptions, zones, slots, riders, batches, and rider transport mode; V57 Tenant-local operational business keys and idempotency constraints; V58 US-69 Delivery customer preferences, Email/SMS templates/rules, channel/recipient constraint extensions, and history index; V59 US-70 customer self-service access/submissions and Notification link placeholders.
+V1 baseline; V2 identity; V3 documents; V4 licences; V5 stops; V6–V8 trip audit/dispatch; V9 permissions; V10 integrity; V11–V12 fuel; V13 permissions; V14–V16 readings/reset; V17 permissions; V18 bunker; V19 maintenance; V20–V22 driver compliance; V23 lubricant; V24 operational events; V25–V28 notifications; V29 offline sync; V30 routing history; V31–V32 freight order/manifest; V33 permissions; V34 load plan; V35 permissions; V36 insurance; V37 Cargo Manifest special-cargo classification; V38 load plan readiness; V39 vehicle capacity master data; V40 cargo exception permissions; V41 cargo exception tables; V42 cargo manifest item measurements; V43 Tenant, membership, and canonical clean bootstrap; V44 operational tenant scoping and membership-role authority; V45 Freight reporting view/export permissions; V46 US-56 Delivery Orders, number counter and permissions; V47 US-57 Proof of Delivery, evidence, and POD permissions; V48 US-59 Failed Deliveries, attempts, contact attempts, escalations, and permissions; V49 US-60 Re-Delivery schedules, counter, and permissions; V50 US-61 Delivery Performance Analytics composite query indexes and DELIVERY_ANALYTICS_VIEW permission; V51–V56 Delivery exceptions, zones, slots, riders, batches, and rider transport mode; V57 Tenant-local operational business keys and idempotency constraints; V58 US-69 Delivery customer preferences, Email/SMS templates/rules, channel/recipient constraint extensions, and history index; V59 US-70 customer self-service access/submissions and Notification link placeholders; V60 P1-01 shared durable-event outbox.
 
 US-56, US-57, US-59, US-60, and US-61 Delivery persistence and indexes are introduced by forward migrations V46, V47, V48, V49, and V50.
 
@@ -700,13 +735,13 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
 - **Recipient and consent**: Organization remains canonical owner of Customer phone/email and exposes a new tenant-aware `CustomerNotificationContactLookup`; Notification stores only logical `customer_id` preferences plus normalized destination snapshots on accepted notification/execution records. With no profile, operational Email is enabled when valid and SMS is disabled; once a profile exists, only explicitly enabled channels are eligible. No marketing behavior is approved.
 - **Channels/providers**: Email reuses the existing SMTP/provider-neutral port. SMS is added behind a provider-neutral Notification port with a deterministic/local MVP adapter that never logs destination/body; no SMS vendor SDK is approved. Customer IN_APP/push is deferred until US-70 supplies an authenticated customer-user relationship. WhatsApp, callbacks/receipts, manual send/resend, and real-provider selection are deferred.
 - **Templates and privacy**: Existing global, versioned, channel-specific Notification templates remain authoritative; tenant rules select compatible templates. Allowed variables are limited to delivery number/status, customer display name, ETA/SLA, completion time, failure disposition, and redelivery window. No tenant template override/localization framework, secret, raw internal UUID, copied customer aggregate, or provider payload is approved.
-- **Reliability**: End-to-end semantics are `BEST_EFFORT` because local after-commit handoff is non-durable. Once persisted, Email/SMS use the existing three-attempt durable retry schedule (1 minute, then 2 minutes) and tenant-qualified execution dedupe. `SENT` means provider/local-adapter acceptance, not device delivery. Delivery state never changes because Notification failed.
+- **Reliability**: P1-01 upgrades the Delivery-to-Notification handoff to `AT_LEAST_ONCE` through the shared V60 outbox. Notification's existing Tenant-qualified execution key deduplicates replay; once persisted, Email/SMS retain the existing three-attempt provider retry schedule (1 minute, then 2 minutes). `SENT` means provider/local-adapter acceptance, not device delivery. Delivery state never changes because Notification failed.
 - **Persistence**: `V58__delivery_notifications_us69.sql` creates Notification-owned `customer_notification_preference(id, tenant_id, customer_id, email_enabled, sms_enabled, created_at, updated_at, version)`, unique `(tenant_id, customer_id)`, plus SMS/`EVENT_CUSTOMER` constraint extensions, recipient width alignment to 320, and a `(tenant_id, aggregate_type, aggregate_id, created_at DESC)` execution index. `customer_id` is a logical Organization reference with no cross-module physical FK. Historical migrations remain immutable.
 - **Security/API/UX**: Existing `NOTIFICATION_RULE_VIEW` protects tenant-scoped history/preference reads and `NOTIFICATION_RULE_MANAGE` protects preference writes. Notification owns the aggregate-filtered delivery diagnostics and preference APIs; there is no Delivery notification CRUD/send endpoint. The only new operator UX is a masked read-only Notifications timeline on Delivery Order details. US-70 retains customer portal/login/preference UI and secure tracking-link ownership.
 - **Trigger remediation**: `DeliveryBatchService.markReady` now commits Batch status `READY` without publishing `DELIVERY_OUT_FOR_DELIVERY`. `DeliveryBatchService.dispatchBatch` publishes the unchanged customer event after saving `DISPATCHED`, exactly once per active Batch member. Deterministic tests prove READY=0, two active plus one removed produces two events, and rollback produces zero after-commit events.
-- **Technical verification**: Complete Maven passed 1,223 tests with 0 failures/errors and 15 skips; architecture passed 42/42; Checkstyle, PMD, and SpotBugs passed; frontend TypeScript, 57-file/254-test Vitest, production build, and changed-file lint passed; the real PostgreSQL-backed Chromium suite passed 7/7 including the readiness/dispatch distinction. Flyway remains V58 and only `transport_logistics_acceptance` was used.
+- **Technical verification**: US-69 acceptance passed Maven 1,223/0/0/15, architecture 42/42, all static/frontend gates, and real PostgreSQL-backed Chromium 7/7. Its own migration remains V58; the current repository head is V60 after P1-01.
 - **Final acceptance**: `MVP-1.4-US69-DELIVERY-NOTIFICATIONS-FINAL-ACCEPTANCE-001-RERUN` accepted the remediated trigger and all frozen Notification, security, privacy, Tenant, persistence, and UI contracts. Focused tests passed 20/20; Delivery/Notification/PostgreSQL regressions passed 193/193; full Maven passed 1,223/0/0/15; architecture passed 42/42; and real Chromium passed 7/7.
-- **Program state**: US-69 and US-70 are `COMPLETE`. MVP 1.4 is 8/8 and `CLOSED`; overall is 65/87 and deferred is 22/87. The authoritative next queue item is the separately scoped `P1-01` architecture batch.
+- **Program state**: US-69 and US-70 are `COMPLETE`. MVP 1.4 is 8/8 and `CLOSED`; overall is 65/87 and deferred is 22/87. P1-01 is complete and the authoritative next queue item is `DEFERRED-BACKLOG-REPRIORITIZATION-001`.
 
 ### US-70 Customer Self-Service (Implemented and Accepted)
 
@@ -716,14 +751,14 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
 - **Privacy:** No internal IDs/enums, full address, Rider identity/contact/location, batch/zone/slot internals, ETA heuristic/provider/cache facts, internal exception investigation, Notification body/provider diagnostics, or POD signature/photo/barcode/geotag/content is exposed.
 - **Notification integration:** US-69 events remain unchanged. Notification may persist a controlled link placeholder only. Immediately before provider delivery, it calls a published Delivery link-issuance port and substitutes the raw link transiently; raw tokens are never persisted in application Notification/event/audit/log data. Customer IN_APP/push and OTP remain deferred.
 - **Public API:** Delivery owns `GET /api/public/v1/delivery-self-service`, `GET/PUT /api/public/v1/delivery-self-service/notification-preferences`, and `POST` routes for `/issues`, `/feedback`, and `/redelivery-requests`. Routes contain no target identifiers and authorize only through the scoped token. Invalid/expired/revoked/mismatched/cross-Tenant access is an indistinguishable 404.
-- **Persistence:** Delivery owns `delivery_self_service_access` (hash-only credential, Tenant/Delivery/Customer/contact/action/lifetime/usage/version/audit facts) and `delivery_customer_submission` (typed preference/redelivery/issue/feedback submissions with idempotency/concurrency/audit facts and a composite Tenant-consistent access foreign key). Customer remains a logical Organization reference with no cross-module FK. `V59__customer_self_service_us70.sql` is the current Flyway head.
+- **Persistence:** Delivery owns `delivery_self_service_access` (hash-only credential, Tenant/Delivery/Customer/contact/action/lifetime/usage/version/audit facts) and `delivery_customer_submission` (typed preference/redelivery/issue/feedback submissions with idempotency/concurrency/audit facts and a composite Tenant-consistent access foreign key). Customer remains a logical Organization reference with no cross-module FK. V59 remains the US-70 migration; the current repository head is V60.
 - **Frontend:** A mobile-friendly `/track` route sits outside `ProtectedRoute` and `AppLayout`; the fragment is consumed once, immediately removed, and retained in memory only. The operator shell, offline storage, customer analytics, and native app are excluded.
 - **Final acceptance:** `MVP-1.4-US70-CUSTOMER-SELF-SERVICE-FINAL-ACCEPTANCE-001` accepted the opaque-token, Tenant/IDOR, projection privacy, Notification preference/link, issue, feedback, non-binding request, browser-memory, and US-60/64/67/69 boundaries. Full Maven passed 1,238 tests with 0 failures/errors and 15 skips in 4:56 against only `transport_logistics_acceptance`; focused backend/security passed 28/28; PostgreSQL passed 4/4 with clean V1→V59; architecture passed 42/42; Checkstyle, PMD, and SpotBugs passed; frontend TypeScript, 59-file/259-test Vitest, production build, and changed-file lint passed; real Chromium passed 9/9. Global lint retains 71 unrelated pre-existing errors and US-70 introduces none.
-- **Program state:** US-70 is `COMPLETE`. MVP 1.4 is 8/8 `COMPLETE — CLOSED`; overall 65/87, deferred 22/87. The next authoritative queue item is `P1-01`; no US-88/89/90 is defined.
+- **Program state:** US-70 is `COMPLETE`. MVP 1.4 is 8/8 `COMPLETE — CLOSED`; overall 65/87, deferred 22/87. P1-01 is complete; the next authoritative queue item is `DEFERRED-BACKLOG-REPRIORITIZATION-001`. No US-88/89/90 is defined.
 
 ## Remaining Suite Integration Work
 
-1. Add Tenant envelopes whenever new cross-module integration events are approved or existing event contracts are versioned.
+1. Apply the P1-01 canonical Tenant/version/aggregate envelope whenever a new consumed cross-module contract is approved; do not modernize unused events without a real consumer.
 2. Resolve driver, customer, project, vendor, and maintenance ownership through ADRs.
 3. Replace cross-boundary physical references with logical IDs/contracts as modules become independent.
 

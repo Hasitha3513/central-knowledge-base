@@ -53,6 +53,12 @@ The audit envelope above is mandatory for tenant-owned tables. Add a `version` c
 
 Modules store identity IDs as UUID primitives and resolve display data through contracts. They must not copy authentication secrets or join identity tables. Employee identity and login identity are distinct concepts and may be linked by HRM through a documented logical reference.
 
+## Durable Internal Event Boundary (P1-01)
+
+The shared technical boundary owns the single `integration_outbox_event` table and exposes provider-neutral `DurableEventPublisher`, `DurableEventHandler`, and worker contracts. Business modules never import the outbox JPA entity or repository. The current approved durable family is Delivery's five-type version-1 US-69 customer-notification contract; Notification's existing execution key is its consumer dedupe/inbox boundary.
+
+Durable records carry stable event identity, trusted Tenant identity, event type/version, aggregate type/ID, minimized JSON payload, occurrence time, bounded claim/retry state, and sanitized terminal error codes. Background processing establishes and clears Tenant context explicitly. Delivery is at-least-once without global ordering; no broker or exactly-once claim is approved.
+
 ## Rules
 
 - Reuse syntax and semantics, not mutable shared domain entities.
