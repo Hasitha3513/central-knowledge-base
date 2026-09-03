@@ -12,7 +12,7 @@ US-66 Batch Delivery Orders: COMPLETE (MVP-1.4-US66-BATCH-DELIVERY-ORDERS-FINAL-
 US-67 Calculate Last-Mile ETA: COMPLETE (MVP-1.4-US67-LAST-MILE-ETA-FINAL-ACCEPTANCE-001-RERUN) — HEURISTIC_ONLY computed projection, RiderEtaContextPort, tenant-scoped generation-aware cache/invalidation, V56 Rider transport-mode migration; current Flyway head V57. Final acceptance: Maven 1,195/0/0/15, architecture 40/40, and real PostgreSQL-backed Chromium 6/6 PASS.
 US-68 Handle Last-Mile Exceptions: COMPLETE (MVP-1.4-US68-LAST-MILE-EXCEPTIONS-FINAL-ACCEPTANCE-001) — read-only Delivery Planner projection over US-59/60/62/57/65/66/67 capabilities; no migration, aggregate, persistence, permission, or duplicate API family. Final acceptance: Maven 1,200/0/0/15, architecture 45/45, and real PostgreSQL-backed Chromium 3/3 PASS.
 US-69 Receive Delivery Notifications: COMPLETE (MVP-1.4-US69-DELIVERY-NOTIFICATIONS-FINAL-ACCEPTANCE-001-RERUN) — Batch `READY` emits zero `DELIVERY_OUT_FOR_DELIVERY` events; committed `DISPATCHED` emits exactly one per active member; removed members and rollback emit zero. Final evidence: Maven 1,223/0/0/15, architecture 42/42, and real PostgreSQL-backed Chromium 7/7 PASS.
-US-70 Use Customer Self-Service: IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING — V59 opaque per-Delivery magic-link access; customer-safe tracking/preferences/issues/feedback and non-binding redelivery requests; no Customer-to-app_user association, direct slot scheduling, IN_APP, OTP, Rider data, or POD evidence exposure. Technical evidence: Maven 1,233/0/0/15 and real PostgreSQL-backed Chromium 6/6 PASS.
+US-70 Use Customer Self-Service: IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING — V59 opaque per-Delivery magic-link access; customer-safe tracking/preferences/issues/feedback and non-binding redelivery requests; no Customer-to-app_user association, direct slot scheduling, IN_APP, OTP, Rider data, or POD evidence exposure. Technical evidence: Maven 1,238/0/0/15, architecture 42/42, frontend Vitest 259/259, and real PostgreSQL-backed Chromium 9/9 PASS.
 Delivery US-66 final acceptance gate: COMPLETE (MVP-1.4-US66-BATCH-DELIVERY-ORDERS-FINAL-ACCEPTANCE-001)
 Delivery US-65 final acceptance gate: COMPLETE (MVP-1.4-US65-RIDERS-FINAL-ACCEPTANCE-001-RERUN)
 Delivery US-64 final acceptance gate: COMPLETE (MVP-1.4-US64-DELIVERY-SLOTS-FINAL-ACCEPTANCE-001)
@@ -333,7 +333,7 @@ V58 also permits `SMS` in Notification channel constraints, permits `EVENT_CUSTO
 
 | Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `id` | UUID | NO | - | PRIMARY KEY | Access-record identifier |
+| `id` | UUID | NO | - | PRIMARY KEY; UNIQUE with `tenant_id` for composite references | Access-record identifier |
 | `tenant_id` | UUID | NO | - | UNIQUE with `issuance_idempotency_key`; indexed | Authoritative Tenant scope |
 | `delivery_order_id` | UUID | NO | - | Physical same-module FK with `tenant_id` -> `delivery_order(id, tenant_id)`; indexed | Delivery Order authorized by the token |
 | `customer_id` | UUID | NO | - | Logical FK -> Organization `customer(id)`; indexed | Same-Tenant Customer reference |
@@ -351,6 +351,8 @@ V58 also permits `SMS` in Notification channel constraints, permits `EVENT_CUSTO
 | `version` | BIGINT | NO | `0` | Optimistic version | Concurrency-control version |
 | `created_at` | TIMESTAMPTZ | NO | - | - | Creation timestamp |
 | `updated_at` | TIMESTAMPTZ | NO | - | - | Last update timestamp |
+| `created_by` | VARCHAR(255) | NO | - | - | Controlled creator actor |
+| `updated_by` | VARCHAR(255) | NO | - | - | Controlled last-updater actor |
 
 Indexes: `(tenant_id, delivery_order_id, customer_id)`, active `(tenant_id, expires_at) WHERE revoked_at IS NULL`, and `(tenant_id, revoked_at, expires_at)`.
 
@@ -366,11 +368,11 @@ Indexes: `(tenant_id, delivery_order_id, customer_id)`, active `(tenant_id, expi
 | `tenant_id` | UUID | NO | - | Tenant-qualified indexes and idempotency | Authoritative Tenant scope |
 | `delivery_order_id` | UUID | NO | - | Physical same-module FK with `tenant_id` -> `delivery_order(id, tenant_id)`; indexed | Related Delivery Order |
 | `customer_id` | UUID | NO | - | Logical FK -> Organization `customer(id)`; indexed | Same-Tenant Customer reference |
-| `access_id` | UUID | NO | - | Physical FK -> `delivery_self_service_access(id)` | Authorizing access record |
+| `access_id` | UUID | NO | - | Physical same-module FK with `tenant_id` -> `delivery_self_service_access(id, tenant_id)` | Authorizing access record |
 | `submission_type` | VARCHAR(32) | NO | - | `DELIVERY_PREFERENCE`, `REDELIVERY_REQUEST`, `ISSUE`, or `FEEDBACK` | Submission discriminator |
 | `category` | VARCHAR(64) | YES | NULL | Allow-listed issue category; required only for issues | Customer-safe issue category |
 | `description` | VARCHAR(1000) | YES | NULL | Type-specific length/required-field check | Customer statement or preference note |
-| `rating` | INTEGER | YES | NULL | 1–5; feedback only | Customer feedback rating |
+| `rating` | SMALLINT | YES | NULL | 1–5; feedback only | Customer feedback rating |
 | `preferred_start_at` | TIMESTAMPTZ | YES | NULL | Paired with end; end must be later | Requested non-binding window start |
 | `preferred_end_at` | TIMESTAMPTZ | YES | NULL | Paired with start; later than start | Requested non-binding window end |
 | `status` | VARCHAR(32) | NO | `'SUBMITTED'` | `SUBMITTED`, `RECORDED`, `ACCEPTED`, `DECLINED`, or `SUPERSEDED` | Submission handling state |
@@ -381,9 +383,11 @@ Indexes: `(tenant_id, delivery_order_id, customer_id)`, active `(tenant_id, expi
 | `operator_outcome_by` | VARCHAR(255) | YES | NULL | - | Operator disposition actor |
 | `created_at` | TIMESTAMPTZ | NO | - | - | Creation timestamp |
 | `updated_at` | TIMESTAMPTZ | NO | - | - | Last update timestamp |
+| `created_by` | VARCHAR(255) | NO | - | - | Controlled creator actor |
+| `updated_by` | VARCHAR(255) | NO | - | - | Controlled last-updater actor |
 | `version` | BIGINT | NO | `0` | Optimistic version | Concurrency-control version |
 
-Indexes: unique `(tenant_id, access_id, submission_type, idempotency_key)`; unique active feedback `(tenant_id, delivery_order_id, customer_id) WHERE submission_type = 'FEEDBACK' AND status <> 'SUPERSEDED'`; and `(tenant_id, delivery_order_id, customer_id, created_at DESC)`.
+Indexes: unique `(tenant_id, access_id, submission_type, idempotency_key)`; unique active feedback `(tenant_id, delivery_order_id, customer_id) WHERE submission_type = 'FEEDBACK' AND status <> 'SUPERSEDED'`; and `(tenant_id, delivery_order_id, customer_id, submission_type, created_at DESC)`.
 
 V59 also appends only the controlled `[[SELF_SERVICE_LINK]]` placeholder to the five US-69 Delivery Email/SMS template families. The provider worker replaces it transiently at final send; raw tokens are not persisted in Notification records.
 
@@ -711,9 +715,9 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
 - **Privacy:** No internal IDs/enums, full address, Rider identity/contact/location, batch/zone/slot internals, ETA heuristic/provider/cache facts, internal exception investigation, Notification body/provider diagnostics, or POD signature/photo/barcode/geotag/content is exposed.
 - **Notification integration:** US-69 events remain unchanged. Notification may persist a controlled link placeholder only. Immediately before provider delivery, it calls a published Delivery link-issuance port and substitutes the raw link transiently; raw tokens are never persisted in application Notification/event/audit/log data. Customer IN_APP/push and OTP remain deferred.
 - **Public API:** Delivery owns `GET /api/public/v1/delivery-self-service`, `GET/PUT /api/public/v1/delivery-self-service/notification-preferences`, and `POST` routes for `/issues`, `/feedback`, and `/redelivery-requests`. Routes contain no target identifiers and authorize only through the scoped token. Invalid/expired/revoked/mismatched/cross-Tenant access is an indistinguishable 404.
-- **Persistence:** Delivery owns `delivery_self_service_access` (hash-only credential, Tenant/Delivery/Customer/contact/action/lifetime/usage/version facts) and `delivery_customer_submission` (typed preference/redelivery/issue/feedback submissions with idempotency/concurrency/audit facts). Customer remains a logical Organization reference with no cross-module FK. `V59__customer_self_service_us70.sql` is the current Flyway head.
+- **Persistence:** Delivery owns `delivery_self_service_access` (hash-only credential, Tenant/Delivery/Customer/contact/action/lifetime/usage/version/audit facts) and `delivery_customer_submission` (typed preference/redelivery/issue/feedback submissions with idempotency/concurrency/audit facts and a composite Tenant-consistent access foreign key). Customer remains a logical Organization reference with no cross-module FK. `V59__customer_self_service_us70.sql` is the current Flyway head.
 - **Frontend:** A mobile-friendly `/track` route sits outside `ProtectedRoute` and `AppLayout`; the fragment is consumed once, immediately removed, and retained in memory only. The operator shell, offline storage, customer analytics, and native app are excluded.
-- **Technical verification:** Full Maven passed 1,233 tests with 0 failures/errors and 15 skips against only `transport_logistics_acceptance`; architecture/security/Notification focused verification passed 48/48; Checkstyle, PMD, and SpotBugs passed; frontend TypeScript, 58-file/257-test Vitest, production build, and changed-file lint passed; the real PostgreSQL-backed Chromium suite passed 6/6. Global lint retains 71 unrelated pre-existing errors and US-70 introduces none.
+- **Technical verification:** Full Maven passed 1,238 tests with 0 failures/errors and 15 skips against only `transport_logistics_acceptance`; focused backend/security verification passed 28/28; architecture passed 42/42; Checkstyle, PMD, and SpotBugs passed; frontend TypeScript, 59-file/259-test Vitest, production build, and changed-file lint passed; the real PostgreSQL-backed Chromium suite passed 9/9. Global lint retains 71 unrelated pre-existing errors and US-70 introduces none.
 - **Program state:** US-70 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`, not complete. MVP 1.4 remains 7/8, overall 64/87, deferred 23/87. Next task is `MVP-1.4-US70-CUSTOMER-SELF-SERVICE-FINAL-ACCEPTANCE-001`.
 
 ## Remaining Suite Integration Work
