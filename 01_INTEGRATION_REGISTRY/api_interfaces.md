@@ -77,6 +77,14 @@ Omitted or explicit `null` values remain UNKNOWN; the adapter never defaults the
 
 The first-party Manifest UI provides input fields for special cargo classification and physical cargo measurements. Historical UNKNOWN classifications are rendered as `CLASSIFICATION REQUIRED`, and missing measurements as `WEIGHT REQUIRED` / `DIMENSIONS REQUIRED`. Permissions remain `CARGO_MANIFEST_VIEW`, `CARGO_MANIFEST_MANAGE`, and `CARGO_MANIFEST_FINALIZE`.
 
+## US-78 Operations API (Frozen, Not Implemented)
+
+Operations owns authenticated `/api/v1/operational-exceptions` list/detail/history routes and explicit commands for `classify`, `acknowledge`, `assign`, `start`, `escalate`, corrective-action create/start/complete, RCA record/approve, `resolve`, `close`, `reject-resolution`, and `reopen`. Every mutation carries the expected version. There is no manual create, generic PATCH/status, delete, source mutation, arbitrary send, raw-evidence, customer, or export route.
+
+List filters are limited to status, severity, category, source module, assigned user/role, SLA status, and opened date range. Pagination defaults to 20 and caps at 100; history defaults to 50 and caps at 200. Safe sort keys are `openedAt`, `updatedAt`, `severity`, `responseDueAt`, `resolutionDueAt`, and `status`. Search is limited to exact/prefix case reference, registered summary code, or exact source UUID. Cross-Tenant IDs return safe not-found and requests cannot set Tenant/source/case/audit/SLA/escalation/approval authority.
+
+The public cross-module intake is the Operations-root `OperationalExceptionFactV1` event contract, not a REST create API. Routing and Delivery are the first frozen producers. Source correction remains a separate call to the source owner's published use case.
+
 ## Proposed Cross-Module Interfaces
 
 ### Delivery Foundation and Preserved Future-Slice Contracts
