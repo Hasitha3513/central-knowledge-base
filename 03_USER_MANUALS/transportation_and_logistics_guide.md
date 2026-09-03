@@ -328,7 +328,22 @@ Notifications are generated from committed out-for-delivery, ETA-risk, completio
 
 An out-for-delivery notice is generated only after the Batch is successfully dispatched as `DISPATCHED`. Moving a Batch to `READY` produces no customer notice. Only active Batch member orders receive one notice each; removed members receive none. This behavior and the complete US-69 notification workflow have passed final acceptance.
 
-The timeline is read-only and exposes masked destinations only. It provides no send, resend, retry, provider, or message-body action. Do not place OTPs, access/gate codes, credentials, free-text failure notes, Rider private data, or other secrets in notification workflows. Customer portal/login, customer preference UI, tracking links, push, WhatsApp, voice, callbacks, and manual resend remain unavailable in US-69.
+The timeline is read-only and exposes masked destinations only. It provides no send, resend, retry, provider, or message-body action. Do not place OTPs, access/gate codes, credentials, free-text failure notes, Rider private data, or other secrets in notification workflows. US-69 itself adds no customer account/login, push, WhatsApp, voice, callback, or manual resend. The separate US-70 customer self-service magic-link workflow is described below.
+
+### 9.7 Use Customer Self-Service (`US-70`)
+
+**Navigation:** Open the HTTPS magic link from an operational Delivery Email or SMS. It opens the public `/track` page; no customer username, password, operator account, or OTP is required.
+
+1. Open the link on the intended device. The page consumes the opaque token from the URL fragment, removes the fragment immediately, and keeps access only in browser memory.
+2. Review the customer-safe delivery number, friendly status, destination display name, scheduled window/time zone, ETA/freshness, POD availability/completion state, current masked Email/SMS preferences, and actions currently allowed by the link.
+3. Use **Notification preferences** to replace the Email/SMS operational preference profile when the token allows that action. Backend validation remains authoritative and changes apply to future notification events.
+4. Use **Report an issue** to select an allow-listed category and enter a 10–1,000 character description.
+5. After delivery, use **Send feedback** to submit a 1–5 rating and optional comment. One non-superseded feedback submission is retained per Delivery and Customer.
+6. Use **Request delivery preference / redelivery** to submit a preferred window and optional note. This is a non-binding request for operator review: it does not reschedule the order, reserve a slot, consume capacity, or change Delivery status.
+
+Each write uses a generated idempotency key so a network retry does not create a duplicate. Reloading the page intentionally loses in-memory access; reopen the original message link while it remains valid. Invalid, expired, revoked, contact-mismatched, action-denied, and cross-Tenant tokens all show the same safe unavailable experience.
+
+The link is scoped to one Delivery/Customer/contact and expires after 30 days unless revoked earlier. It never exposes the full address, Rider identity/contact/location, internal IDs, operator shell, Notification body/history/provider diagnostics, exact POD evidence, slot/zone/batch internals, or ETA implementation details. Customers cannot directly cancel, schedule, book a slot, mutate an address/payment, or access offline/native-app behavior through this portal.
 
 ---
 
