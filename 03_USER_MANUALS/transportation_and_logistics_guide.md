@@ -443,7 +443,19 @@ flowchart TD
 
 ---
 
-## 12. 🛠️ Troubleshooting & Support Escalation
+## 12. 💳 Fuel Card Management (US-35)
+
+Users with `FUEL_CARD_VIEW` can open **Fuel → Fuel Cards** to search masked cards and imported transactions. Full provider card references are never displayed. Local status and the persistent **Provider sync not configured** message make clear that these controls do not change the provider account.
+
+- `FUEL_CARD_MANAGE` users can issue a draft card, bind exactly one active Vehicle or Driver, configure positive currency/amount/litre limits and fuel/station allowlists, then activate, suspend/resume or cancel it. Activation and resume require a valid non-expired setup; cancelled, expired and blocked cards cannot reactivate.
+- `FUEL_CARD_BLOCK` users can immediately block a card for lost, stolen or policy reasons. Blocking is local and final except for cancellation/replacement.
+- `FUEL_CARD_IMPORT` users upload one bounded `FUEL_CARD_TRANSACTIONS_V1` JSON file. Exact batch/file/transaction replay is idempotent; conflicting replay is rejected, while provider facts remain immutable.
+- `FUEL_CARD_RECONCILE` users can match one purchase transaction to one existing same-Tenant Fuel Purchase, unmatch it, reject it, or record a reversal disposition. An importer cannot reconcile or reject their own imported transaction.
+- Review indicators identify binding mismatch, disallowed fuel/station, exceeded limits, inactive cards, integrity conflict and reversal review. They are operational review signals, not fraud findings.
+
+Filters and server-side pagination are bounded (20 rows by default, 100 maximum). Cross-Tenant card, binding, transaction, Trip and Fuel Purchase references are returned as safe not-found/denied results. There is no delete, raw edit, payment, settlement, provider authorization or provider synchronization workflow in US-35.
+
+## 13. 🛠️ Troubleshooting & Support Escalation
 
 | Error / Condition | Root Cause | Operator Action |
 | :--- | :--- | :--- |
@@ -455,6 +467,6 @@ flowchart TD
 
 ---
 
-## 13. 📑 Scope Boundaries
+## 14. 📑 Scope Boundaries
 
 This operational manual documents active features in **Phase 1, Phase 2A, Phase 3 Core Fuel, and MVP 1.3 Delivery Operations**. Features flagged on the project roadmap as deferred (e.g., dynamic multi-echelon routing, IoT telematics, mobile native apps) are outside current system scope.

@@ -811,9 +811,9 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 - Independent final acceptance: PASS. Fresh focused analytics/security 14/14, complete Maven 1,310/0/0/15 in 05:15, architecture 46/46, Vitest 262/262, and real PostgreSQL-backed Chromium 6/6 in 21.7 seconds all pass against only `transport_logistics_acceptance`; Flyway reached V63 and exact source immutability passed.
 - This was the US-37 acceptance checkpoint; current Wave B decisions and queue are recorded in the US-35 section below.
 
-### US-35 Fuel Card Product Decisions
+### US-35 Fuel Card Implementation
 
-- Status: `PRODUCT_DECISIONS_FROZEN / IMPLEMENTATION_NOT_STARTED`; accounting remains 68/87 accepted and 19/87 remaining. Wave B remains open.
+- Status: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`; accounting remains 68/87 accepted and 19/87 remaining. Wave B remains open. V64 is the US-35 migration and the current repository head.
 - Owner/boundary: Fuel owns a limited masked card-reference master, local lifecycle/restrictions, exactly one active Driver-or-Vehicle binding with immutable history, normalized imported provider facts, reconciliation, deterministic review indicators, and safe audit. The external provider owns account, authorization, settlement, ledger, provider IDs and merchant facts. No payment engine, banking, billing/payroll, generic fraud engine, or US-38 investigation is approved.
 - Sensitive data: UUID internal identity, Organization provider logical ID, opaque provider card reference, masked identifier, optional last four and expiry month/year. No PAN, CVV, PIN, stripe data, balance, credential, secret, raw file/body, or unmasked reference appears in responses/UI/logs/audit.
 - Lifecycle/binding: `DRAFT`, `ACTIVE`, `SUSPENDED`, `BLOCKED`, `EXPIRED`, `CANCELLED`; explicit commands only and no reactivation from terminal states. Exactly one same-Tenant active Vehicle or Driver binding is allowed; reassignment appends effective-dated history through published contracts only.
@@ -821,8 +821,113 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 - Import/evidence: Fuel owns an authenticated 1 MiB/1,000-record UTF-8 JSON `FUEL_CARD_TRANSACTIONS_V1` endpoint under `CONTROLLED_PROVIDER_FIXTURE`. Real parsing/validation/hashing/PostgreSQL persistence/dedupe are required. This proves no provider authenticity, settlement or external block. US-73 remains outbound-only; no new Integration inbound capability is claimed.
 - Idempotency/reconciliation: batch key is Tenant/provider/batch plus hash; transaction key is Tenant/provider/provider-transaction ID plus canonical hash. Exact replay is idempotent and conflicting replay fails closed. Provider values are immutable; reversal is a new linked fact. Reconciliation links at most one purchase transaction to one existing US-32 Fuel Purchase and may retain a validated Trip reference; import never creates or mutates a Fuel Purchase.
 - Review/security: exact indicators are binding mismatch, fuel type or station not allowed, limit exceeded, inactive card, integrity conflict and reversal review. They are non-fraud review signals; US-38 owns investigation. Permissions are `FUEL_CARD_VIEW`, `FUEL_CARD_MANAGE`, `FUEL_CARD_BLOCK`, `FUEL_CARD_IMPORT`, and `FUEL_CARD_RECONCILE`; importer cannot reconcile/reject the same transaction. Tenant is server-derived and P1-01 is `NONE` because no current consumer exists.
-- Persistence expectation: eight Fuel-owned Tenant tables for card, binding history, restriction, import batch, immutable transaction, reconciliation history, indicators and audit; Tenant-consistent same-module FKs, logical cross-module UUIDs, optimistic versions, Tenant-leading indexes, no destructive delete, and external retention policy. Implementation chooses the next free migration after V63; V64 is not reserved.
+- Persistence: V64 creates eight Fuel-owned Tenant tables for card, binding history, restriction, import batch, immutable transaction, reconciliation history, indicators and audit; Tenant-consistent same-module FKs, logical cross-module UUIDs, optimistic versions, Tenant-leading indexes, no destructive delete, and external retention policy.
 - Acceptance: isolated `transport_logistics_acceptance`, deterministic concurrency, literal `/api/v1` security, full quality gates, and a real Chromium journey covering masked display, binding/restrictions, canonical import/replay/conflict, reconciliation, review flags, immutable values, Tenant non-inference and limited-user denial.
-- Next task: `US-35-FUEL-CARDS-IMPLEMENTATION-001`.
+- Implementation evidence: focused backend 15/15, PostgreSQL acceptance 7/7, complete Maven 1,332/0/0/15, architecture 46/46, Vitest 263/263 and real PostgreSQL-backed Chromium 6/6 all pass. Checkstyle, PMD, SpotBugs, TypeScript, production build and changed-file lint pass. Global ESLint retains 71 unrelated pre-existing Delivery errors and introduces zero US-35 errors.
+- Next task: `US-35-FUEL-CARDS-TECHNICAL-CLOSURE-001`.
+
+#### Table: `fuel_card`
+
+- **Purpose:** Tenant-owned masked local fuel-card reference and lifecycle.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, indexed)
+
+| Columns | Definition and constraints |
+| :--- | :--- |
+| `id`, `tenant_id`, `provider_id` | UUID, NOT NULL; PK on `id`; unique `(tenant_id,id)`; provider is a logical Organization reference |
+| `alias`, `provider_card_reference`, `provider_reference_hash`, `masked_identifier`, `last_four` | VARCHAR(100), VARCHAR(255), CHAR(64), VARCHAR(32) NOT NULL; optional CHAR(4); unique Tenant/provider/reference; reference never leaves persistence unmasked |
+| `expiry_month`, `expiry_year`, `status`, `provider_sync_status` | SMALLINT NOT NULL with month/year checks; lifecycle VARCHAR(20) check; sync is `NOT_CONFIGURED` only |
+| `version`, `created_by`, `created_at`, `updated_at` | BIGINT NOT NULL default 0; UUID actor; TIMESTAMPTZ timestamps, all NOT NULL |
+
+#### Table: `fuel_card_binding_history`
+
+- **Purpose:** Immutable Vehicle-or-Driver binding history with one current binding.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, indexed)
+
+| Columns | Definition and constraints |
+| :--- | :--- |
+| `id`, `tenant_id`, `card_id` | UUID NOT NULL; PK; Tenant-consistent FK to `fuel_card`; unique `(tenant_id,id)` |
+| `binding_type`, `binding_id` | `VEHICLE` or `DRIVER`; UUID logical cross-module reference, both NOT NULL |
+| `effective_from`, `effective_to`, `reason`, `changed_by`, `created_at` | TIMESTAMPTZ start/optional end; VARCHAR(500) reason; UUID actor; creation timestamp |
+| Active-binding invariant | Partial unique index `(tenant_id,card_id)` where `effective_to IS NULL` |
+
+#### Table: `fuel_card_restriction`
+
+- **Purpose:** Current card spend, volume, fuel-type and station restrictions.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID)
+
+| Columns | Definition and constraints |
+| :--- | :--- |
+| `id`, `tenant_id`, `card_id` | UUID NOT NULL; Tenant-consistent card FK; unique one row per `(tenant_id,card_id)` |
+| `currency`, amount limits | CHAR(3); transaction/daily/monthly NUMERIC(19,2), positive and NOT NULL |
+| `max_daily_litres`, allowlists | positive NUMERIC(19,4); fuel types and station references stored as non-null TEXT |
+| `version`, `changed_by`, `changed_at` | optimistic BIGINT default 0, UUID actor and TIMESTAMPTZ, NOT NULL |
+
+#### Table: `fuel_card_import_batch`
+
+- **Purpose:** Idempotent bounded canonical import receipt.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, indexed)
+
+| Columns | Definition and constraints |
+| :--- | :--- |
+| Identity | UUID `id`, `tenant_id`, `provider_id`; unique `(tenant_id,id)` |
+| Replay keys | VARCHAR(120) `provider_batch_id`, CHAR(64) `file_hash`; each unique within Tenant/provider |
+| Counts/time | `generated_at`, `created_at` TIMESTAMPTZ; transaction count 1..1000; imported/review INTEGER counts |
+| Actor | UUID `imported_by`, NOT NULL |
+
+#### Table: `fuel_card_transaction`
+
+- **Purpose:** Immutable normalized provider transaction facts plus local disposition.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, indexed)
+
+| Columns | Definition and constraints |
+| :--- | :--- |
+| Identity/ownership | UUID `id`, `tenant_id`, `batch_id`, `provider_id`, `card_id`; Tenant-consistent batch/card FKs |
+| Provider identity | VARCHAR(120) `provider_transaction_id`, CHAR(64) `canonical_hash`; unique Tenant/provider transaction |
+| Kind/link | `PURCHASE` or `REVERSAL`; optional original provider transaction ID |
+| Provider facts | transaction/optional posted TIMESTAMPTZ, optional station, fuel VARCHAR(40), positive quantity/unit price/amount, CHAR(3) currency, optional provider Vehicle/Driver references |
+| Local references/state | optional logical UUID `trip_id` and `reconciled_purchase_id`; provider `POSTED/REVERSED`; local `IMPORTED/REVIEW_REQUIRED/RECONCILED/REJECTED/REVERSED` |
+| Control | UUID `imported_by`, BIGINT `version` default 0, TIMESTAMPTZ `created_at`; one active reconciled purchase per Tenant |
+
+#### Table: `fuel_card_reconciliation_history`
+
+- **Purpose:** Append-only reconciliation decision history.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, indexed)
+
+| Columns | Definition and constraints |
+| :--- | :--- |
+| `id`, `tenant_id`, `transaction_id` | UUID NOT NULL; Tenant-consistent transaction FK |
+| `action`, `purchase_id`, `reason` | checked `MATCH/UNMATCH/REJECT/REVERSAL_DISPOSITION`; optional logical Fuel Purchase UUID; VARCHAR(500) reason |
+| `actor_id`, `created_at` | UUID and TIMESTAMPTZ, NOT NULL |
+
+#### Table: `fuel_card_transaction_indicator`
+
+- **Purpose:** Deterministic non-fraud review indicators on imported evidence.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, indexed)
+
+| Columns | Definition and constraints |
+| :--- | :--- |
+| `id`, `tenant_id`, `transaction_id` | UUID NOT NULL; Tenant-consistent transaction FK |
+| `code`, `detail_code` | checked indicator VARCHAR(40), optional detail VARCHAR(60); unique per Tenant/transaction/code/detail |
+| `created_at`, `acknowledged_by`, `acknowledged_at` | creation timestamp; optional actor and acknowledgement timestamp |
+
+#### Table: `fuel_card_audit_event`
+
+- **Purpose:** Safe append-only operational audit without raw card data.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, indexed)
+
+| Columns | Definition and constraints |
+| :--- | :--- |
+| References | UUID `id`, `tenant_id`; optional same-module `card_id` and `transaction_id` logical audit references |
+| Decision | VARCHAR(50) `action`, VARCHAR(30) `result`, optional VARCHAR(80) `reason_code` |
+| Safe change evidence | optional CHAR(64) `before_hash` and `after_hash`; no PAN or raw import body |
+| Actor/time | UUID `actor_id`, TIMESTAMPTZ `created_at`, NOT NULL |
 
 The foundation, operational repository isolation, scheduled-job isolation, Freight isolation, and Reporting-source isolation are `ACCEPTED_FOR_CURRENT_SCOPE`. US-29 Freight Reporting is `IMPLEMENTED`: Reporting exposes tenant-scoped summaries, pageable shipment/capacity results, insurance/claim/settlement/exception distributions, and a 5,000-row bounded CSV export through the Freight-owned public query boundary. Missing cargo measurements or vehicle capacity facts produce `INCOMPLETE`; they are never inferred. Access requires `FREIGHT_REPORT_VIEW`, while export independently requires `FREIGHT_REPORT_EXPORT`. Legacy preservation and backfill remain not applicable to this clean-initialization environment.
