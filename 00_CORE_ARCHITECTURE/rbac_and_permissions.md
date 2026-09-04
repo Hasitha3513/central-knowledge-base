@@ -22,6 +22,12 @@
 
 US-37 implements and seeds the read-only `FUEL_PERFORMANCE_VIEW` capability through V63 for Tenant-scoped Vehicle and privacy-sensitive Driver Fuel performance analytics. Existing `FUEL_ISSUE_VIEW`, `FUEL_COST_VIEW`, and `REPORT_VIEW` do not imply this authority. The permission grants no write, threshold configuration, export, Driver discipline, US-38 exception, or raw-source access. Tenant authority is server-derived, cross-Tenant Vehicle/Driver identifiers are safe not-found, and frontend visibility never substitutes for backend authorization. Independent final acceptance passed on 2026-09-04; status is `COMPLETE`.
 
+## Fuel Card Permission Decision (US-35)
+
+US-35 product decisions freeze five capabilities: `FUEL_CARD_VIEW`, `FUEL_CARD_MANAGE`, `FUEL_CARD_BLOCK`, `FUEL_CARD_IMPORT`, and `FUEL_CARD_RECONCILE`. View exposes masked card references and safe normalized facts only. Manage covers local issue/draft edit, one Driver-or-Vehicle binding, restrictions, activation, suspension/resume, and cancellation. Block is separated for lost/stolen/policy blocking. Import accepts the bounded canonical JSON contract. Reconcile covers explicit match, unmatch, reject, and reversal disposition.
+
+The authenticated server-side Tenant is authoritative. Cross-Tenant IDs are safe not-found and no request `tenantId` is accepted. The actor who imports a transaction may not manually reconcile or reject it; no broader approval or generic ABAC engine is introduced. Existing authorized audit access remains the audit-read boundary, so US-35 adds no `FUEL_CARD_AUDIT_VIEW`. No permission grants payment, settlement, provider authorization, full card-reference disclosure, fraud determination, US-38 investigation, or Operations-case creation. Status is `PRODUCT_DECISIONS_FROZEN / IMPLEMENTATION_NOT_STARTED`.
+
 ## Delivery Operations Permission Catalogue
 
 US-56 seeds and enforces its four Delivery permissions through V46 and Spring Security. Later permissions remain frozen and unseeded until their owning stories are implemented.

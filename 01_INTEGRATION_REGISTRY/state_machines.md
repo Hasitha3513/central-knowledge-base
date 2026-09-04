@@ -62,3 +62,8 @@ Later states remain story-scoped and must be registered before implementation.
 - This transition records no assignment, Rider ownership, Trip execution or `OUT_FOR_DELIVERY` fact. When an authoritative execution model is introduced, POD eligibility must be narrowed through a separately approved forward decision.
 - Successful finalization uses the server acceptance UTC instant for both POD acceptance and Delivery completion.
 - Storage failure leaves the POD draft retryable and the Delivery unchanged; a POD cannot appear finalized with missing/unverified evidence.
+# US-35 Fuel Card Local Lifecycle (Product Decisions Frozen)
+
+US-35 freezes the local Fuel-owned lifecycle as `DRAFT`, `ACTIVE`, `SUSPENDED`, `BLOCKED`, `EXPIRED`, and `CANCELLED`. Issue creates `DRAFT`; a valid bound/restricted non-expired draft may activate; active may suspend or block; suspended may resume, block, or cancel; blocked may only cancel; cancellation is final. Expiry is effective after the expiry month in the Tenant timezone and prevents activation/resume. Blocked, expired, and cancelled cards never reactivate; replacement creates a new card. Lost/stolen cards are blocked immediately with reason.
+
+This lifecycle expresses local operational control only. It neither activates nor blocks the provider account, and the UI must not imply provider confirmation. No arbitrary status mutation exists. Imported facts for inactive cards remain immutable evidence and become `CARD_INACTIVE / REVIEW_REQUIRED`.
