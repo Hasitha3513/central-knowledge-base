@@ -22,8 +22,8 @@
 | Operations | Routing and Delivery first; future Trip, Freight, Driver/Fleet, Fuel, Tracking, Compliance and Integration producers | Minimized detected exception fact with trusted Tenant, stable source event, logical source reference, candidates, summary code and safe metadata | `OperationalExceptionFactV1` through P1-01 shared `DurableEventPublisher`; no foreign repository/entity/table/API scraping | COMPLETE_US78; active producers ROUTING + DELIVERY |
 | Notification | Operations | Safe escalation fact only | `OPERATIONAL_EXCEPTION_ESCALATED_V1` through P1-01; Notification owns rule/channel/template/recipient/retry | COMPLETE_US78 |
 | Operations | Identity, US-80, US-81, US-83 | Validate same-Tenant user/role queue, apply fixed workflow/scheduling boundaries, and reference governed documents | Focused published ports/logical IDs only; no foreign persistence | COMPLETE_US78 |
-| Fuel Performance | Fleet, Trip and Tenancy | Bulk Tenant-scoped compatible Vehicle/Driver context, authoritative Driver/Trip attribution, and trusted Tenant/timezone/currency context | Published provider-neutral root query contracts only; no foreign repository/entity/table/SQL and no N+1 calls | IMPLEMENTED_US37_ACCEPTANCE_PENDING |
-| Reporting | Fuel Performance | Fuel-owned summary, Vehicle/Driver comparison and trend projection with quality/lineage | Fuel-root `FuelPerformanceQuery`; Reporting does not redefine metrics or access Fuel persistence | IMPLEMENTED_US37_ACCEPTANCE_PENDING |
+| Fuel Performance | Fleet, Trip and Tenancy | Bulk Tenant-scoped compatible Vehicle/Driver context, authoritative Driver/Trip attribution, and trusted Tenant/timezone/currency context | Published provider-neutral root query contracts only; no foreign repository/entity/table/SQL and no N+1 calls | COMPLETE_US37_FINAL_ACCEPTANCE_PASS |
+| Reporting | Fuel Performance | Fuel-owned summary, Vehicle/Driver comparison and trend projection with quality/lineage | Fuel-root `FuelPerformanceQuery`; Reporting does not redefine metrics or access Fuel persistence | COMPLETE_US37_FINAL_ACCEPTANCE_PASS |
 
 ## Ownership Decisions
 
@@ -60,7 +60,7 @@ Confirm ownership, tenant propagation, data classification, contract version, so
 
 ## Full-Product 87-Story Planning Boundary
 
-Following US-78 final acceptance, 67 / 87 stories are accepted and exactly 20 remain: US-35, US-37, US-38, US-46, US-47, US-48 through US-55, US-72, US-76, US-82, and US-84 through US-87. They remain planned in four open waves after Wave A closure:
+Following US-37 final acceptance, 68 / 87 stories are accepted and exactly 19 remain: US-35, US-38, US-46, US-47, US-48 through US-55, US-72, US-76, US-82, and US-84 through US-87. They remain planned in four open waves after Wave A closure:
 
 1. US-73 external integrations and US-78 operational-exception lifecycle;
 2. US-37/35/38 Fuel plus US-46 payroll link and US-47 transport billing;
@@ -70,4 +70,4 @@ Following US-78 final acceptance, 67 / 87 stories are accepted and exactly 20 re
 
 Expected future owners remain planning hypotheses except that US-73 has established and accepted the dedicated `integration` owner as `COMPLETE_US73` and US-78 has established and accepted the dedicated `operations` owner as `COMPLETE_US78`. Existing `fuel`, `driver`, `offlinesync`, `reporting`, `identity`, and `system` boundaries retain their data. Distinct `tracking`, `compliance`, and `billing` contexts remain justified candidates requiring their own story gate. Finance continues to own ledger/payment/tax posting and HRM/payroll continues to own final salary processing.
 
-US-73 final acceptance covers exactly one governed outbound JSON-file adapter with controlled-sandbox evidence; it does not imply that any named business ecosystem is implemented. US-78 implements the first additional durable families by reusing P1-01; no second outbox, broker, exactly-once claim, foreign repository, or cross-module SQL exists. US-78 final acceptance passes, Wave A is 2/2 closed, and US-37 technical closure passes while the story remains acceptance-pending without changing accounting. The queue head is `US-37-FUEL-PERFORMANCE-FINAL-ACCEPTANCE-001`.
+US-73 final acceptance covers exactly one governed outbound JSON-file adapter with controlled-sandbox evidence; it does not imply that any named business ecosystem is implemented. US-78 implements the first additional durable families by reusing P1-01; no second outbox, broker, exactly-once claim, foreign repository, or cross-module SQL exists. US-78 final acceptance passes, Wave A is 2/2 closed, and US-37 final acceptance passes with Wave B open. The queue head is `US-35-FUEL-CARDS-PRODUCT-DECISIONS-001`.

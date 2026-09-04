@@ -21,7 +21,7 @@ The precise request/response schemas remain authoritative in controller DTOs and
 | Routing | `/routes`, revisions, disruptions, optimization, performance | Routing | Implemented |
 | Trips | `/trips` plus explicit submit/approve/reject/assign/dispatch/start/complete/close/cancel and operational-event commands | Trip | Implemented |
 | Fuel | `/fuel-issues`, `/fuel-purchases`, `/fuel-prices`, `/bunker-tanks`, `/trips/{tripId}/fuel-cost` | Fuel | Implemented |
-| Fuel Performance (US-37) | `GET /api/v1/fuel/performance/summary`, `/vehicles`, `/vehicles/{vehicleId}`, `/drivers`, `/drivers/{driverId}`, `/trends` | Fuel | `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`. Read-only on-demand projection; `FUEL_PERFORMANCE_VIEW`; 7/30/90/custom≤365 Tenant-calendar-day ranges; pageable comparisons default 20/max 100; no write/export/configuration route. |
+| Fuel Performance (US-37) | `GET /api/v1/fuel/performance/summary`, `/vehicles`, `/vehicles/{vehicleId}`, `/drivers`, `/drivers/{driverId}`, `/trends` | Fuel | `COMPLETE / FINAL_ACCEPTANCE_PASS`. Read-only on-demand projection; `FUEL_PERFORMANCE_VIEW`; 7/30/90/custom≤365 Tenant-calendar-day ranges; pageable comparisons default 20/max 100; no write/export/configuration route. |
 | Freight | `/v1/freight/orders`, `/manifests`, `/load-plans`, `/insurance/policies`, `/insurance/claims`, `/exceptions` | Freight | Implemented path prefix differs from `/api/v1`; preserve until approved migration |
 | Notifications | `/notifications`, `/notification-rules`, `/notification-templates`, delivery diagnostics | Notification | Implemented |
 | Reporting | `/dashboard/operations`, `/reports/*` | Reporting | Implemented read models; source repositories are tenant-isolated through authoritative runtime context |
