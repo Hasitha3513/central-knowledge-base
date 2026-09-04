@@ -23,7 +23,7 @@ The source requires one way to classify, prioritize, assign, track SLA, escalate
 
 ## Consequences
 
-V62 implements five Operations-owned Tenant tables, seven permissions, validated role queues, 17 authenticated lifecycle/query routes, the internal operator queue, and the two frozen durable contracts. There are no foreign table reads or physical foreign-domain keys. Source corrections remain separate authorized source-domain commands. The Operations queue is internal/operator-only and does not expose cases to customer self-service. Implementation evidence passes, but independent technical closure and final acceptance remain pending.
+V62 implements five Operations-owned Tenant tables, seven permissions, validated role queues, 17 authenticated lifecycle/query routes, the internal operator queue, and the two frozen durable contracts. There are no foreign table reads or physical foreign-domain keys. Source corrections remain separate authorized source-domain commands. The Operations queue is internal/operator-only and does not expose cases to customer self-service. Independent technical closure passes; final acceptance remains pending.
 
 ## Deferred
 
