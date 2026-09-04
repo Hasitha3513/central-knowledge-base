@@ -65,6 +65,17 @@ Organization administrators with `IDENTITY_MANAGE` can administer users only in 
 - ⛽ **Bunker Dip Readings:** Physical dip measurements are observational and do not change authoritative book inventory without an authorized stock adjustment.
 - 📦 **Delivery Lifecycle:** Delivery orders move through strict state machine transitions (`DRAFT` ➔ `READY_FOR_ASSIGNMENT` ➔ `DELIVERED` / `FAILED_ATTEMPT` / `RETURN_TO_BASE`).
 - 📊 **Delivery Analytics:** Read-only operational metrics calculated using terminal outcomes and committed customer time windows.
+- ⛽ **Fuel Performance:** Users with `FUEL_PERFORMANCE_VIEW` can open **Fuel → Fuel Performance** to review read-only Tenant-scoped efficiency without changing source Fuel facts.
+
+### Fuel Performance workflow
+
+1. Open **Fuel → Fuel Performance**. The menu and API require `FUEL_PERFORMANCE_VIEW`; raw Fuel and general Reporting permissions are insufficient.
+2. Choose 7, 30, or 90 Tenant-calendar days, or select a custom range of at most 365 days. Choose Distance (`L/km`, `L/100km`, `km/L`) or Engine hours (`L/hour`)—the modes are never combined.
+3. Review summary cards and the actual-versus-preceding-equal-period baseline trend. `N/A` or **Insufficient** means the system cannot form a safe denominator/baseline; it never means zero consumption.
+4. Review pageable Vehicle comparisons and privacy-minimized Driver comparisons. Driver rows contain only operational labels and aggregate facts, never contact, medical, licence, payroll, or disciplinary data.
+5. Treat **Efficiency deviation**, **Review required**, and **Possible leakage indicator** as transparent non-punitive review signals. They do not establish theft/fraud, change a Fuel Issue, discipline a Driver, or open an exception automatically.
+
+Quality labels are **Complete**, **Partial**, **Insufficient**, and **Invalid source data**. Partial results show exclusion reasons; invalid/reset-unsafe meter sequences are not presented as valid efficiency. Unknown or other-Tenant Vehicle/Driver links are not disclosed. Export, correction, approval, ranking, configurable thresholds, and write actions are unavailable in US-37.
 
 ---
 
