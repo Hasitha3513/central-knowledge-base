@@ -1,6 +1,6 @@
 # ADR: US-78 Operational Exception Boundary
 
-Status: `IMPLEMENTED / ACCEPTANCE_PENDING`
+Status: `ACCEPTED / COMPLETE`
 Date: 2026-09-04
 Decision owner: Architecture Review Board / Operations
 
@@ -23,7 +23,7 @@ The source requires one way to classify, prioritize, assign, track SLA, escalate
 
 ## Consequences
 
-V62 implements five Operations-owned Tenant tables, seven permissions, validated role queues, 17 authenticated lifecycle/query routes, the internal operator queue, and the two frozen durable contracts. There are no foreign table reads or physical foreign-domain keys. Source corrections remain separate authorized source-domain commands. The Operations queue is internal/operator-only and does not expose cases to customer self-service. Independent technical closure passes; final acceptance remains pending.
+V62 implements five Operations-owned Tenant tables, seven permissions, validated role queues, 17 authenticated lifecycle/query routes, the internal operator queue, and the two frozen durable contracts. There are no foreign table reads or physical foreign-domain keys. Source corrections remain separate authorized source-domain commands. The Operations queue is internal/operator-only and does not expose cases to customer self-service. Independent final acceptance passed on 2026-09-04.
 
 ## Deferred
 

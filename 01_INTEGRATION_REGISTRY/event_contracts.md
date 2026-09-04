@@ -112,11 +112,11 @@ The implementation enforces the exact common/event-specific payload-key sets and
 
 Classification is `INTERNAL_OPERATIONAL_NON_SENSITIVE`; payloads are capped at 32 KiB and additional fields are rejected. The implemented consumer accepts the event idempotently using `(tenant_id, configuration_id, source_event_id, mapping_version_id)`, snapshots the immutable mapping version/hash, and then owns the external-delivery lifecycle. P1-01 delivery to Integration and external file delivery are both at-least-once; neither is globally ordered or exactly-once. V61 and the controlled-sandbox suite implement and accept this contract as `IMPLEMENTED_ACCEPTED_US73`; no business producer or vendor ecosystem is thereby approved.
 
-## US-78 Operational Exception Contracts (Implemented, Acceptance Pending)
+## US-78 Operational Exception Contracts (Accepted, Complete)
 
 ### `OPERATIONAL_EXCEPTION_FACT_V1`
 
-Status: `IMPLEMENTED_US78_ACCEPTANCE_PENDING`. Active producers: Routing (US-22 disruption creation) and Delivery (US-62 exception creation). Consumer: Operations handler `operations-exception-intake`. Transport: atomic P1-01 shared outbox. Semantics: at-least-once, no global ordering, producer dedupe `(tenantId,eventId,consumerName)`, consumer dedupe `UNIQUE (tenant_id,source_event_id)`. Security classification: minimized internal operational data. P1-01 transport retention applies; Operations case retention is separately governed. `eventId` is the stable source occurrence and `correlationId` is optional trace context, not case merging.
+Status: `COMPLETE_US78` after independent final acceptance. Active producers: Routing (US-22 disruption creation) and Delivery (US-62 exception creation). Consumer: Operations handler `operations-exception-intake`. Transport: atomic P1-01 shared outbox. Semantics: at-least-once, no global ordering, producer dedupe `(tenantId,eventId,consumerName)`, consumer dedupe `UNIQUE (tenant_id,source_event_id)`. Security classification: minimized internal operational data. P1-01 transport retention applies; Operations case retention is separately governed. `eventId` is the stable source occurrence and `correlationId` is optional trace context, not case merging.
 
 Envelope uses `eventType: OPERATIONAL_EXCEPTION_FACT_V1`, `version: 1`, source `aggregateType`, and source `aggregateId`. Exact payload:
 
@@ -139,7 +139,7 @@ Implemented source allow lists are exact: Routing types `ROAD_CLOSURE`, `ACCIDEN
 
 ### `OPERATIONAL_EXCEPTION_ESCALATED_V1`
 
-Status: `IMPLEMENTED_US78_ACCEPTANCE_PENDING`. Producer: Operations. Consumer: Notification/US-77 through the system bridge. Transport: P1-01 shared outbox. Semantics: at-least-once; Operations prevents duplicate case/level publication and Notification uses its stable execution key for rule/channel/recipient delivery. Security classification: minimized internal operational data. No ordering beyond case level/time is promised.
+Status: `COMPLETE_US78` after independent final acceptance. Producer: Operations. Consumer: Notification/US-77 through the system bridge. Transport: P1-01 shared outbox. Semantics: at-least-once; Operations prevents duplicate case/level publication and Notification uses its stable execution key for rule/channel/recipient delivery. Security classification: minimized internal operational data. No ordering beyond case level/time is promised.
 
 Envelope uses `aggregateType: OPERATIONAL_EXCEPTION_CASE`, the case UUID as `aggregateId`, trusted envelope `occurredAt`, and exact payload fields: `caseReference: String`, `sourceModule: String`, `sourceType: String`, `sourceId: UUID`, `category: String`, `severity: String`, `escalationLevel: "L1" | "L2" | "L3"`, `slaStatus: "ON_TRACK" | "AT_RISK" | "BREACHED" | "MET"`, and optional `correlationId: String`. Notification owns recipients, channels, templates, quiet hours, suppression, attempts, provider retry, and delivery history.
 

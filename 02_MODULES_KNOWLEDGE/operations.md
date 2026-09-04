@@ -1,6 +1,6 @@
 # Operations Bounded Context
 
-Status: `US78_IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`
+Status: `US78_COMPLETE / FINAL_ACCEPTANCE_PASS`
 Owner: Operations
 Decision: `ADR-US78-OPERATIONAL-EXCEPTION-BOUNDARY.md`
 Migration: V62; repository head V62
@@ -186,7 +186,7 @@ The operator feature is `/operations/exceptions` under shared `AppLayout`, with 
 
 ## Verification state
 
-Independent technical closure passes: focused Operations/Routing/Delivery/durable-publication 41/41; PostgreSQL V1-V62 and Operations acceptance 3/3; complete Maven 1,296 tests with 0 failures/errors and 15 skips in 05:05; architecture 46/46; real Chromium 6/6 in 20.8 seconds; TypeScript, Vitest 61 files/261 tests, production build, changed-file lint, Checkstyle, PMD, and SpotBugs. The 71 global ESLint errors remain confined to unchanged Delivery files and US-78 introduces none. US-78 remains acceptance-pending and is not counted complete.
+Independent final acceptance passes: focused Operations/Routing/Delivery/durable-publication 41/41; concurrency 6/6; PostgreSQL V1-V62 and Operations acceptance 3/3 against only `transport_logistics_acceptance`; related regressions 84/84; complete Maven 1,296 tests with 0 failures/errors and 15 skips in 05:06; architecture 46/46; real PostgreSQL-backed Chromium 6/6 in 19.3 seconds; TypeScript, Vitest 61 files/261 tests, production build, changed-file lint, Checkstyle, PMD, and SpotBugs. The 71 global ESLint errors remain confined to unchanged Delivery files and US-78 introduces none. US-78 is COMPLETE; overall accounting is 67/87 accepted and 20/87 remaining.
 
 ## Phase 2: Post-MVP / Future Roadmap
 

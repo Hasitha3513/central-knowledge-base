@@ -1,6 +1,6 @@
 # Operations Guide — Operational Exceptions
 
-Status: US-78 implementation complete; independent acceptance pending
+Status: US-78 complete; independent final acceptance passed
 
 ## Purpose and prerequisites
 
