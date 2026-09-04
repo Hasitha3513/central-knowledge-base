@@ -18,6 +18,10 @@
 - No generic ABAC/policy engine was introduced.
 - No creator-versus-approver segregation rule was added because current Trip records and approved contracts do not provide an authoritative creator fact. This remains a governance/data-model prerequisite, not an implicit runtime rule.
 
+## Fuel Performance Permission Decision (US-37)
+
+US-37 freezes one new read-only capability, `FUEL_PERFORMANCE_VIEW`, for Tenant-scoped vehicle and privacy-sensitive Driver Fuel performance analytics. Existing `FUEL_ISSUE_VIEW`, `FUEL_COST_VIEW`, and `REPORT_VIEW` do not imply this authority. It remains `FROZEN_NOT_SEEDED` until implementation; the product-decision task creates no migration. The permission grants no write, threshold configuration, export, Driver discipline, US-38 exception, or raw-source access. Tenant authority is server-derived, cross-Tenant Vehicle/Driver identifiers are safe not-found, and frontend visibility never substitutes for backend authorization.
+
 ## Delivery Operations Permission Catalogue
 
 US-56 seeds and enforces its four Delivery permissions through V46 and Spring Security. Later permissions remain frozen and unseeded until their owning stories are implemented.

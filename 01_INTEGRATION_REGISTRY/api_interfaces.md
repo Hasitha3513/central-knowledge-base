@@ -21,6 +21,7 @@ The precise request/response schemas remain authoritative in controller DTOs and
 | Routing | `/routes`, revisions, disruptions, optimization, performance | Routing | Implemented |
 | Trips | `/trips` plus explicit submit/approve/reject/assign/dispatch/start/complete/close/cancel and operational-event commands | Trip | Implemented |
 | Fuel | `/fuel-issues`, `/fuel-purchases`, `/fuel-prices`, `/bunker-tanks`, `/trips/{tripId}/fuel-cost` | Fuel | Implemented |
+| Fuel Performance (US-37) | Planned `GET /api/v1/fuel/performance/summary`, `/vehicles`, `/vehicles/{vehicleId}`, `/drivers`, `/drivers/{driverId}`, `/trends` | Fuel | `PRODUCT_DECISIONS_FROZEN / IMPLEMENTATION_NOT_STARTED`. Read-only on-demand projection; `FUEL_PERFORMANCE_VIEW`; 7/30/90/custom≤365 Tenant-calendar-day ranges; pageable comparisons default 20/max 100; no write/export/configuration route. |
 | Freight | `/v1/freight/orders`, `/manifests`, `/load-plans`, `/insurance/policies`, `/insurance/claims`, `/exceptions` | Freight | Implemented path prefix differs from `/api/v1`; preserve until approved migration |
 | Notifications | `/notifications`, `/notification-rules`, `/notification-templates`, delivery diagnostics | Notification | Implemented |
 | Reporting | `/dashboard/operations`, `/reports/*` | Reporting | Implemented read models; source repositories are tenant-isolated through authoritative runtime context |
@@ -47,6 +48,8 @@ The precise request/response schemas remain authoritative in controller DTOs and
 - Standard errors are `INTEGRATION_NOT_FOUND`, `INTEGRATION_DISABLED`, `INTEGRATION_CONFIGURATION_INVALID`, `INTEGRATION_CAPABILITY_UNSUPPORTED`, `INTEGRATION_AUTH_FAILED`, `INTEGRATION_MAPPING_INVALID`, `INTEGRATION_PAYLOAD_INVALID`, `INTEGRATION_DUPLICATE`, `INTEGRATION_RATE_LIMITED`, `INTEGRATION_PROVIDER_UNAVAILABLE`, `INTEGRATION_TERMINAL_FAILURE`, `INTEGRATION_CONFLICT`, and `INTEGRATION_FILE_INTEGRITY_FAILURE` in the suite error envelope.
 
 ### P0-03 Published Internal Query Contracts
+
+- US-37 freezes a provider-neutral Fuel-root `FuelPerformanceQuery` returning `FuelPerformanceSummary`, `VehicleFuelPerformance`, `DriverFuelPerformance`, and `FuelPerformanceTrend`. Reporting may consume this contract but may not redefine Fuel metrics or access Fuel persistence. Fuel may consume only minimal bulk Tenant-scoped Fleet/Trip root projections for compatible Vehicle/Driver/usage dimensions; no per-row/N+1 foreign calls are allowed. These contracts are decisions only and are not yet implemented.
 
 - Fleet publishes `FleetReportingQuery.findVehicle(UUID vehicleId): Optional<FleetVehicleSummary>`. Freight reporting uses it synchronously for tenant-scoped payload and volume capacity facts; consumers do not access Fleet persistence.
 - Organization publishes `CustomerLookup.find(UUID customerId): Optional<CustomerReference>` for tenant-scoped business lookups and `CustomerDataReadiness.anyCustomerExists(): boolean` for the global opt-in local-data readiness probe. Consumers do not access Organization persistence.
