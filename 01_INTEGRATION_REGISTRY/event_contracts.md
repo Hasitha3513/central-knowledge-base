@@ -116,13 +116,13 @@ Classification is `INTERNAL_OPERATIONAL_NON_SENSITIVE`; payloads are capped at 3
 
 ### `OPERATIONAL_EXCEPTION_FACT_V1`
 
-Status: `COMPLETE_US78` after independent final acceptance. Active producers: Routing (US-22 disruption creation) and Delivery (US-62 exception creation). Consumer: Operations handler `operations-exception-intake`. Transport: atomic P1-01 shared outbox. Semantics: at-least-once, no global ordering, producer dedupe `(tenantId,eventId,consumerName)`, consumer dedupe `UNIQUE (tenant_id,source_event_id)`. Security classification: minimized internal operational data. P1-01 transport retention applies; Operations case retention is separately governed. `eventId` is the stable source occurrence and `correlationId` is optional trace context, not case merging.
+Status: `COMPLETE_US78` after independent final acceptance. Active producers: Routing (US-22 disruption creation) and Delivery (US-62 exception creation). US-38 freezes Fuel as an approved planned producer; it remains inactive until implementation. Consumer: Operations handler `operations-exception-intake`. Transport: atomic P1-01 shared outbox. Semantics: at-least-once, no global ordering, producer dedupe `(tenantId,eventId,consumerName)`, consumer dedupe `UNIQUE (tenant_id,source_event_id)`. Security classification: minimized internal operational data. P1-01 transport retention applies; Operations case retention is separately governed. `eventId` is the stable source occurrence and `correlationId` is optional trace context, not case merging.
 
 Envelope uses `eventType: OPERATIONAL_EXCEPTION_FACT_V1`, `version: 1`, source `aggregateType`, and source `aggregateId`. Exact payload:
 
 ```json
 {
-  "sourceModule": "ROUTING | DELIVERY",
+  "sourceModule": "ROUTING | DELIVERY | FUEL",
   "sourceType": "registered string <= 80",
   "sourceId": "UUID",
   "severityCandidate": "LOW | MEDIUM | HIGH | CRITICAL",
@@ -132,6 +132,8 @@ Envelope uses `eventType: OPERATIONAL_EXCEPTION_FACT_V1`, `version: 1`, source `
   "correlationId": "optional string <= 128"
 }
 ```
+
+US-38 freezes the planned Fuel allow-list as source types `SUSPECTED_FUEL_LOSS`, `INCORRECT_READING`, `SUDDEN_PRICE_CHANGE`, `EMERGENCY_REFUEL`, `FUEL_CARD_POLICY_DEVIATION`, and `NEGATIVE_BUNKER_BALANCE`; summary code `FUEL_EXCEPTION_ESCALATED`; and safe metadata keys `fuelExceptionId`, `sourceType`, and `sourceId`. The envelope `sourceId` is the Fuel exception UUID and the stable `eventId` is the immutable handoff UUID reused on retry. Category candidates are OPERATIONAL for suspected loss/negative balance, TECHNICAL for incorrect reading, FINANCIAL for sudden price/emergency refuel, and SECURITY for card policy deviation. Fuel publication is `DURABLE_INTERNAL_REQUIRED` only after an authorized US-38 handoff; implementation must extend the source allow-list and contract tests before claiming the producer active.
 
 `safeMetadata` permits at most 20 allow-listed entries, 64-character keys, 256-character values, and a canonical payload no larger than 4 KiB. Tenant and occurrence time come from the trusted envelope. Entity serialization, free-form source evidence, addresses, contact data, credentials, OTPs, POD, medical/disciplinary data, full GPS tracks, financial documents, provider payloads, and arbitrary metadata keys are prohibited.
 
