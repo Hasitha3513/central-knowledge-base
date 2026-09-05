@@ -455,6 +455,8 @@ Users with `FUEL_CARD_VIEW` can open **Fuel → Fuel Cards** to search masked ca
 
 Filters and server-side pagination are bounded (20 rows by default, 100 maximum). Cross-Tenant card, binding, transaction, Trip and Fuel Purchase references are returned as safe not-found/denied results. There is no delete, raw edit, payment, settlement, provider authorization or provider synchronization workflow in US-35.
 
+The Bunker stock ledger shown by Fuel workflows is ordered by the server's canonical per-Tank sequence. Backdated or equal business occurrence times therefore cannot make an older balance appear as the current ledger tail. This ordering value is internal and is not an editable Fuel Card or Bunker UI field.
+
 ## 13. 🛠️ Troubleshooting & Support Escalation
 
 | Error / Condition | Root Cause | Operator Action |

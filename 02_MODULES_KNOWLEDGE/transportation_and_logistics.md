@@ -271,7 +271,7 @@ V43 deterministically seeds UUID `4f8b6a3b-2c1e-4d89-9a72-f9e4c5b3671a`, `CLTS-L
 | `fuel_purchase` | Fuel procurement record | `id UUID` | purchase/invoice/vendor/station IDs, fuel/date/quantity/price/tax/totals/currency, status/reconciliation, receipt/approval/audit fields | unique purchase and vendor/invoice; lifecycle checks; vendor/status/date/type indexes |
 | `fuel_purchase_history` | Purchase audit | `id UUID` | purchase/status/action/actor, comment, variances, occurred_at | FKs purchase/user; history index |
 | `bunker_tank` | Fuel tank master | `id UUID` | station, code/name, fuel type, capacity/current stock/reorder level, active, version, timestamps | station reference; capacity/stock checks; station/type indexes |
-| `bunker_stock_movement` | Immutable tank movement | `id UUID` | tank, movement type, quantity, balance, reference type/id, actor, occurred/created, idempotency; canonical `ledger_sequence` authorized but not yet implemented | tank reference; quantity/balance checks; unique idempotency; current time/reference indexes; Tenant/Tank sequence uniqueness/index authorized for the next forward migration |
+| `bunker_stock_movement` | Immutable tank movement | `id UUID` | `tenant_id UUID`, `tank_id UUID`, `ledger_sequence BIGINT NOT NULL`, movement type, quantity, resulting balance, reference type/id, actor, reason, occurred/created timestamps | tank reference; positive quantity/non-negative balance checks; unique idempotency; unique `(tenant_id, tank_id, ledger_sequence)`; index `(tenant_id, tank_id, ledger_sequence DESC)` |
 | `bunker_dip_reading` | Physical stock reading | `id UUID` | tank, measured quantity/time, actor, notes, created | tank reference; nonnegative check; tank/time index |
 | `bunker_stock_adjustment` | Reconciliation adjustment | `id UUID` | tank, quantity, reason/reference, actor, occurred/created | tank reference; nonzero check; tank/time index |
 
@@ -813,7 +813,7 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 
 ### US-35 Fuel Card Implementation
 
-- Status: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED`; accounting remains 68/87 accepted and 19/87 remaining. Wave B remains open. V64 is the US-35 migration and the current repository head; V65 is authorized only for the Bunker ledger-order remediation if it remains free.
+- Status: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED`; accounting remains 68/87 accepted and 19/87 remaining. Wave B remains open. V64 is the US-35 migration; V65 is the current repository head and implements the authorized Bunker ledger-order remediation.
 - Owner/boundary: Fuel owns a limited masked card-reference master, local lifecycle/restrictions, exactly one active Driver-or-Vehicle binding with immutable history, normalized imported provider facts, reconciliation, deterministic review indicators, and safe audit. The external provider owns account, authorization, settlement, ledger, provider IDs and merchant facts. No payment engine, banking, billing/payroll, generic fraud engine, or US-38 investigation is approved.
 - Sensitive data: UUID internal identity, Organization provider logical ID, opaque provider card reference, masked identifier, optional last four and expiry month/year. No PAN, CVV, PIN, stripe data, balance, credential, secret, raw file/body, or unmasked reference appears in responses/UI/logs/audit.
 - Lifecycle/binding: `DRAFT`, `ACTIVE`, `SUSPENDED`, `BLOCKED`, `EXPIRED`, `CANCELLED`; explicit commands only and no reactivation from terminal states. Exactly one same-Tenant active Vehicle or Driver binding is allowed; reassignment appends effective-dated history through published contracts only.
@@ -825,14 +825,38 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 - Acceptance: isolated `transport_logistics_acceptance`, deterministic concurrency, literal `/api/v1` security, full quality gates, and a real Chromium journey covering masked display, binding/restrictions, canonical import/replay/conflict, reconciliation, review flags, immutable values, Tenant non-inference and limited-user denial.
 - Technical closure: `US-35-FUEL-CARDS-TECHNICAL-CLOSURE-001` PASS. Fixture-baseline isolation was repaired without changing production behavior; the repaired test passed 1/1 and the complete focused group passed 23/23, including PostgreSQL 7/7 and literal `/api/v1/...` security coverage.
 - Fresh closure evidence: only `transport_logistics_acceptance`; Flyway V1→V64; complete Maven 1,332/0/0/15 in 04:57; architecture 46/46; Checkstyle, PMD and SpotBugs PASS; TypeScript PASS; Vitest 263/263 across 63 files; production build and changed-file lint PASS; real PostgreSQL-backed Chromium 6/6 PASS; `git diff --check` PASS. Global ESLint retains 71 unrelated pre-existing Delivery errors and introduces zero US-35 errors.
-- The first final-acceptance run was blocked by nondeterministic Bunker ledger-tail ordering. Next task: `US-35-FUEL-CARDS-ACCEPTANCE-REMEDIATION-002`.
+- The first final-acceptance run was blocked by nondeterministic Bunker ledger-tail ordering. `US-35-FUEL-CARDS-ACCEPTANCE-REMEDIATION-002` is complete: V65 supplies the canonical Tenant/Tank sequence, focused PostgreSQL passed 10/10, Fuel/Bunker/US-35/US-37 passed 81/81, Maven passed 1,335 tests with 15 skips, architecture passed 46/46, frontend passed 263/263, and real Chromium passed 6/6. Next task: `US-35-FUEL-CARDS-FINAL-ACCEPTANCE-001-RERUN`.
 
 ### Bunker Ledger Ordering Authorization
 
 - `BUNKER-LEDGER-ORDERING-AUTHORIZATION-001` is APPROVED as non-story technical governance. It changes no Fuel Card contract or accounting; US-35 remains `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED` at 68/87 accepted and 19/87 remaining.
 - Canonical serialized movement order is internal `ledgerSequence`, monotonic per Tenant/Tank and allocated as bounded `MAX+1` only while holding the existing Tank write lock in the same stock-mutation ACID transaction. Business `occurredAt`, audit `createdAt`, random UUID, and global database sequences are not ledger order.
 - A forward V65 migration is authorized only if V65 remains free: add/backfill/`NOT NULL`, Tenant/Tank/sequence uniqueness, and Tenant-leading descending index. Legacy rows use deterministic migration canonicalization (`occurredAt`, `createdAt`, `id`) without claiming original commit order or rewriting facts; inconsistent ownership, ledger tail, non-zero stock without history, or other unreconcilable facts fail closed.
-- Required remediation covers every stock-changing movement, rollback, same-time/backdated and concurrent operations, per-Tank/Tenant independence, uniqueness, backfill validation, clean PostgreSQL migration and full regression. Next task: `US-35-FUEL-CARDS-ACCEPTANCE-REMEDIATION-002`.
+- V65 implements the approved server-controlled `MAX(ledger_sequence) + 1` allocation under the existing Tank write lock for opening balance, receipt, issue, adjustment, and both transfer sides. Legacy rows are deterministically canonicalized by occurrence time, creation time, and ID without claiming original commit order; migration validation fails closed on unsafe facts. Independent final acceptance remains required.
+
+#### Table: `bunker_stock_movement`
+
+- **Purpose:** Immutable audit ledger for serialized Bunker Tank stock mutations.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, indexed by Tenant/Tank sequence index)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :----------- | :-------- | :------- | :------ | :----------------------- | :---------- |
+| `id` | UUID | NO | - | PRIMARY KEY | Movement identity |
+| `tenant_id` | UUID | NO | - | Tenant scope; unique/index prefix | Owning Tenant |
+| `tank_id` | UUID | NO | - | FK → `bunker_tank(id)` | Owning Tank |
+| `ledger_sequence` | BIGINT | NO | - | UNIQUE with `tenant_id`, `tank_id`; positive application allocation | Canonical serialized order within Tenant/Tank |
+| `movement_type` | VARCHAR(32) | NO | - | Idempotency key component | Opening, receipt, issue, adjustment, or transfer direction |
+| `quantity_liters` | NUMERIC(12,3) | NO | - | CHECK `> 0` | Absolute movement quantity |
+| `resulting_balance_liters` | NUMERIC(12,3) | NO | - | CHECK `>= 0` | Tank balance after this serialized mutation |
+| `reference_type` | VARCHAR(32) | NO | - | Idempotency key component | Source category |
+| `reference_id` | UUID | YES | NULL | Logical source reference; idempotency key component | Source record where available |
+| `occurred_at` | TIMESTAMPTZ | NO | - | Business-time index retained | Business/source occurrence time; not canonical order |
+| `created_by` | UUID | NO | - | FK → `app_user(id)` | Actor |
+| `reason` | VARCHAR(500) | YES | NULL | - | Audit reason |
+| `created_at` | TIMESTAMPTZ | NO | CURRENT_TIMESTAMP | - | Persistence/audit time; not canonical order |
+
+Indexes and constraints include `uq_bunker_movement_ledger_sequence` on `(tenant_id, tank_id, ledger_sequence)`, `idx_bunker_movement_tenant_tank_sequence` on `(tenant_id, tank_id, ledger_sequence DESC)`, the Tenant-aware logical-reference idempotency index, the historical Tank/time index, and the reference lookup index.
 
 #### Table: `fuel_card`
 
