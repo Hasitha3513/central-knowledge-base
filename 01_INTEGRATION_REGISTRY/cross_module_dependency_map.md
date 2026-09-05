@@ -63,7 +63,7 @@ Confirm ownership, tenant propagation, data classification, contract version, so
 
 ## Full-Product 87-Story Planning Boundary
 
-Following US-37 final acceptance, 68 / 87 stories are accepted and exactly 19 remain: US-35, US-38, US-46, US-47, US-48 through US-55, US-72, US-76, US-82, and US-84 through US-87. They remain planned in four open waves after Wave A closure:
+Following US-35 final acceptance, 69 / 87 stories are accepted and exactly 18 remain: US-38, US-46, US-47, US-48 through US-55, US-72, US-76, US-82, and US-84 through US-87. They remain planned in four open waves after Wave A closure:
 
 1. US-73 external integrations and US-78 operational-exception lifecycle;
 2. US-37/35/38 Fuel plus US-46 payroll link and US-47 transport billing;
@@ -73,4 +73,4 @@ Following US-37 final acceptance, 68 / 87 stories are accepted and exactly 19 re
 
 Expected future owners remain planning hypotheses except that US-73 has established and accepted the dedicated `integration` owner as `COMPLETE_US73` and US-78 has established and accepted the dedicated `operations` owner as `COMPLETE_US78`. Existing `fuel`, `driver`, `offlinesync`, `reporting`, `identity`, and `system` boundaries retain their data. Distinct `tracking`, `compliance`, and `billing` contexts remain justified candidates requiring their own story gate. Finance continues to own ledger/payment/tax posting and HRM/payroll continues to own final salary processing.
 
-US-73 final acceptance covers exactly one governed outbound JSON-file adapter with controlled-sandbox evidence; it does not imply that any named business ecosystem is implemented. US-78 implements the first additional durable families by reusing P1-01; no second outbox, broker, exactly-once claim, foreign repository, or cross-module SQL exists. US-78 final acceptance passes, Wave A is 2/2 closed, US-37 final acceptance passes, and US-35 implementation is complete with acceptance pending. Wave B remains open and the queue head is `US-35-FUEL-CARDS-TECHNICAL-CLOSURE-001`.
+US-73 final acceptance covers exactly one governed outbound JSON-file adapter with controlled-sandbox evidence; it does not imply that any named business ecosystem is implemented. US-78 implements the first additional durable families by reusing P1-01; no second outbox, broker, exactly-once claim, foreign repository, or cross-module SQL exists. US-78 final acceptance passes, Wave A is 2/2 closed, and US-35 plus US-37 final acceptance pass. Wave B remains open and the queue head is `US-38-FUEL-EXCEPTIONS-PRODUCT-DECISIONS-001`.
