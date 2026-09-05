@@ -271,7 +271,7 @@ V43 deterministically seeds UUID `4f8b6a3b-2c1e-4d89-9a72-f9e4c5b3671a`, `CLTS-L
 | `fuel_purchase` | Fuel procurement record | `id UUID` | purchase/invoice/vendor/station IDs, fuel/date/quantity/price/tax/totals/currency, status/reconciliation, receipt/approval/audit fields | unique purchase and vendor/invoice; lifecycle checks; vendor/status/date/type indexes |
 | `fuel_purchase_history` | Purchase audit | `id UUID` | purchase/status/action/actor, comment, variances, occurred_at | FKs purchase/user; history index |
 | `bunker_tank` | Fuel tank master | `id UUID` | station, code/name, fuel type, capacity/current stock/reorder level, active, version, timestamps | station reference; capacity/stock checks; station/type indexes |
-| `bunker_stock_movement` | Immutable tank movement | `id UUID` | tank, movement type, quantity, balance, reference type/id, actor, occurred/created, idempotency | tank reference; quantity/balance checks; unique idempotency; time/reference indexes |
+| `bunker_stock_movement` | Immutable tank movement | `id UUID` | tank, movement type, quantity, balance, reference type/id, actor, occurred/created, idempotency; canonical `ledger_sequence` authorized but not yet implemented | tank reference; quantity/balance checks; unique idempotency; current time/reference indexes; Tenant/Tank sequence uniqueness/index authorized for the next forward migration |
 | `bunker_dip_reading` | Physical stock reading | `id UUID` | tank, measured quantity/time, actor, notes, created | tank reference; nonnegative check; tank/time index |
 | `bunker_stock_adjustment` | Reconciliation adjustment | `id UUID` | tank, quantity, reason/reference, actor, occurred/created | tank reference; nonzero check; tank/time index |
 
@@ -813,7 +813,7 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 
 ### US-35 Fuel Card Implementation
 
-- Status: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`; accounting remains 68/87 accepted and 19/87 remaining. Wave B remains open. V64 is the US-35 migration and the current repository head.
+- Status: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED`; accounting remains 68/87 accepted and 19/87 remaining. Wave B remains open. V64 is the US-35 migration and the current repository head; V65 is authorized only for the Bunker ledger-order remediation if it remains free.
 - Owner/boundary: Fuel owns a limited masked card-reference master, local lifecycle/restrictions, exactly one active Driver-or-Vehicle binding with immutable history, normalized imported provider facts, reconciliation, deterministic review indicators, and safe audit. The external provider owns account, authorization, settlement, ledger, provider IDs and merchant facts. No payment engine, banking, billing/payroll, generic fraud engine, or US-38 investigation is approved.
 - Sensitive data: UUID internal identity, Organization provider logical ID, opaque provider card reference, masked identifier, optional last four and expiry month/year. No PAN, CVV, PIN, stripe data, balance, credential, secret, raw file/body, or unmasked reference appears in responses/UI/logs/audit.
 - Lifecycle/binding: `DRAFT`, `ACTIVE`, `SUSPENDED`, `BLOCKED`, `EXPIRED`, `CANCELLED`; explicit commands only and no reactivation from terminal states. Exactly one same-Tenant active Vehicle or Driver binding is allowed; reassignment appends effective-dated history through published contracts only.
@@ -825,7 +825,14 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 - Acceptance: isolated `transport_logistics_acceptance`, deterministic concurrency, literal `/api/v1` security, full quality gates, and a real Chromium journey covering masked display, binding/restrictions, canonical import/replay/conflict, reconciliation, review flags, immutable values, Tenant non-inference and limited-user denial.
 - Technical closure: `US-35-FUEL-CARDS-TECHNICAL-CLOSURE-001` PASS. Fixture-baseline isolation was repaired without changing production behavior; the repaired test passed 1/1 and the complete focused group passed 23/23, including PostgreSQL 7/7 and literal `/api/v1/...` security coverage.
 - Fresh closure evidence: only `transport_logistics_acceptance`; Flyway V1→V64; complete Maven 1,332/0/0/15 in 04:57; architecture 46/46; Checkstyle, PMD and SpotBugs PASS; TypeScript PASS; Vitest 263/263 across 63 files; production build and changed-file lint PASS; real PostgreSQL-backed Chromium 6/6 PASS; `git diff --check` PASS. Global ESLint retains 71 unrelated pre-existing Delivery errors and introduces zero US-35 errors.
-- Next task: `US-35-FUEL-CARDS-FINAL-ACCEPTANCE-001`.
+- The first final-acceptance run was blocked by nondeterministic Bunker ledger-tail ordering. Next task: `US-35-FUEL-CARDS-ACCEPTANCE-REMEDIATION-002`.
+
+### Bunker Ledger Ordering Authorization
+
+- `BUNKER-LEDGER-ORDERING-AUTHORIZATION-001` is APPROVED as non-story technical governance. It changes no Fuel Card contract or accounting; US-35 remains `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED` at 68/87 accepted and 19/87 remaining.
+- Canonical serialized movement order is internal `ledgerSequence`, monotonic per Tenant/Tank and allocated as bounded `MAX+1` only while holding the existing Tank write lock in the same stock-mutation ACID transaction. Business `occurredAt`, audit `createdAt`, random UUID, and global database sequences are not ledger order.
+- A forward V65 migration is authorized only if V65 remains free: add/backfill/`NOT NULL`, Tenant/Tank/sequence uniqueness, and Tenant-leading descending index. Legacy rows use deterministic migration canonicalization (`occurredAt`, `createdAt`, `id`) without claiming original commit order or rewriting facts; inconsistent ownership, ledger tail, non-zero stock without history, or other unreconcilable facts fail closed.
+- Required remediation covers every stock-changing movement, rollback, same-time/backdated and concurrent operations, per-Tank/Tenant independence, uniqueness, backfill validation, clean PostgreSQL migration and full regression. Next task: `US-35-FUEL-CARDS-ACCEPTANCE-REMEDIATION-002`.
 
 #### Table: `fuel_card`
 
