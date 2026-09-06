@@ -457,7 +457,19 @@ Filters and server-side pagination are bounded (20 rows by default, 100 maximum)
 
 The Bunker stock ledger shown by Fuel workflows is ordered by the server's canonical per-Tank sequence. Backdated or equal business occurrence times therefore cannot make an older balance appear as the current ledger tail. This ordering value is internal and is not an editable Fuel Card or Bunker UI field.
 
-## 13. 🛠️ Troubleshooting & Support Escalation
+## 13. ⚠️ Fuel Exception Review (US-38)
+
+Users with `FUEL_EXCEPTION_VIEW` can open **Fuel Management → Fuel Exceptions** to inspect Tenant-scoped suspected loss, incorrect reading, sudden price change, emergency refuel, fuel-card policy deviation and rejected negative-Bunker-balance cases. These are review records, not theft, fraud, guilt or disciplinary findings.
+
+- `FUEL_EXCEPTION_MANAGE` permits creating a case from a verified same-Tenant source, starting review, adding bounded evidence and append-only notes, and resolving with an explicit outcome and reason.
+- `FUEL_EXCEPTION_CORRECT` requests an owner-controlled correction. Inventory, cost, price, reconciliation and lifecycle changes remain pending until independently approved.
+- `FUEL_EXCEPTION_APPROVE` permits an actor other than the requester to approve or reject. A failed owner command remains visible and can be retried; source history is never edited directly.
+- `FUEL_EXCEPTION_ESCALATE` sends qualified HIGH/CRITICAL cases to Operations. The Fuel case and Operations case retain separate ownership and lifecycle.
+- A rejected negative Bunker command leaves stock and its canonical ledger unchanged while creating or deduplicating one review case.
+
+The list shows category, impact, lifecycle, source, review and handoff state. Open a row to see safe source context, evidence, notes, corrections and append-only history. Cross-Tenant identifiers return safe not-found/denied results. Generic status editing, delete, reopen, raw-source editing and punitive verdicts are unavailable.
+
+## 14. 🛠️ Troubleshooting & Support Escalation
 
 | Error / Condition | Root Cause | Operator Action |
 | :--- | :--- | :--- |
@@ -469,6 +481,6 @@ The Bunker stock ledger shown by Fuel workflows is ordered by the server's canon
 
 ---
 
-## 14. 📑 Scope Boundaries
+## 15. 📑 Scope Boundaries
 
 This operational manual documents active features in **Phase 1, Phase 2A, Phase 3 Core Fuel, and MVP 1.3 Delivery Operations**. Features flagged on the project roadmap as deferred (e.g., dynamic multi-echelon routing, IoT telematics, mobile native apps) are outside current system scope.

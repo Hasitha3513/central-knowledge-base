@@ -831,7 +831,7 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 
 ### US-38 Fuel Exception Product Decisions
 
-- Status: `PRODUCT_DECISIONS_FROZEN / IMPLEMENTATION_NOT_STARTED`; accounting remains 69/87 accepted and 18/87 remaining. Next task: `US-38-FUEL-EXCEPTIONS-IMPLEMENTATION-001`.
+- Status: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`; accounting remains 69/87 accepted and 18/87 remaining. V66 implements the six Fuel-owned tables and five permissions. Backend, PostgreSQL, static, frontend and real Chromium 6/6 implementation gates pass. Next task: `US-38-FUEL-EXCEPTIONS-TECHNICAL-CLOSURE-001`.
 - Source/owner: the Fuel Manager controls six source-confirmed exception families so exceptional events do not corrupt inventory or cost records. Fuel owns business meaning, local review/correction state and history; Operations US-78 owns central assignment, SLA, escalation, corrective action, RCA, resolution validation, closure and reopen.
 - Taxonomy: `SUSPECTED_FUEL_LOSS`, `INCORRECT_READING`, `SUDDEN_PRICE_CHANGE`, `EMERGENCY_REFUEL`, `FUEL_CARD_POLICY_DEVIATION`, and `NEGATIVE_BUNKER_BALANCE`. Language remains suspected/review-only and never declares theft, fraud, Driver guilt or criminal culpability.
 - Creation/input: authorized manual cases may reference accepted same-Tenant Fuel/Fleet facts. Only a rejected negative-Bunker-balance stock command deterministically creates a case. US-35/37 indicators may seed manual review but never auto-create or prove misuse/loss. No arbitrary price/loss threshold or opaque ML is approved.
@@ -978,3 +978,18 @@ Indexes and constraints include `uq_bunker_movement_ledger_sequence` on `(tenant
 | Actor/time | UUID `actor_id`, TIMESTAMPTZ `created_at`, NOT NULL |
 
 The foundation, operational repository isolation, scheduled-job isolation, Freight isolation, and Reporting-source isolation are `ACCEPTED_FOR_CURRENT_SCOPE`. US-29 Freight Reporting is `IMPLEMENTED`: Reporting exposes tenant-scoped summaries, pageable shipment/capacity results, insurance/claim/settlement/exception distributions, and a 5,000-row bounded CSV export through the Freight-owned public query boundary. Missing cargo measurements or vehicle capacity facts produce `INCOMPLETE`; they are never inferred. Access requires `FREIGHT_REPORT_VIEW`, while export independently requires `FREIGHT_REPORT_EXPORT`. Legacy preservation and backfill remain not applicable to this clean-initialization environment.
+
+### US-38 V66 Fuel Exception Data Dictionary
+
+All six tables use UUID primary keys, mandatory `tenant_id`, unique `(tenant_id,id)`, Tenant-leading indexes, and Tenant-consistent child foreign keys. Cross-module source, Vehicle, Driver, Trip and card references remain UUID logical references without foreign constraints.
+
+| Table | Purpose | Required columns and constraints |
+| :--- | :--- | :--- |
+| `fuel_exception_case` | Fuel-owned case aggregate | `id`, `tenant_id`, checked `category`, checked `lifecycle`, checked `impact`, `source_type`, `source_id`, optional unique `source_event_id`, bounded `summary`, JSON `safe_metadata`, optional logical `vehicle_id`/`driver_id`/`trip_id`/`card_id`/`tank_id`, `occurred_at`, `review_required`, checked `handoff_status`, optional checked resolution outcome/reason/actor, optimistic `version`, timestamps. Partial unique active source key is `(tenant_id,category,source_type,source_id)` where not resolved. |
+| `fuel_exception_evidence` | Immutable bounded evidence | `id`, `tenant_id`, `exception_id`, `evidence_type`, optional source type/ID, `summary`, JSON `safe_snapshot`, `added_by`, `created_at`; Tenant-consistent case FK. |
+| `fuel_exception_note` | Append-only case notes | `id`, `tenant_id`, `exception_id`, bounded `note`, `added_by`, `created_at`; Tenant-consistent case FK. |
+| `fuel_exception_correction` | Governed owner correction | `id`, `tenant_id`, `exception_id`, `correction_type`, JSON `owner_command`, financial-change flag, checked status, requester/reviewer/reason, owner result/failure, optimistic `version`, timestamps; Tenant-consistent case FK. |
+| `fuel_exception_history` | Append-only lifecycle/audit history | `id`, `tenant_id`, `exception_id`, action, optional from/to lifecycle and bounded detail, `actor_id`, `created_at`; Tenant-consistent case FK. |
+| `fuel_exception_operations_handoff` | Durable US-78 handoff state | `id`, `tenant_id`, `exception_id`, immutable unique `handoff_event_id`, checked status, reason/failure, optimistic `version`, timestamps; one handoff per Tenant/case and Tenant-consistent case FK. |
+
+V66 also extends `operational_exception_case.ck_operational_exception_source_module` with `FUEL` and seeds the five Fuel Exception permissions. No historical migration is modified.

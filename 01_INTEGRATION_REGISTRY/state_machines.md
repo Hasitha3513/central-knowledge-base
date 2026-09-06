@@ -68,7 +68,7 @@ US-35 freezes the local Fuel-owned lifecycle as `DRAFT`, `ACTIVE`, `SUSPENDED`, 
 
 This lifecycle expresses local operational control only. It neither activates nor blocks the provider account, and the UI must not imply provider confirmation. No arbitrary status mutation exists. Imported facts for inactive cards remain immutable evidence and become `CARD_INACTIVE / REVIEW_REQUIRED`.
 
-# US-38 Fuel Exception Local Lifecycle (Product Decisions Frozen)
+# US-38 Fuel Exception Local Lifecycle (Implemented, Acceptance Pending)
 
 The Fuel-owned lifecycle is exactly `OPEN -> UNDER_REVIEW -> CORRECTION_PENDING -> AWAITING_APPROVAL -> RESOLVED`. `OPEN -> UNDER_REVIEW -> RESOLVED` supports reasoned no-action resolution. Correction rejection returns `AWAITING_APPROVAL -> UNDER_REVIEW`; owner-command failure returns the case to visible retryable `CORRECTION_PENDING`. There is no generic status patch, delete, cancellation, category edit, or Fuel-local reopen.
 
