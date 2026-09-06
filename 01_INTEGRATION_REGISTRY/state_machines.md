@@ -70,7 +70,7 @@ This lifecycle expresses local operational control only. It neither activates no
 
 # US-38 Fuel Exception Local Lifecycle (Implemented, Acceptance Pending)
 
-Technical closure identified persistence and retry compliance gaps without changing this lifecycle. Forward-only V67 remediation is authorized to add immutable correction attempts and durable handoff failure/retry evidence. A CRITICAL case may enter `RESOLVED` only after handoff is `PUBLISHED` or `ACCEPTED`; this is a frozen precondition, not a new state.
+Technical closure identified persistence and retry compliance gaps without changing this lifecycle. Forward-only V67 remediation is complete: immutable correction attempts and durable handoff failure/retry evidence are implemented and verified. A CRITICAL case may enter `RESOLVED` only after handoff is `PUBLISHED` or `ACCEPTED`; this is a frozen precondition, not a new state.
 
 The Fuel-owned lifecycle is exactly `OPEN -> UNDER_REVIEW -> CORRECTION_PENDING -> AWAITING_APPROVAL -> RESOLVED`. `OPEN -> UNDER_REVIEW -> RESOLVED` supports reasoned no-action resolution. Correction rejection returns `AWAITING_APPROVAL -> UNDER_REVIEW`; owner-command failure returns the case to visible retryable `CORRECTION_PENDING`. There is no generic status patch, delete, cancellation, category edit, or Fuel-local reopen.
 
