@@ -831,7 +831,7 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 
 ### US-38 Fuel Exception Product Decisions
 
-- Status: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`; accounting remains 69/87 accepted and 18/87 remaining. V66 implements the six Fuel-owned tables and five permissions. Backend, PostgreSQL, static, frontend and real Chromium 6/6 implementation gates pass. Next task: `US-38-FUEL-EXCEPTIONS-TECHNICAL-CLOSURE-001`.
+- Status: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`; technical closure is blocked pending an approved forward-only V67 compliance remediation. Accounting remains 69/87 accepted and 18/87 remaining. V66 remains immutable. Next task: `US-38-FUEL-EXCEPTIONS-TECHNICAL-REMEDIATION-001`.
 - Source/owner: the Fuel Manager controls six source-confirmed exception families so exceptional events do not corrupt inventory or cost records. Fuel owns business meaning, local review/correction state and history; Operations US-78 owns central assignment, SLA, escalation, corrective action, RCA, resolution validation, closure and reopen.
 - Taxonomy: `SUSPECTED_FUEL_LOSS`, `INCORRECT_READING`, `SUDDEN_PRICE_CHANGE`, `EMERGENCY_REFUEL`, `FUEL_CARD_POLICY_DEVIATION`, and `NEGATIVE_BUNKER_BALANCE`. Language remains suspected/review-only and never declares theft, fraud, Driver guilt or criminal culpability.
 - Creation/input: authorized manual cases may reference accepted same-Tenant Fuel/Fleet facts. Only a rejected negative-Bunker-balance stock command deterministically creates a case. US-35/37 indicators may seed manual review but never auto-create or prove misuse/loss. No arbitrary price/loss threshold or opaque ML is approved.
@@ -993,3 +993,9 @@ All six tables use UUID primary keys, mandatory `tenant_id`, unique `(tenant_id,
 | `fuel_exception_operations_handoff` | Durable US-78 handoff state | `id`, `tenant_id`, `exception_id`, immutable unique `handoff_event_id`, checked status, reason/failure, optimistic `version`, timestamps; one handoff per Tenant/case and Tenant-consistent case FK. |
 
 V66 also extends `operational_exception_case.ck_operational_exception_source_module` with `FUEL` and seeds the five Fuel Exception permissions. No historical migration is modified.
+
+### US-38 V67 Technical Remediation Authorization
+
+`US-38-TECHNICAL-REMEDIATION-AUTHORIZATION-001` is approved as non-story technical governance. V67 is the confirmed next free migration and may only complete the frozen correction owner/request/safe-before fields, immutable idempotent correction-attempt history, negative-case source-event identity, and handoff failure/retry persistence with Tenant-consistent constraints and necessary Tenant-leading indexes. V66 and V1–V65 are immutable.
+
+The same authorization requires real same-Tenant emergency Vehicle plus Trip-or-Driver validation, 2,000-character notes, CRITICAL handoff before resolution, complete append-only history, stable correction/handoff identities, deterministic concurrency, and genuine PostgreSQL/Chromium source-immutability evidence. It creates no new route, permission, taxonomy, lifecycle, outcome, product owner, workflow engine, retry engine, outbox/inbox, provider/payment authority, raw-source mutation, distributed transaction, or accounting change.
