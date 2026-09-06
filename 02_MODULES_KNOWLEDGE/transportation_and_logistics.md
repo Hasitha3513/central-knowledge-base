@@ -761,9 +761,9 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
 
 ### Governed full-product completion plan
 
-`DEFERRED-BACKLOG-REPRIORITIZATION-001` is complete as a planning task. Following US-35 final acceptance, story accounting is 69 / 87 accepted and 18 / 87 remaining. The exact remainder is US-38, US-46, US-47, US-48 through US-55, US-72, US-76, US-82, and US-84 through US-87. US-88, US-89, and US-90 remain undefined.
+`DEFERRED-BACKLOG-REPRIORITIZATION-001` is complete as a planning task. Following US-38 final acceptance, story accounting is 70 / 87 accepted and 17 / 87 remaining. The exact remainder is US-46, US-47, US-48 through US-55, US-72, US-76, US-82, and US-84 through US-87. US-88, US-89, and US-90 remain undefined.
 
-The remaining stories are reprioritized into governed waves: Wave A (US-73/78 integration and exception foundations) is 2/2 COMPLETE and CLOSED; Wave B is open with US-35 and US-37 complete, US-38 product decisions frozen, and US-46/47 financial links remaining; Wave C covers US-48..55 GPS/tracking; Wave D covers US-72/76 compliance/mobile; and Wave E covers US-85/84/87/82/86 integrity, resilience, risk, analytics, and disruption. The single next task is `US-38-FUEL-EXCEPTIONS-IMPLEMENTATION-001`.
+The remaining stories are reprioritized into governed waves: Wave A (US-73/78 integration and exception foundations) is 2/2 COMPLETE and CLOSED; Wave B is open with US-35, US-37 and US-38 complete and US-46/47 financial links remaining; Wave C covers US-48..55 GPS/tracking; Wave D covers US-72/76 compliance/mobile; and Wave E covers US-85/84/87/82/86 integrity, resilience, risk, analytics, and disruption. The single next task is `US-46-DRIVER-PAYROLL-LINK-PRODUCT-DECISIONS-001`.
 
 The authoritative DOCX/UML titles govern over stale roadmap aliases: US-35 Manage Fuel Cards, US-37 Analyze Fuel Performance, US-38 Handle Fuel Exceptions, US-46 Process Driver Payroll Link, US-47 Manage Transport Billing, and US-48..55 Track Vehicles Live / Manage Geofences / Monitor Speed / Monitor Idle Time / Monitor Route Deviations / Replay Journeys / View Tracking Dashboard / Handle GPS Edge Cases.
 
@@ -831,7 +831,7 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 
 ### US-38 Fuel Exception Product Decisions
 
-- Status: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`; forward-only V67 technical remediation is complete and independent technical closure passes. Accounting remains 69/87 accepted and 18/87 remaining. V66 remains immutable. Next task: `US-38-FUEL-EXCEPTIONS-FINAL-ACCEPTANCE-001`.
+- Status: `COMPLETE / FINAL_ACCEPTANCE_PASS`. Accounting is 70/87 accepted and 17/87 remaining. V66 remains immutable and V67 is the current Flyway head. Next task: `US-46-DRIVER-PAYROLL-LINK-PRODUCT-DECISIONS-001`.
 - Source/owner: the Fuel Manager controls six source-confirmed exception families so exceptional events do not corrupt inventory or cost records. Fuel owns business meaning, local review/correction state and history; Operations US-78 owns central assignment, SLA, escalation, corrective action, RCA, resolution validation, closure and reopen.
 - Taxonomy: `SUSPECTED_FUEL_LOSS`, `INCORRECT_READING`, `SUDDEN_PRICE_CHANGE`, `EMERGENCY_REFUEL`, `FUEL_CARD_POLICY_DEVIATION`, and `NEGATIVE_BUNKER_BALANCE`. Language remains suspected/review-only and never declares theft, fraud, Driver guilt or criminal culpability.
 - Creation/input: authorized manual cases may reference accepted same-Tenant Fuel/Fleet facts. Only a rejected negative-Bunker-balance stock command deterministically creates a case. US-35/37 indicators may seed manual review but never auto-create or prove misuse/loss. No arbitrary price/loss threshold or opaque ML is approved.
@@ -1013,3 +1013,7 @@ Database assertions are supplemental and may not create, update, delete, repair,
 ### US-38 Independent Technical Closure
 
 `US-38-FUEL-EXCEPTIONS-TECHNICAL-CLOSURE-001-RERUN` passes. Fresh evidence includes focused US-38 21/21, deterministic PostgreSQL concurrency 9/9, US-35/US-37/Bunker/US-78/P1-01/Notification regression 112/112, full Maven 1,356 tests with 0 failures and 0 errors (15 skipped) in 05:37, architecture 46/46, all static and frontend gates, and real PostgreSQL-backed Chromium 6/6 in 35.2 seconds. Flyway clean restoration reaches V67 and every authoritative database result uses only `transport_logistics_acceptance`. US-38 remains acceptance pending; accounting remains 69/87 and the next task is independent final acceptance.
+
+### US-38 Final Acceptance
+
+`US-38-FUEL-EXCEPTIONS-FINAL-ACCEPTANCE-001` passes and US-38 is COMPLETE. Fresh final evidence is focused 21/21, deterministic PostgreSQL concurrency 9/9, US-35/US-37/Bunker/US-78/P1-01/Notification regression 112/112, full Maven 1,356 tests with 0 failures and 0 errors (15 skipped) in 05:34, architecture 46/46, all static and frontend gates, and real PostgreSQL-backed Chromium 6/6 in 36.6 seconds. Stable negative and handoff identities, one active negative case, unchanged rejected ledger, N+1 valid movement, source immutability, one effective owner success, one Operations case, Tenant isolation, five-permission RBAC and frozen public APIs all pass. Every authoritative database result used only `transport_logistics_acceptance`. Accounting advances once to 70/87 with 17 remaining; Wave B stays open for US-46 and US-47.

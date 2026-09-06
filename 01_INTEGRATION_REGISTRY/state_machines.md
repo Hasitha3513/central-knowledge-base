@@ -68,7 +68,7 @@ US-35 freezes the local Fuel-owned lifecycle as `DRAFT`, `ACTIVE`, `SUSPENDED`, 
 
 This lifecycle expresses local operational control only. It neither activates nor blocks the provider account, and the UI must not imply provider confirmation. No arbitrary status mutation exists. Imported facts for inactive cards remain immutable evidence and become `CARD_INACTIVE / REVIEW_REQUIRED`.
 
-# US-38 Fuel Exception Local Lifecycle (Technical Closure Pass, Acceptance Pending)
+# US-38 Fuel Exception Local Lifecycle (Accepted)
 
 Technical closure identified persistence and retry compliance gaps without changing this lifecycle. Forward-only V67 remediation is complete: immutable correction attempts and durable handoff failure/retry evidence are implemented and verified. A CRITICAL case may enter `RESOLVED` only after handoff is `PUBLISHED` or `ACCEPTED`; this is a frozen precondition, not a new state.
 
