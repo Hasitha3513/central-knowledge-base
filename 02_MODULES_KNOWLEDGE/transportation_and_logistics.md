@@ -831,7 +831,7 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 
 ### US-38 Fuel Exception Product Decisions
 
-- Status: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`; forward-only V67 technical remediation is complete and awaits independent technical closure. Accounting remains 69/87 accepted and 18/87 remaining. V66 remains immutable. Next task: `US-38-FUEL-EXCEPTIONS-TECHNICAL-CLOSURE-001-RERUN`.
+- Status: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`; forward-only V67 technical remediation is complete and independent technical closure passes. Accounting remains 69/87 accepted and 18/87 remaining. V66 remains immutable. Next task: `US-38-FUEL-EXCEPTIONS-FINAL-ACCEPTANCE-001`.
 - Source/owner: the Fuel Manager controls six source-confirmed exception families so exceptional events do not corrupt inventory or cost records. Fuel owns business meaning, local review/correction state and history; Operations US-78 owns central assignment, SLA, escalation, corrective action, RCA, resolution validation, closure and reopen.
 - Taxonomy: `SUSPECTED_FUEL_LOSS`, `INCORRECT_READING`, `SUDDEN_PRICE_CHANGE`, `EMERGENCY_REFUEL`, `FUEL_CARD_POLICY_DEVIATION`, and `NEGATIVE_BUNKER_BALANCE`. Language remains suspected/review-only and never declares theft, fraud, Driver guilt or criminal culpability.
 - Creation/input: authorized manual cases may reference accepted same-Tenant Fuel/Fleet facts. Only a rejected negative-Bunker-balance stock command deterministically creates a case. US-35/37 indicators may seed manual review but never auto-create or prove misuse/loss. No arbitrary price/loss threshold or opaque ML is approved.
@@ -1009,3 +1009,7 @@ Database assertions are supplemental and may not create, update, delete, repair,
 ### US-38 V67 Technical Remediation Result
 
 `US-38-FUEL-EXCEPTIONS-TECHNICAL-REMEDIATION-001` is complete. V67 implements the authorized immutable correction attempts, stable correction idempotency and negative-source event identity, durable handoff failure/retry evidence, and the CRITICAL handoff resolution precondition without changing the public API, permissions, event contract, or local lifecycle. Nine deterministic PostgreSQL concurrency races pass, complete Maven passes with 1,356 tests (0 failures, 0 errors, 15 skipped), architecture passes 46/46, and the strengthened real PostgreSQL-backed Chromium suite passes 6/6. All accepted direct database evidence used only `transport_logistics_acceptance`; story accounting remains unchanged pending independent technical closure and final acceptance.
+
+### US-38 Independent Technical Closure
+
+`US-38-FUEL-EXCEPTIONS-TECHNICAL-CLOSURE-001-RERUN` passes. Fresh evidence includes focused US-38 21/21, deterministic PostgreSQL concurrency 9/9, US-35/US-37/Bunker/US-78/P1-01/Notification regression 112/112, full Maven 1,356 tests with 0 failures and 0 errors (15 skipped) in 05:37, architecture 46/46, all static and frontend gates, and real PostgreSQL-backed Chromium 6/6 in 35.2 seconds. Flyway clean restoration reaches V67 and every authoritative database result uses only `transport_logistics_acceptance`. US-38 remains acceptance pending; accounting remains 69/87 and the next task is independent final acceptance.
