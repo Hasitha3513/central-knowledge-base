@@ -8,6 +8,8 @@ Phase 1 implements only `FILE_EXCHANGE / FILE_JSON_V1 / OUTBOUND` through `GOVER
 
 Phase 2/Post-MVP includes any ERP, accounting, CRM, HRMS, fuel-card, telematics, payment, insurance, DMS/OCR, REST, webhook, inbound file/API, manual retry, or reconciliation mutation. Each requires independent governance and acceptance.
 
+US-46 product decisions separately approve one future Phase 1 consumer of the existing file capability: `DRIVER_PAYROLL_INPUT_V1`, classification `FINANCIAL_CONFIDENTIAL`, received through P1-01 from Driver/Fleet and delivered only by `FILE_JSON_V1` to a controlled filesystem for acceptance. This approval does not make the family implemented and does not approve a live HRMS, API, webhook, inbound acknowledgement, SFTP, payment, salary processing, manual retry, or reconciliation mutation. Implementation must add explicit event, schema, classification, mapping, privacy, SoD, and acceptance coverage before activation.
+
 ## Inbound use cases
 
 - List/create/get/update Tenant-owned configurations.

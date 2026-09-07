@@ -107,6 +107,12 @@ US-73 seeds these permissions through V61 and enforces them server-side on the l
 
 Activation of future `FINANCIAL` or `RESTRICTED` exchanges requires a different authorized actor from the last configuration author. The accepted non-sensitive filesystem probe does not require dual control. Frontend visibility never substitutes for backend authorization, and all Tenant scope comes from active server-side context.
 
+## Driver Payroll-Input Permission Decision (US-46, Frozen / Unimplemented)
+
+US-46 freezes four capabilities: `DRIVER_PAYROLL_VIEW`, `DRIVER_PAYROLL_PREPARE`, `DRIVER_PAYROLL_APPROVE`, and `DRIVER_PAYROLL_EXPORT`. They are not seeded until implementation. Prepare covers draft batches, lines, validation, and the minimal external-worker mapping. Approve independently freezes a validated batch or correction batch; the preparer cannot approve the same batch. Export releases approved content through the accepted Integration boundary and cannot alter it.
+
+Tenant authority is server-derived; cross-Tenant Driver, Trip, batch, mapping, configuration, and correction references are safe not-found. These permissions grant no employee-master, salary-run, tax, pension, payslip, payment, ledger-posting, Trip mutation, Integration activation, raw-payload, manual-retry, or acknowledgement authority.
+
 ## Operational Exception Permission Catalogue (Implemented, Acceptance Pending)
 
 US-78 V62 seeds seven narrow Operations permissions. They are enforced on every literal `/api/v1/operational-exceptions/**` route, its effective servlet-context form, and the owning use case.

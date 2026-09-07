@@ -759,11 +759,19 @@ V55: US-66 Delivery Batch Orders & Clustering — `delivery_batch`, `delivery_ba
 
 ## Remaining Suite Integration Work
 
+### US-46 Process Driver Payroll Link — Frozen Product Decisions
+
+Status is `PRODUCT_DECISIONS_FROZEN / IMPLEMENTATION_NOT_STARTED`; accounting remains 70 / 87 accepted and 17 / 87 remaining. Driver within Fleet owns operational payroll-input batches, four source-backed categories, same-Tenant external worker-reference mapping, independent approval, immutable release/correction history, and a safe delivery projection. Only Completed/Closed same-Tenant Trips inside the explicit period and cutoff qualify through published Trip contracts.
+
+US-46 calculates only a traceable provisional operational input from explicit authorized batch-scoped quantity/rate or fixed-amount facts in one ISO-4217 currency. It does not invent overtime thresholds, allowance/deduction subtypes, statutory formulas, cadence, employee master, gross/net salary, tax, pension, payslip, payment, settlement, or posting authority.
+
+Phase 1 acceptance uses the existing US-73 controlled `FILE_JSON_V1` adapter. Driver releases `DriverPayrollInputExportRequestedV1` through P1-01; Integration owns external attempts/file evidence. Delivery means `EXPORTED`, not imported/accepted/paid. Four permissions, preparer/approver SoD, Tenant isolation, minimized financial data, compensation-only corrections, API/UI shape, PostgreSQL constraints, and real Chromium/file evidence are frozen in `ADR-US46-DRIVER-PAYROLL-LINK-BOUNDARY.md`. The next task is `US-46-DRIVER-PAYROLL-LINK-IMPLEMENTATION-001`.
+
 ### Governed full-product completion plan
 
 `DEFERRED-BACKLOG-REPRIORITIZATION-001` is complete as a planning task. Following US-38 final acceptance, story accounting is 70 / 87 accepted and 17 / 87 remaining. The exact remainder is US-46, US-47, US-48 through US-55, US-72, US-76, US-82, and US-84 through US-87. US-88, US-89, and US-90 remain undefined.
 
-The remaining stories are reprioritized into governed waves: Wave A (US-73/78 integration and exception foundations) is 2/2 COMPLETE and CLOSED; Wave B is open with US-35, US-37 and US-38 complete and US-46/47 financial links remaining; Wave C covers US-48..55 GPS/tracking; Wave D covers US-72/76 compliance/mobile; and Wave E covers US-85/84/87/82/86 integrity, resilience, risk, analytics, and disruption. The single next task is `US-46-DRIVER-PAYROLL-LINK-PRODUCT-DECISIONS-001`.
+The remaining stories are reprioritized into governed waves: Wave A (US-73/78 integration and exception foundations) is 2/2 COMPLETE and CLOSED; Wave B is open with US-35, US-37 and US-38 complete, US-46 decisions frozen, and US-46/47 financial links remaining; Wave C covers US-48..55 GPS/tracking; Wave D covers US-72/76 compliance/mobile; and Wave E covers US-85/84/87/82/86 integrity, resilience, risk, analytics, and disruption. The single next task is `US-46-DRIVER-PAYROLL-LINK-IMPLEMENTATION-001`.
 
 The authoritative DOCX/UML titles govern over stale roadmap aliases: US-35 Manage Fuel Cards, US-37 Analyze Fuel Performance, US-38 Handle Fuel Exceptions, US-46 Process Driver Payroll Link, US-47 Manage Transport Billing, and US-48..55 Track Vehicles Live / Manage Geofences / Monitor Speed / Monitor Idle Time / Monitor Route Deviations / Replay Journeys / View Tracking Dashboard / Handle GPS Edge Cases.
 
@@ -831,7 +839,7 @@ After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all
 
 ### US-38 Fuel Exception Product Decisions
 
-- Status: `COMPLETE / FINAL_ACCEPTANCE_PASS`. Accounting is 70/87 accepted and 17/87 remaining. V66 remains immutable and V67 is the current Flyway head. Next task: `US-46-DRIVER-PAYROLL-LINK-PRODUCT-DECISIONS-001`.
+- Status: `COMPLETE / FINAL_ACCEPTANCE_PASS`. Accounting is 70/87 accepted and 17/87 remaining. V66 remains immutable and V67 is the current Flyway head. US-46 product decisions are now frozen; next task: `US-46-DRIVER-PAYROLL-LINK-IMPLEMENTATION-001`.
 - Source/owner: the Fuel Manager controls six source-confirmed exception families so exceptional events do not corrupt inventory or cost records. Fuel owns business meaning, local review/correction state and history; Operations US-78 owns central assignment, SLA, escalation, corrective action, RCA, resolution validation, closure and reopen.
 - Taxonomy: `SUSPECTED_FUEL_LOSS`, `INCORRECT_READING`, `SUDDEN_PRICE_CHANGE`, `EMERGENCY_REFUEL`, `FUEL_CARD_POLICY_DEVIATION`, and `NEGATIVE_BUNKER_BALANCE`. Language remains suspected/review-only and never declares theft, fraud, Driver guilt or criminal culpability.
 - Creation/input: authorized manual cases may reference accepted same-Tenant Fuel/Fleet facts. Only a rejected negative-Bunker-balance stock command deterministically creates a case. US-35/37 indicators may seed manual review but never auto-create or prove misuse/loss. No arbitrary price/loss threshold or opaque ML is approved.

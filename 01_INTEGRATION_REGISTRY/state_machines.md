@@ -75,3 +75,8 @@ Technical closure identified persistence and retry compliance gaps without chang
 The Fuel-owned lifecycle is exactly `OPEN -> UNDER_REVIEW -> CORRECTION_PENDING -> AWAITING_APPROVAL -> RESOLVED`. `OPEN -> UNDER_REVIEW -> RESOLVED` supports reasoned no-action resolution. Correction rejection returns `AWAITING_APPROVAL -> UNDER_REVIEW`; owner-command failure returns the case to visible retryable `CORRECTION_PENDING`. There is no generic status patch, delete, cancellation, category edit, or Fuel-local reopen.
 
 Operations handoff is orthogonal `NOT_REQUIRED | PENDING | PUBLISHED | ACCEPTED | FAILED`; it does not duplicate the US-78 lifecycle. An escalated unresolved Fuel case remains `UNDER_REVIEW`. Resolution outcomes are `NO_ACTION_REQUIRED`, `CORRECTION_APPLIED`, `RECONCILED`, `EMERGENCY_REFUEL_ACCEPTED`, or `REFERRED_TO_OPERATIONS`. Corrections that affect inventory, cost, effective price, reconciliation, or source lifecycle require a requester-distinct approver and execute only through the owning module command or compensating fact.
+# US-46 Driver Payroll-Input Batch (Frozen / Unimplemented)
+
+`DRAFT -> VALIDATED -> APPROVED -> EXPORT_REQUESTED -> EXPORTED`.
+
+Validation failure leaves the batch `DRAFT`. External failure leaves it `EXPORT_REQUESTED` while Integration records retry/attempt state. Approved content is immutable. A later approved/exported `CORRECTION` batch may mark its predecessor `SUPERSEDED`; correction lines are compensating deltas and preserve the original. There is no delete, generic status patch, reopen, paid, posted, reconciled, or acknowledged state. The preparer cannot approve the same batch, and optimistic version conflicts fail closed.

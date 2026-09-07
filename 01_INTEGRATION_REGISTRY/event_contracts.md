@@ -161,3 +161,12 @@ These are discovery-level integration points, not approved payload contracts:
 | Vehicle Maintenance | work order, maintenance hold/release, parts consumption | Transportation, Inventory, Procurement, Finance |
 
 No proposed family may be consumed until its owner registers an exact versioned payload, security classification, ordering/idempotency semantics, retention, and producer/consumer tests here.
+# US-46 Driver Payroll-Input Export (Frozen / Unimplemented)
+
+`DriverPayrollInputExportRequestedV1` is approved for implementation as a canonical P1-01 durable envelope. Producer: Driver within Fleet. Consumer: Integration handler `integration-outbound-exchange`. Event type/business family: `DRIVER_PAYROLL_INPUT_V1`; version 1; aggregate type `DRIVER_PAYROLL_INPUT_BATCH`; classification `FINANCIAL_CONFIDENTIAL`; delivery at-least-once with no global ordering.
+
+The event is written in the same transaction that releases an approved immutable batch. Its stable event ID is reused for the same release; Integration deduplicates by `(tenantId, configurationId, sourceEventId, mappingVersionId)`. Retry never changes the approved payload. Driver release and Integration external delivery are not a distributed transaction.
+
+The canonical business payload properties are exactly `schemaVersion`, `batchId`, `batchType`, `periodStart`, `periodEndExclusive`, `cutoffAt`, `generatedAt`, `currency`, `totals`, and `drivers`. `totals` contains `tripEarnings`, `allowances`, `overtime`, `deductions`, and `provisionalNetInput`. Each `drivers[]` item contains `driverId`, `externalWorkerReference`, and `lines`; each line contains `lineId`, `tripId`, `tripNumber`, `category`, `reasonCode`, `quantity`, `unit`, `rate`, `amount`, `originalLineId`, and `sourceSnapshotHash`. Categories are exactly `TRIP_EARNING`, `ALLOWANCE`, `OVERTIME`, and `DEDUCTION`; units are exactly `TRIP`, `HOUR`, and `FIXED`. Batch type is `REGULAR` or `CORRECTION`. The P1-01 envelope carries event/Tenant/aggregate/correlation identity outside the business payload. Arrays use deterministic UUID order, monetary strings use scale 2, and the accepted 32-KiB limit fails closed without truncation.
+
+Names, contact data, medical/licence/drug-test data, bank/tax/pension data, salary facts, credentials, raw notes, and unrestricted metadata are forbidden. Successful file delivery means `EXPORTED` only; it never means imported, reconciled, posted, settled, or paid. No inbound acknowledgement event is approved.
