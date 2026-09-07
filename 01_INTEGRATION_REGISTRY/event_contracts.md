@@ -161,7 +161,7 @@ These are discovery-level integration points, not approved payload contracts:
 | Vehicle Maintenance | work order, maintenance hold/release, parts consumption | Transportation, Inventory, Procurement, Finance |
 
 No proposed family may be consumed until its owner registers an exact versioned payload, security classification, ordering/idempotency semantics, retention, and producer/consumer tests here.
-# US-46 Driver Payroll-Input Export (Implemented / Acceptance Pending)
+# US-46 Driver Payroll-Input Export (Accepted)
 
 `DriverPayrollInputExportRequestedV1` is implemented as a canonical P1-01 durable envelope. Producer: Driver within Fleet. Consumer: Integration handler `integration-outbound-exchange`. Event type/business family: `DRIVER_PAYROLL_INPUT_V1`; version 1; aggregate type `DRIVER_PAYROLL_INPUT_BATCH`; classification `FINANCIAL_CONFIDENTIAL`; delivery at-least-once with no global ordering.
 

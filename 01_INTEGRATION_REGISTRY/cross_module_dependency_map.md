@@ -64,7 +64,7 @@ Confirm ownership, tenant propagation, data classification, contract version, so
 
 ## Full-Product 87-Story Planning Boundary
 
-Following US-38 final acceptance, 70 / 87 stories are accepted and exactly 17 remain: US-46, US-47, US-48 through US-55, US-72, US-76, US-82, and US-84 through US-87. They remain planned in four open waves after Wave A closure:
+Following US-46 final acceptance, 71 / 87 stories are accepted and exactly 16 remain: US-47, US-48 through US-55, US-72, US-76, US-82, and US-84 through US-87. They remain planned in four open waves after Wave A closure:
 
 1. US-73 external integrations and US-78 operational-exception lifecycle;
 2. US-37/35/38 Fuel plus US-46 payroll link and US-47 transport billing;
@@ -74,14 +74,14 @@ Following US-38 final acceptance, 70 / 87 stories are accepted and exactly 17 re
 
 Expected future owners remain planning hypotheses except that US-73 has established and accepted the dedicated `integration` owner as `COMPLETE_US73` and US-78 has established and accepted the dedicated `operations` owner as `COMPLETE_US78`. Existing `fuel`, `driver`, `offlinesync`, `reporting`, `identity`, and `system` boundaries retain their data. Distinct `tracking`, `compliance`, and `billing` contexts remain justified candidates requiring their own story gate. Finance continues to own ledger/payment/tax posting and HRM/payroll continues to own final salary processing.
 
-US-73 final acceptance covers exactly one governed outbound JSON-file adapter with controlled-sandbox evidence; it does not imply a live named business ecosystem. US-78 and US-46 reuse P1-01; no second outbox, broker, exactly-once claim, foreign repository, or cross-module SQL exists. US-46 remains acceptance pending; its bounded V71 remediation and independent technical closure are complete, while controlled `FILE_JSON_V1` and all product boundaries remain unchanged. Wave B remains open and the queue head is `US-46-DRIVER-PAYROLL-LINK-FINAL-ACCEPTANCE-001`.
+US-73 final acceptance covers exactly one governed outbound JSON-file adapter with controlled-sandbox evidence; it does not imply a live named business ecosystem. US-78 and US-46 reuse P1-01; no second outbox, broker, exactly-once claim, foreign repository, or cross-module SQL exists. US-46 is accepted through V71 while controlled `FILE_JSON_V1` and all product boundaries remain unchanged. Wave B remains open for US-47, and the queue head is `US-47-TRANSPORT-BILLING-PRODUCT-DECISIONS-001`.
 # US-46 Frozen Dependencies
 
 | Provider | Consumer | Contract | Status |
 | :--- | :--- | :--- | :--- |
 | Trip | Driver/Fleet payroll-input feature | Tenant-scoped Completed/Closed Driver assignment and actual Trip timing projection | Active projection exists; payroll-specific minimum extension may be implemented without foreign persistence |
 | Fleet Driver | Driver/Fleet payroll-input feature | `DriverLookup` identity/active status | Active (MVP) |
-| Driver/Fleet payroll-input feature | Integration | P1-01 `DriverPayrollInputExportRequestedV1` / `DRIVER_PAYROLL_INPUT_V1` | Technical closure PASS; final acceptance pending |
+| Driver/Fleet payroll-input feature | Integration | P1-01 `DriverPayrollInputExportRequestedV1` / `DRIVER_PAYROLL_INPUT_V1` | Active (MVP); final acceptance PASS |
 | Integration | Driver/Fleet payroll-input feature | Safe exchange/delivery status reference; controlled `FILE_JSON_V1` delivery | `DRIVER_PAYROLL_INPUT_V1` implemented; acceptance pending |
 | Scheduling | Driver/Fleet payroll-input feature | Duty/roster baseline | Planned only; no current accepted dependency and no overtime inference |
 | Payroll/HRMS | Transport suite | Final payroll calculation, acknowledgement and settlement outcome | External/deferred; no Phase 1 inbound contract |

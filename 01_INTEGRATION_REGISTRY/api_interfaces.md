@@ -155,7 +155,7 @@ Exact implemented routes and authority:
 | Vehicle Maintenance | Vehicle maintenance hold and return-to-service status | Transportation | PROPOSED |
 
 An interface becomes `ACTIVE` only after its path or protocol, operation IDs, schemas, permissions, tenant behavior, errors, versioning, timeouts, retries, and contract tests are registered.
-# US-46 Driver Payroll-Input API (Implemented / Acceptance Pending)
+# US-46 Driver Payroll-Input API (Accepted)
 
 Driver within Fleet owns `GET|POST /api/v1/drivers/payroll-input-batches`, `GET /api/v1/drivers/payroll-input-batches/{id}`, `PUT .../{id}/lines`, explicit `POST .../{id}/validate|approve|export`, `POST .../{id}/corrections`, `GET .../{id}/history`, and `GET|PUT /api/v1/drivers/{driverId}/payroll-worker-mapping`. No payload accepts `tenantId`; every request is server-Tenant scoped and permission protected. Create, correction, and mapping mutation use tenant-scoped `Idempotency-Key`; draft replacement and lifecycle commands use optimistic versions.
 
