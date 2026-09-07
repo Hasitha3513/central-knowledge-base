@@ -1,12 +1,12 @@
 # Transport Billing
 
-Lifecycle: `PRODUCT_DECISIONS_FROZEN / IMPLEMENTATION_NOT_STARTED_US47`.
+Lifecycle: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING_US47`.
 
 ## Phase 1 Current MVP Scope
 
 The dedicated `billing` bounded context converts eligible completed transport activity into immutable operational billing records. Its aggregate is `TransportBillingRecord`. It owns source claims/snapshots, explicit charge composition, supplied tax facts, required cost-centre allocation, validation, independent approval, operational finalization, exact compensating reversal, append-only history, and controlled export requests.
 
-Eligible source types are exactly Closed Trip and an explicit Freight-owner `COMPLETED` or `CLOSED` billable fact. The current Freight Order lacks terminal lifecycle authority; Billing must fail closed until that provider contract exists. Delivery, Fuel, Driver payroll, Customer data, exceptions and analytics do not independently create Phase 1 bills. Organization owns Customer master; all external references are Tenant-scoped logical UUIDs.
+Eligible source types are exactly Closed Trip and an explicit Freight-owner `COMPLETED` or `CLOSED` billable fact. Published provider-neutral Trip/Freight lookup contracts and the Freight-owned terminal fact projection are implemented. Delivery, Fuel, Driver payroll, Customer data, exceptions and analytics do not independently create Phase 1 bills. Organization owns Customer master; all external references are Tenant-scoped logical UUIDs.
 
 A regular record is per-source, per-Customer and single Tenant-default ISO-4217 currency. Line categories are `BASE_CHARGE`, `SURCHARGE`, `PENALTY`, and `CREDIT_ADJUSTMENT`; commercial quantities/rates are authorized explicit inputs with provenance. Money is `BigDecimal`/`NUMERIC(19,2)`, precision 19, scale 2, `HALF_UP`; quantity/rate may use scale 4. Total equals base plus surcharge plus penalty minus credit adjustment plus supplied tax. No FX, universal pricing/rate catalogue, or generic discount engine is approved.
 
@@ -16,11 +16,17 @@ Lifecycle is `DRAFT -> VALIDATED -> APPROVED -> FINALIZED -> EXPORT_REQUESTED ->
 
 Phase 1 external mode is controlled US-73 `FILE_JSON_V1`. The P1-01 family is `TransportBillingExportRequestedV1` / `TRANSPORT_BILLING_V1`, classification `FINANCIAL_CONFIDENTIAL`, aggregate `TRANSPORT_BILLING_RECORD`, at-least-once and unordered. `EXPORTED` proves file/hash delivery only. Finance/external accounting retains tax invoice, GL, AR/AP, official posting, periods, payment, banking, settlement, remittance, cash application, credit/collections and Customer balances.
 
-The frozen permissions are `BILLING_VIEW`, `BILLING_PREPARE`, `BILLING_APPROVE`, `BILLING_FINALIZE`, and `BILLING_EXPORT`. All records, children, history, keys, events and references use trusted server-derived Tenant identity. The API is the explicit `/api/v1/billing/records` list/detail/draft-lines/validate/approve/cancel/finalize/reversal/export/history family. No generic status, finalized edit/delete, Finance, payment, posting, tax filing, raw payload, retry or manual-success route is approved.
+The implemented permissions are `BILLING_VIEW`, `BILLING_PREPARE`, `BILLING_APPROVE`, `BILLING_FINALIZE`, and `BILLING_EXPORT`. All records, children, history, keys, events and references use trusted server-derived Tenant identity. The API is the explicit `/api/v1/billing/records` list/detail/draft-lines/validate/approve/cancel/finalize/reversal/export/history family. No generic status, finalized edit/delete, Finance, payment, posting, tax filing, raw payload, retry or manual-success route exists.
 
-## Expected Persistence for Implementation
+## Implemented Persistence — V72
 
-Expected Billing-owned Tenant tables are `transport_billing_record`, `transport_billing_line`, `transport_billing_cost_centre`, `transport_billing_tax_fact`, `transport_billing_source_claim`, and `transport_billing_history`. These are planning names only: no table exists and no migration version is reserved. Implementation must document exact post-migration dictionaries. Same-module relationships use Tenant-consistent foreign keys; Customer/Trip/Freight/Compliance/Integration references have no physical foreign key or foreign SQL.
+Flyway `V72__transport_billing_us47.sql` creates `transport_billing_record`, `transport_billing_line`, `transport_billing_cost_centre`, `transport_billing_tax_fact`, `transport_billing_source_claim`, and `transport_billing_history`, plus Freight-owned `freight_billing_fact`. Same-module relationships use Tenant-consistent composite foreign keys. Customer/Trip/Freight/Compliance/Integration references remain logical and Billing performs no foreign SQL.
+
+`transport_billing_record` contains UUID `id`/`tenant_id`; unique Tenant billing number and create-idempotency identity; regular/reversal links; the complete minimized source type/ID/business number/terminal lifecycle/completion/version/SHA-256 snapshot; logical Customer ID; ISO currency and lifecycle; seven `NUMERIC(19,2)` amount projections; preparer/approval/finalization facts; logical Integration configuration/event references; validation/compliance facts; optimistic version and timestamps. It has Tenant-leading queue, Customer and source indexes, Tenant-consistent self foreign keys, and bounded type/lifecycle/currency/compliance/total checks.
+
+`transport_billing_line` contains UUID/Tenant/record identity, category, reason, provenance, `NUMERIC(19,4)` quantity/unit rate and `NUMERIC(19,2)` amount, with non-negative/category checks. `transport_billing_cost_centre` contains code, `NUMERIC(7,4)` allocation, description and source with unique Tenant/record/code and percent checks. `transport_billing_tax_fact` is unique per Tenant/record and contains supplied/not-supplied status, category, jurisdiction, `NUMERIC(19,2)` taxable/tax amounts, `NUMERIC(9,4)` rate, exemption, provenance and SHA-256 snapshot with shape checks.
+
+`transport_billing_source_claim` contains Tenant/record/source identity, active/released state and timestamps; a partial unique `(tenant_id,source_type,source_id) WHERE active` index enforces one effective regular claim. `transport_billing_history` contains action/from/to/actor/detail/time and optional command scope/key/request hash/result version; its Tenant/scope/key partial uniqueness persists idempotency. DB triggers prohibit history update/delete and released-record line/tax/cost-centre mutation. All child relationships use `(billing_record_id,tenant_id)` foreign keys and Tenant-leading indexes.
 
 ## Phase 2 Post-MVP Future Roadmap
 

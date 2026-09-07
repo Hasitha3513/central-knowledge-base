@@ -131,7 +131,7 @@ Contextual authorization is explicit: active Tenant, case Tenant, category/sensi
 
 ## US-47 Transport Billing Permission Catalogue
 
-The following permissions are `PRODUCT_DECISIONS_FROZEN / NOT_IMPLEMENTED` and must be enforced on the literal `/api/v1/billing/records/**` routes and the owning use cases when US-47 is implemented.
+The following permissions are implemented by V72 and enforced on the literal `/api/v1/billing/records/**` routes and owning use cases.
 
 | Permission | Purpose |
 | :--- | :--- |

@@ -83,7 +83,7 @@ The V71 technical remediation now projects successful Integration delivery from 
 
 Validation failure leaves the batch `DRAFT`. External failure leaves it `EXPORT_REQUESTED` while Integration records retry/attempt state. Approved content is immutable. A later approved/exported `CORRECTION` batch may mark its predecessor `SUPERSEDED`; correction lines are compensating deltas and preserve the original. There is no delete, generic status patch, reopen, paid, posted, reconciled, or acknowledged state. The preparer cannot approve the same batch, and optimistic version conflicts fail closed.
 
-# US-47 Transport Billing Record (Product Decisions Frozen)
+# US-47 Transport Billing Record (Implemented / Acceptance Pending)
 
 The frozen regular lifecycle is `DRAFT -> VALIDATED -> APPROVED -> FINALIZED -> EXPORT_REQUESTED -> EXPORTED`. Validation failure and edits leave/return the record to `DRAFT`. A reasoned `DRAFT -> CANCELLED` transition is final. The preparer cannot approve the same record.
 

@@ -795,6 +795,10 @@ The remaining stories are reprioritized into governed waves: Wave A (US-73/78 in
 
 The authoritative DOCX/UML titles govern over stale roadmap aliases: US-35 Manage Fuel Cards, US-37 Analyze Fuel Performance, US-38 Handle Fuel Exceptions, US-46 Process Driver Payroll Link, US-47 Manage Transport Billing, and US-48..55 Track Vehicles Live / Manage Geofences / Monitor Speed / Monitor Idle Time / Monitor Route Deviations / Replay Journeys / View Tracking Dashboard / Handle GPS Edge Cases.
 
+## US-47 Transport Billing Implementation
+
+`US-47-TRANSPORT-BILLING-IMPLEMENTATION-001` passes implementation verification and remains acceptance pending. The dedicated `billing` context, `TransportBillingRecord`, V72 persistence, Closed Trip and Freight-owner terminal projections, Organization logical Customer validation, four explicit charge categories, supplied-tax boundary, 100% operational cost-centre allocation, SoD approval/finalization/reversal, durable idempotency, five permissions, exact API family, P1-01 `TRANSPORT_BILLING_V1`, shared outbox, controlled US-73 canonical file/hash, and permission-aware UI are implemented. Full Maven passes 1,389/0/0/15 in 06:29, architecture 46/46, static/frontend gates including Vitest 263/263, and real PostgreSQL-backed Chromium 7/7. Every authoritative database result used only `transport_logistics_acceptance`; story accounting remains 71/87 with 16 remaining. Next task: `US-47-TRANSPORT-BILLING-TECHNICAL-CLOSURE-001`.
+
 After 87/87, `FULL-SOURCE-PARITY-AUDIT-001` must compare the mind map, DOCX, all UML, implementation, and accepted contracts without silently reopening accepted stories or inventing IDs. Full Maintenance Management beyond US-07 linkage, Workshop, Work Orders, Job Cards, Parts Inventory, and Inspection Management remain `OUTSIDE_CURRENT_87_STORY_REGISTER` unless separately authorized. Only after parity disposition should `FULL-PLATFORM-END-TO-END-ACCEPTANCE-001` run.
 
 1. Apply the P1-01 canonical Tenant/version/aggregate envelope whenever a new consumed cross-module contract is approved; do not modernize unused events without a real consumer.
