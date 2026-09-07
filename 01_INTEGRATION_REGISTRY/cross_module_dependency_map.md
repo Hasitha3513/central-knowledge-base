@@ -74,14 +74,14 @@ Following US-38 final acceptance, 70 / 87 stories are accepted and exactly 17 re
 
 Expected future owners remain planning hypotheses except that US-73 has established and accepted the dedicated `integration` owner as `COMPLETE_US73` and US-78 has established and accepted the dedicated `operations` owner as `COMPLETE_US78`. Existing `fuel`, `driver`, `offlinesync`, `reporting`, `identity`, and `system` boundaries retain their data. Distinct `tracking`, `compliance`, and `billing` contexts remain justified candidates requiring their own story gate. Finance continues to own ledger/payment/tax posting and HRM/payroll continues to own final salary processing.
 
-US-73 final acceptance covers exactly one governed outbound JSON-file adapter with controlled-sandbox evidence; it does not imply a live named business ecosystem. US-78 and US-46 reuse P1-01; no second outbox, broker, exactly-once claim, foreign repository, or cross-module SQL exists. US-46 remains acceptance pending; V71 is authorized for its bounded technical remediation, while controlled `FILE_JSON_V1` and all product boundaries remain unchanged. Wave B remains open and the queue head is `US-46-DRIVER-PAYROLL-LINK-TECHNICAL-REMEDIATION-001`.
+US-73 final acceptance covers exactly one governed outbound JSON-file adapter with controlled-sandbox evidence; it does not imply a live named business ecosystem. US-78 and US-46 reuse P1-01; no second outbox, broker, exactly-once claim, foreign repository, or cross-module SQL exists. US-46 remains acceptance pending; its bounded V71 technical remediation is complete, while controlled `FILE_JSON_V1` and all product boundaries remain unchanged. Wave B remains open and the queue head is `US-46-DRIVER-PAYROLL-LINK-TECHNICAL-CLOSURE-001-RERUN`.
 # US-46 Frozen Dependencies
 
 | Provider | Consumer | Contract | Status |
 | :--- | :--- | :--- | :--- |
 | Trip | Driver/Fleet payroll-input feature | Tenant-scoped Completed/Closed Driver assignment and actual Trip timing projection | Active projection exists; payroll-specific minimum extension may be implemented without foreign persistence |
 | Fleet Driver | Driver/Fleet payroll-input feature | `DriverLookup` identity/active status | Active (MVP) |
-| Driver/Fleet payroll-input feature | Integration | P1-01 `DriverPayrollInputExportRequestedV1` / `DRIVER_PAYROLL_INPUT_V1` | Frozen; implementation not started |
+| Driver/Fleet payroll-input feature | Integration | P1-01 `DriverPayrollInputExportRequestedV1` / `DRIVER_PAYROLL_INPUT_V1` | Implemented and technically verified; final acceptance pending |
 | Integration | Driver/Fleet payroll-input feature | Safe exchange/delivery status reference; controlled `FILE_JSON_V1` delivery | `DRIVER_PAYROLL_INPUT_V1` implemented; acceptance pending |
 | Scheduling | Driver/Fleet payroll-input feature | Duty/roster baseline | Planned only; no current accepted dependency and no overtime inference |
 | Payroll/HRMS | Transport suite | Final payroll calculation, acknowledgement and settlement outcome | External/deferred; no Phase 1 inbound contract |

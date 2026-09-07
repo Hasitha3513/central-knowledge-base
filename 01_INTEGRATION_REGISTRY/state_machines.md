@@ -77,7 +77,7 @@ The Fuel-owned lifecycle is exactly `OPEN -> UNDER_REVIEW -> CORRECTION_PENDING 
 Operations handoff is orthogonal `NOT_REQUIRED | PENDING | PUBLISHED | ACCEPTED | FAILED`; it does not duplicate the US-78 lifecycle. An escalated unresolved Fuel case remains `UNDER_REVIEW`. Resolution outcomes are `NO_ACTION_REQUIRED`, `CORRECTION_APPLIED`, `RECONCILED`, `EMERGENCY_REFUEL_ACCEPTED`, or `REFERRED_TO_OPERATIONS`. Corrections that affect inventory, cost, effective price, reconciliation, or source lifecycle require a requester-distinct approver and execute only through the owning module command or compensating fact.
 # US-46 Driver Payroll-Input Batch (Implemented / Acceptance Pending)
 
-Technical closure found that successful Integration delivery was not yet projected back from `EXPORT_REQUESTED` to `EXPORTED`. The approved V71 remediation cycle must implement that transition only from durable controlled-file/hash evidence. A fully released correction may set its referenced original to `SUPERSEDED`; no HRMS acknowledgement, rejection, posting, settlement, or payment state is introduced.
+The V71 technical remediation now projects successful Integration delivery from `EXPORT_REQUESTED` to `EXPORTED` only from durable controlled-file/hash evidence. A fully released correction may set its referenced original to `SUPERSEDED`; no HRMS acknowledgement, rejection, posting, settlement, or payment state is introduced. PostgreSQL races and controlled-file Chromium evidence verify the transition and replay behavior; final acceptance remains pending.
 
 `DRAFT -> VALIDATED -> APPROVED -> EXPORT_REQUESTED -> EXPORTED`.
 

@@ -41,3 +41,5 @@ Only non-sensitive platform-probe JSON is supported, with a 32 KiB maximum. No b
 # Driver Payroll JSON Exchange
 
 Integration administrators may configure the `DRIVER_PAYROLL_INPUT_V1` outbound family only with `FILE_JSON_V1` and `FINANCIAL_CONFIDENTIAL`. A different authorized actor must activate a configuration after its last edit. Driver Payroll export requests arrive durably through the shared outbox; Integration applies the configured mapping, deduplicates stable event identities, and records the controlled file path, SHA-256 evidence, attempt status, and timestamps. Operators can inspect safe status and evidence but cannot view credentials or use this flow as a live HRMS, acknowledgement, retry, salary, payment, or posting interface.
+
+The controlled file is canonical UTF-8 JSON. Its exact bytes are hashed after PostgreSQL JSONB normalization, so the recorded SHA-256 is verifiable directly against the delivered file. A payload above 32 KiB is rejected by Driver validation before an export request can be released.
