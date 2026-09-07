@@ -1,6 +1,6 @@
 # ADR-US46: Driver Payroll-Input Link Boundary
 
-- **Status:** Accepted product decision; implementation and V71 technical remediation complete; acceptance pending
+- **Status:** Accepted product decision; implementation and independent technical closure complete; final acceptance pending
 - **Date:** 2026-09-07
 - **Decision task:** `US-46-DRIVER-PAYROLL-LINK-PRODUCT-DECISIONS-001`
 
@@ -10,6 +10,8 @@
 - **Story accounting:** unchanged at 70 / 87 accepted and 17 / 87 remaining
 
 The authorized remediation is implemented and technically verified. V71 adds only the same-module, tenant-leading, append-only worker-mapping command record. PostgreSQL advisory transaction locks serialize mapping/batch idempotency and released-source approval claims; correction creation and outbox publication are atomic; successful controlled-file delivery projects `EXPORTED`; and PostgreSQL JSONB is re-canonicalized before file output so the delivered bytes match the recorded SHA-256. Dedicated PostgreSQL tests passed 18/18, including the deterministic nine-race matrix; full Maven passed 1,380/0/0/15 and real Chromium passed 7/7. US-46 remains acceptance pending; next task is `US-46-DRIVER-PAYROLL-LINK-TECHNICAL-CLOSURE-001-RERUN`.
+
+Independent technical closure rerun passes. Fresh evidence is PostgreSQL 18/18 with concurrency 9/9 and clean V1→V71, full Maven 1,380/0/0/15 in 06:13, architecture 46/46, all static/frontend gates, and real PostgreSQL-backed Chromium 7/7 in 39.2 seconds. The boundary, lifecycle, four permissions, P1-01 at-least-once outbox, controlled file/hash semantics, privacy, and Payroll/HRMS authority remain unchanged. US-46 remains `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`; accounting remains 70/87. Next task: `US-46-DRIVER-PAYROLL-LINK-FINAL-ACCEPTANCE-001`.
 
 ## Context
 
