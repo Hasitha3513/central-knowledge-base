@@ -28,6 +28,8 @@ Flyway `V72__transport_billing_us47.sql` creates `transport_billing_record`, `tr
 
 `transport_billing_source_claim` contains Tenant/record/source identity, active/released state and timestamps; a partial unique `(tenant_id,source_type,source_id) WHERE active` index enforces one effective regular claim. `transport_billing_history` contains action/from/to/actor/detail/time and optional command scope/key/request hash/result version; its Tenant/scope/key partial uniqueness persists idempotency. DB triggers prohibit history update/delete and released-record line/tax/cost-centre mutation. All child relationships use `(billing_record_id,tenant_id)` foreign keys and Tenant-leading indexes.
 
+Concurrency verification uses independent PostgreSQL transactions synchronized by a `CyclicBarrier`. The deterministic nine-race matrix covers duplicate sources, same-key replay, same-key/different-request conflict, edit versus approval, double approval, double finalization, finalization versus cancellation, double reversal and double export. Command advisory locks derive from `tenantId + ":billing:" + scope + ":" + key`; reversal creation additionally locks the original record using scope `REVERSE_ORIGINAL`. This Tenant-scoped serialization complements V72 uniqueness and optimistic versions without a new migration. The matrix passes 9/9 with one effective history/outbox effect and no source mutation.
+
 ## Phase 2 Post-MVP Future Roadmap
 
 Customer-period consolidation, mixed source batches, formal tax invoice issuance, live ERP/accounting adapters, inbound acknowledgement, posting/payment/settlement states, FX, pricing/rate-card engines, Customer contracts, Finance fiscal periods, and named surcharge/penalty catalogues require new product and integration decisions.
