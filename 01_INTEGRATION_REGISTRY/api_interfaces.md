@@ -160,3 +160,11 @@ An interface becomes `ACTIVE` only after its path or protocol, operation IDs, sc
 Driver within Fleet owns `GET|POST /api/v1/drivers/payroll-input-batches`, `GET /api/v1/drivers/payroll-input-batches/{id}`, `PUT .../{id}/lines`, explicit `POST .../{id}/validate|approve|export`, `POST .../{id}/corrections`, `GET .../{id}/history`, and `GET|PUT /api/v1/drivers/{driverId}/payroll-worker-mapping`. No payload accepts `tenantId`; every request is server-Tenant scoped and permission protected. Create, correction, and mapping mutation use tenant-scoped `Idempotency-Key`; draft replacement and lifecycle commands use optimistic versions.
 
 No generic status mutation, delete, salary-run, payslip, payment, posting, tax, pension, raw Integration payload, manual retry, acknowledgement, or public route exists.
+
+# US-47 Transport Billing API (Product Decisions Frozen)
+
+Billing owns `GET|POST /api/v1/billing/records`, `GET /api/v1/billing/records/{id}`, `PUT .../{id}/lines`, explicit `POST .../{id}/validate|approve|cancel|finalize|export`, `POST .../{id}/reversals`, and `GET .../{id}/history`. Tenant never comes from payload. Create and lifecycle mutations use Tenant/command-scoped `Idempotency-Key`; draft replacement and lifecycle commands use optimistic versions.
+
+Lists default to 20 and cap at 100. Allow-listed filters are Customer, source type/ID, lifecycle, record type, currency, cost-centre code, created range and finalized range. Allow-listed sorts are created, updated, finalized, Customer, total and lifecycle.
+
+No generic status mutation, finalized edit/delete, tax invoice, journal/posting, payment/banking, Customer balance, raw Integration payload, manual retry or manual external-success route is approved. This contract is frozen for implementation but is not yet active.

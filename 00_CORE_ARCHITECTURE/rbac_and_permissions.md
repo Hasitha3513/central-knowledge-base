@@ -128,3 +128,17 @@ US-78 V62 seeds seven narrow Operations permissions. They are enforced on every 
 | `OPERATIONAL_EXCEPTION_AUDIT_VIEW` | View full immutable case history | IMPLEMENTED_US78_ACCEPTANCE_PENDING |
 
 Contextual authorization is explicit: active Tenant, case Tenant, category/sensitivity, severity, assignment, lifecycle state, and recorded SoD actors. For high/critical cases the closer differs from the resolver and the RCA approver differs from the RCA author. Low/medium cases do not require dual control. No generic ABAC engine, customer/external authority, or cross-Tenant admin bypass is approved.
+
+## US-47 Transport Billing Permission Catalogue
+
+The following permissions are `PRODUCT_DECISIONS_FROZEN / NOT_IMPLEMENTED` and must be enforced on the literal `/api/v1/billing/records/**` routes and the owning use cases when US-47 is implemented.
+
+| Permission | Purpose |
+| :--- | :--- |
+| `BILLING_VIEW` | View same-Tenant records, minimized history and safe export evidence |
+| `BILLING_PREPARE` | Create/edit/cancel drafts, attach eligible sources, maintain authorized lines/tax/cost-centre facts and validate |
+| `BILLING_APPROVE` | Independently approve validated regular and reversal records |
+| `BILLING_FINALIZE` | Finalize approved regular and reversal records |
+| `BILLING_EXPORT` | Request controlled export of finalized records |
+
+Preparer and approver must differ. These permissions grant no Customer/source mutation, Integration configuration activation, tax determination, tax invoice issuance, accounting posting, payment, banking or cross-Tenant authority. No broad `FINANCE_ADMIN` permission is approved.

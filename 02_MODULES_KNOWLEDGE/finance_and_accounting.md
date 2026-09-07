@@ -30,3 +30,9 @@ Every financial row is tenant-scoped. Monetary values use decimal plus ISO-4217 
 ## Open Decisions
 
 Accounting basis, tax jurisdictions, functional/reporting currencies, consolidation, dimensions/cost centers, approval matrix, payment providers, and regulatory retention.
+
+## US-47 Transport Billing Boundary
+
+US-47 product decisions do not implement this proposed Finance context. The dedicated operational `billing` context owns transport charge composition, supplied tax facts, cost-centre references, validation, approval, operational finalization, reversal and controlled export. This Finance context retains formal tax invoices, GL, AR/AP, official accounting posting, fiscal period close, payment, banking, settlement, tax remittance, cash application, credit control, collections and customer balances.
+
+Billing's `TB-YYYY-NNNNNN` is an operational billing number, not a tax invoice number. A controlled US-73 file/hash proves delivery only and creates no posted, booked, settled, paid or reconciled Finance fact. Any future accounting acknowledgement or live-system adapter requires a new approved Finance/Integration contract.

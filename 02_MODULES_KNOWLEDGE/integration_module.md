@@ -150,3 +150,7 @@ Unique idempotency key: `(tenant_id, configuration_id, source_event_id, mapping_
 ## Verification status
 
 Independent final acceptance passed all three source criteria under the controlled-sandbox evidence tier: focused Integration 24/24; P1-01 plus US-69/70 regression 40/40; Maven 1276/0/0 with 15 skips in 05:04; architecture 44/44; PostgreSQL Flyway V1-V61; real Chromium 6/6 in 1.3 minutes; Vitest 60 files/260 tests; Checkstyle, PMD, SpotBugs, TypeScript, production build, and changed-file lint pass. The 71 global ESLint errors remain confined to eight unchanged Delivery files, with zero US-73-introduced errors. Acceptance means the Integration platform capability is complete; no named ERP/vendor ecosystem is connected. Next task: `US-78-OPERATIONAL-EXCEPTIONS-PRODUCT-DECISIONS-001`.
+
+## US-47 Approved Future Business Family
+
+US-47 freezes `TransportBillingExportRequestedV1` / `TRANSPORT_BILLING_V1` as a future `FINANCIAL_CONFIDENTIAL` P1-01 input to `integration-outbound-exchange`. Integration will own configuration, declarative mapping, controlled `FILE_JSON_V1` delivery, attempts, retry, hash evidence, health and technical audit; Billing retains all business meaning. The family is not active until implementation extends the explicit allow-list and passes contract/privacy/size tests. No live accounting provider or inbound acknowledgement is approved, and successful delivery must never be represented as posted, booked, settled or paid.
