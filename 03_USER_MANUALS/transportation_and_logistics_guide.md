@@ -484,3 +484,8 @@ The list shows category, impact, lifecycle, source, review and handoff state. Op
 ## 15. 📑 Scope Boundaries
 
 This operational manual documents active features in **Phase 1, Phase 2A, Phase 3 Core Fuel, and MVP 1.3 Delivery Operations**. Features flagged on the project roadmap as deferred (e.g., dynamic multi-echelon routing, IoT telematics, mobile native apps) are outside current system scope.
+# Driver Payroll Input
+
+Users with `DRIVER_PAYROLL_VIEW` can open **Driver > Payroll Input** to review tenant-scoped batches, source-backed lines, provisional operational totals, history, and safe export state. Preparers first maintain an opaque payroll-worker mapping for each Driver, then create a regular batch with period, exclusive end date, cutoff, and ISO currency; replace draft lines from eligible completed/closed Trips; and validate. Validation reports missing mappings, invalid sources, duplicates, size, and calculation errors without claiming a final salary.
+
+An independently authorized approver freezes a validated batch. A user with export permission can then request the controlled JSON-file export. Repeating the export action reuses the stable release identity. Released content is read-only; later changes require a correction batch linked to the original lines. The page never exposes medical, drug-test, contact, bank, tax, pension, credentials, raw notes, or payroll-settlement data. `EXPORTED` means only that Integration durably delivered and hashed the file; it does not mean that Payroll/HRMS imported, accepted, posted, settled, or paid it.

@@ -38,3 +38,6 @@ Disable stops new claims and attempts while preserving history. Same-event repla
 ## Known limitations
 
 Only non-sensitive platform-probe JSON is supported, with a 32 KiB maximum. No business-domain integration, inbound operation, arbitrary send, manual reconciliation mutation, secret administration, or external provider is available in the current release.
+# Driver Payroll JSON Exchange
+
+Integration administrators may configure the `DRIVER_PAYROLL_INPUT_V1` outbound family only with `FILE_JSON_V1` and `FINANCIAL_CONFIDENTIAL`. A different authorized actor must activate a configuration after its last edit. Driver Payroll export requests arrive durably through the shared outbox; Integration applies the configured mapping, deduplicates stable event identities, and records the controlled file path, SHA-256 evidence, attempt status, and timestamps. Operators can inspect safe status and evidence but cannot view credentials or use this flow as a live HRMS, acknowledgement, retry, salary, payment, or posting interface.
