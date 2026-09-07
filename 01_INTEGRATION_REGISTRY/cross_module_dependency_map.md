@@ -74,7 +74,7 @@ Following US-38 final acceptance, 70 / 87 stories are accepted and exactly 17 re
 
 Expected future owners remain planning hypotheses except that US-73 has established and accepted the dedicated `integration` owner as `COMPLETE_US73` and US-78 has established and accepted the dedicated `operations` owner as `COMPLETE_US78`. Existing `fuel`, `driver`, `offlinesync`, `reporting`, `identity`, and `system` boundaries retain their data. Distinct `tracking`, `compliance`, and `billing` contexts remain justified candidates requiring their own story gate. Finance continues to own ledger/payment/tax posting and HRM/payroll continues to own final salary processing.
 
-US-73 final acceptance covers exactly one governed outbound JSON-file adapter with controlled-sandbox evidence; it does not imply a live named business ecosystem. US-78 and US-46 reuse P1-01; no second outbox, broker, exactly-once claim, foreign repository, or cross-module SQL exists. US-46 implementation is complete with acceptance pending and uses only controlled `FILE_JSON_V1`; Wave B remains open and the queue head is `US-46-DRIVER-PAYROLL-LINK-TECHNICAL-CLOSURE-001`.
+US-73 final acceptance covers exactly one governed outbound JSON-file adapter with controlled-sandbox evidence; it does not imply a live named business ecosystem. US-78 and US-46 reuse P1-01; no second outbox, broker, exactly-once claim, foreign repository, or cross-module SQL exists. US-46 remains acceptance pending; V71 is authorized for its bounded technical remediation, while controlled `FILE_JSON_V1` and all product boundaries remain unchanged. Wave B remains open and the queue head is `US-46-DRIVER-PAYROLL-LINK-TECHNICAL-REMEDIATION-001`.
 # US-46 Frozen Dependencies
 
 | Provider | Consumer | Contract | Status |

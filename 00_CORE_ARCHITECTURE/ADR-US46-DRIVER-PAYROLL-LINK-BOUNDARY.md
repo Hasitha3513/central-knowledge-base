@@ -3,6 +3,10 @@
 - **Status:** Accepted product decision; implementation not started
 - **Date:** 2026-09-07
 - **Decision task:** `US-46-DRIVER-PAYROLL-LINK-PRODUCT-DECISIONS-001`
+
+## Technical remediation authorization (2026-09-07)
+
+`US-46-TECHNICAL-REMEDIATION-AUTHORIZATION-001` authorizes exactly one forward migration, V71 (verified free), for durable Tenant-scoped worker-mapping command idempotency. V1–V70 remain immutable. Same key/same canonical mapping request must replay without version or audit mutation; same key/different request must conflict deterministically. The authorization also requires correction of the already-frozen delivery-state, validation-time 32-KiB, correction lifecycle, Tenant-denial, PostgreSQL atomicity/concurrency, mapping-snapshot, source-immutability, and Chromium evidence gaps. It authorizes no new public API, permission, outbox, external acknowledgement, payroll behavior, or accounting change.
 - **Story accounting:** unchanged at 70 / 87 accepted and 17 / 87 remaining
 
 ## Context
