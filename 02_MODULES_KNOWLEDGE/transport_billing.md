@@ -1,6 +1,6 @@
 # Transport Billing
 
-Lifecycle: `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING_US47`.
+Lifecycle: `IMPLEMENTATION_COMPLETE / TECHNICAL_CLOSURE_PASS / ACCEPTANCE_PENDING_US47`.
 
 ## Phase 1 Current MVP Scope
 
@@ -37,3 +37,5 @@ Customer-period consolidation, mixed source batches, formal tax invoice issuance
 ## Acceptance Expectation
 
 PostgreSQL and real Chromium acceptance must prove eligible-source enforcement, deterministic money, supplied-tax behavior, cost-centre totals, five-permission RBAC, Tenant/IDOR isolation, preparer/approver segregation, source uniqueness, idempotency and races, finalized immutability, exact reversal, append-only history, durable controlled file/hash evidence, privacy and absence of posted/paid claims. Development data must not be used for destructive acceptance.
+
+Independent technical closure passed against `transport_logistics_acceptance`: focused Billing 17/17, deterministic concurrency 9/9, full Maven 1,398 tests with zero failures/errors and 15 skipped, architecture 46/46, static/frontend gates, and real Chromium 7/7. US-47 remains acceptance-pending; no story accounting increment is authorized until hostile final acceptance.
