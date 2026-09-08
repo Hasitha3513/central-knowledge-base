@@ -8,6 +8,8 @@ Phase 1 implements only `FILE_EXCHANGE / FILE_JSON_V1 / OUTBOUND` through `GOVER
 
 Phase 2/Post-MVP includes any ERP, accounting, CRM, HRMS, fuel-card, telematics, payment, insurance, DMS/OCR, REST, webhook, inbound file/API, manual retry, or reconciliation mutation. Each requires independent governance and acceptance.
 
+US-48 technical remediation reuses only Integration's published provider-neutral `IntegrationSecretResolver` for an opaque Tracking credential reference. The accepted US-73 configuration model remains limited to `FILE_EXCHANGE / FILE_JSON_V1 / OUTBOUND`; it is not extended for inbound telematics, Tracking does not access Integration tables or repositories, and telemetry packets never pass through Integration exchange processing. Trusted provider-to-Tenant binding, nonce authority and telemetry state remain owned by Tracking.
+
 US-46 implements one Phase 1 consumer of the existing file capability: `DRIVER_PAYROLL_INPUT_V1`, classification `FINANCIAL_CONFIDENTIAL`, received through P1-01 from Driver/Fleet and delivered only by `FILE_JSON_V1` to a controlled filesystem for acceptance. Activation requires an actor different from the last configuration author. The family has explicit event, schema, mapping, privacy, SoD, deduplication, file/hash, and Chromium coverage. It does not approve a live HRMS, API, webhook, inbound acknowledgement, SFTP, payment, salary processing, manual retry, or reconciliation mutation.
 
 ## Inbound use cases

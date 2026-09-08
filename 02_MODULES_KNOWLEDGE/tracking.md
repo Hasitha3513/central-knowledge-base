@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts. V73, APIs, exact permissions, controlled-provider evidence and the minimal UI are implemented. Accounting remains 72/87 with 15 remaining because final acceptance still requires a physical device and real provider payload.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`; technical closure is `FAIL / REMEDIATION_REQUIRED`. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts. V73, APIs, exact permissions, controlled-provider evidence and the minimal UI are implemented. The minimum security, retention, observability, audit and rebuild remediation is authorized under `US-48-LIVE-VEHICLE-TRACKING-TECHNICAL-REMEDIATION-AUTHORIZATION-001`. Accounting remains 72/87 with 15 remaining.
 
 Phase 1 owns a narrow `TrackingDevice` reference registry, effective-dated one-device/one-Vehicle active association, immutable normalized `PositionEvent` history, ingestion dedupe/conflict/order/trust, last-received and last-trusted projections, freshness/connectivity, retention metadata, safe queries, provider adapter health and minimal operator UI.
 
@@ -35,6 +35,20 @@ ARB initial scale assumption—not a source fact—is 10,000 active vehicles at 
 
 PostgreSQL acceptance must prove migration, Tenant constraints, association uniqueness/history, dedupe/conflict, immutable history, association-at-source-time, trusted/latest compare-and-set correctness, rollback atomicity, out-of-order behavior, retention metadata, nine deterministic races and query plans. Final real E2E additionally proves physical-device/provider time/accuracy, duplicate, delay/order, invalid position, stale/disconnect/reconnect, reassignment history, Tenant/RBAC and credential privacy.
 
+## Authorized technical remediation
+
+V74 is required and authorized as the next forward migration, but is not yet created. V1–V73 remain immutable. V74 is limited to a Tracking-owned trusted provider binding, binding-scoped replay protection and Tenant retention-policy persistence. It must not contain US-49..55 schema or an outbox.
+
+Inbound Tenant authority will be derived from a globally unique opaque provider key ID resolved to an active Tracking-owned binding containing Tenant, bounded provider alias and an opaque credential reference. The secret is resolved only through Integration's published `IntegrationSecretResolver`. Provider alias may repeat across Tenants and never establishes authority. Caller Tenant headers/payloads cannot select or override Tenant. Authentication verifies the binding-derived credential, signed timestamp/body and binding-scoped nonce before resolving the device and source-time association solely inside the derived Tenant. All failures are sanitized and fail closed.
+
+The current US-73 configuration schema is not extended and its tables/repositories are not accessed: its accepted `FILE_EXCHANGE / FILE_JSON_V1 / OUTBOUND` capability cannot represent inbound telematics. No telemetry packet traverses Integration exchange processing. No new public human API, permission or event is authorized; only the provider authentication header/canonical-signature contract changes before acceptance.
+
+Retention remains external policy. An absent policy means no automatic purge and no age-only `TRACKING_POSITION_TOO_OLD`; greater-than-24-hour packets retain the existing LATE behavior. With a configured duration, timestamps before `receivedAt - duration` are too old, equality is accepted, and accepted history records policy/version/retain-until metadata.
+
+Tracking must add an internal per-Tenant/Vehicle transactional rebuild of `tracking_vehicle_latest` from retained immutable history using the identical deterministic receipt/trust ordering as ingress. It is idempotent and has no public endpoint or foreign-table dependency. Missing metrics, sanitized management/provider/retention audit, and a Tracking contributor to the existing health surface are also authorized. Metrics exclude UUIDs, coordinates, nonce/signature/credential and person/customer data. One stale device cannot declare a provider outage.
+
+Closure rerun requires the full signed-ingress negative matrix, exact freshness/connectivity and retention boundaries, deterministic PostgreSQL projection rebuild, V74 binding/nonce/Tenant constraints, the existing nine races, complete regression/static/frontend/browser gates and eventual physical provider/device evidence.
+
 ## Next task
 
-`US-48-LIVE-VEHICLE-TRACKING-TECHNICAL-CLOSURE-001`. Story completion accounting does not advance until independent final acceptance.
+`US-48-LIVE-VEHICLE-TRACKING-TECHNICAL-REMEDIATION-001`. Story completion accounting does not advance until independent final acceptance.
