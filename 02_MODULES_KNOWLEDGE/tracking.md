@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `PRODUCT_DECISIONS_FROZEN / IMPLEMENTATION_NOT_STARTED`. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts. No production code, migration, API, permission or event is implemented by this decision. Current Flyway head remains V72; accounting remains 72/87 with 15 remaining.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING`. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts. V73, APIs, exact permissions, controlled-provider evidence and the minimal UI are implemented. Accounting remains 72/87 with 15 remaining because final acceptance still requires a physical device and real provider payload.
 
 Phase 1 owns a narrow `TrackingDevice` reference registry, effective-dated one-device/one-Vehicle active association, immutable normalized `PositionEvent` history, ingestion dedupe/conflict/order/trust, last-received and last-trusted projections, freshness/connectivity, retention metadata, safe queries, provider adapter health and minimal operator UI.
 
@@ -23,9 +23,11 @@ Fleet owns Vehicle master; Trip owns assignment/execution; Routing owns planned 
 - Privacy: precise location requires same-Tenant `TRACKING_VIEW`; history also requires `TRACKING_HISTORY_VIEW`; no Customer exposure, Driver profile, raw payload or credential exposure.
 - P1-01: no per-packet event. `VehicleTrackingStateChangedV1` is inactive until a consumer is approved and is then coalesced/state-change-only through the shared durable outbox.
 
-## Expected persistence (not implemented)
+## Implemented persistence (V73)
 
-Expected Tracking-owned tables are `tracking_device`, `tracking_vehicle_device_assignment`, `tracking_position`, `tracking_vehicle_latest`, and either `tracking_ingest_identity` or equivalent database-enforced position identity. Every row is Tenant-owned; same-module relationships are Tenant-consistent and foreign-module UUIDs have no physical FK. Tenant-leading indexes cover Vehicle/source time, device/source time, latest lookup, active association and dedupe identity.
+Tracking owns `tracking_device`, `tracking_vehicle_device_assignment`, `tracking_position`, `tracking_vehicle_latest`, `tracking_ingest_nonce`, and `tracking_audit_event`. Every table is Tenant-owned. Device/association/latest same-module relationships are Tenant-consistent; `vehicle_id` is a logical Fleet reference without a physical cross-module FK. Tenant-leading indexes cover Vehicle/source time, device/source time, latest lookup, active associations, provider-message/dedupe identity, nonce expiry and audit time. `tracking_position` is trigger-enforced append-only and association history allows only its one-time close operation.
+
+`tracking_device` stores UUID `id`, required indexed UUID `tenant_id`, external/provider/hardware references, ACTIVE/DISABLED lifecycle, registration actor/time, last-seen time, optimistic `version`, and created/updated timestamps. `tracking_vehicle_device_assignment` stores UUID identity/Tenant/device/logical Vehicle, required `effective_from`, optional exclusive `effective_to`, and creation actor/time. `tracking_position` stores immutable UUID/Tenant/device/logical Vehicle identity; provider/message/sequence/dedupe/hash facts; source/receipt timestamps; WGS84 coordinates and optional quality/engine/meter facts; trust/quality/order classifications; retention policy/version/optional retain-until; and safe JSON metadata. `tracking_vehicle_latest` stores the Tenant+Vehicle key, latest received/trusted position references, last receipt, policy version, updated time and optimistic version. `tracking_ingest_nonce` stores Tenant/provider/nonce hash and use/expiry times. `tracking_audit_event` stores Tenant/actor/action/target/safe detail/time without per-packet audit.
 
 ## Performance and acceptance
 
@@ -35,4 +37,4 @@ PostgreSQL acceptance must prove migration, Tenant constraints, association uniq
 
 ## Next task
 
-`US-48-LIVE-VEHICLE-TRACKING-IMPLEMENTATION-001` using controlled change sets CS01 through CS07. Story completion accounting does not advance until independent final acceptance.
+`US-48-LIVE-VEHICLE-TRACKING-TECHNICAL-CLOSURE-001`. Story completion accounting does not advance until independent final acceptance.

@@ -93,6 +93,8 @@ US-73 final acceptance covers exactly one governed outbound JSON-file adapter wi
 
 # US-48 Frozen Dependencies
 
+US-48 is now `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING` at V73. Tracking validates logical same-Tenant Vehicle UUIDs through the published Fleet reporting query, stores no Fleet entity/FK, and does not require Trip assignment. High-rate telemetry remains local Tracking state and does not traverse Integration/US-73 or P1-01. US-49–55 remain consumers of this foundation and are not implemented by US-48.
+
 | Provider | Consumer | Contract | Status |
 | :--- | :--- | :--- | :--- |
 | Fleet | Tracking | Same-Tenant Vehicle identity/reference validation | FROZEN_US48 / NOT_IMPLEMENTED |

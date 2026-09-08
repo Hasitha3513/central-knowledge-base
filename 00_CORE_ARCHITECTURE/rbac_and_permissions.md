@@ -143,10 +143,10 @@ The following permissions are implemented by V72 and enforced on the literal `/a
 
 Preparer and approver must differ. These permissions grant no Customer/source mutation, Integration configuration activation, tax determination, tax invoice issuance, accounting posting, payment, banking or cross-Tenant authority. No broad `FINANCE_ADMIN` permission is approved.
 
-## US-48 Live Vehicle Tracking Permissions (Frozen; Not Implemented)
+## US-48 Live Vehicle Tracking Permissions (Implemented in V73; Acceptance Pending)
 
 - `TRACKING_VIEW`: same-Tenant tracking list/latest state and precise current or last-known coordinates.
 - `TRACKING_HISTORY_VIEW`: same-Tenant bounded immutable position history in addition to view authority.
 - `TRACKING_DEVICE_MANAGE`: same-Tenant device-reference lifecycle and effective-dated Vehicle association.
 
-`TRACKING_INGEST` is a trusted service capability, not a human RBAC permission. Provider ingress uses signed request authentication, TLS, timestamp/nonce replay protection and server-resolved opaque credentials. Tenant comes from trusted provider/device association, never payload. No broad `GPS_ADMIN`, Customer location access, Driver private-data access, raw-payload access or credential-read permission is approved. These permissions are frozen but not yet seeded.
+`TRACKING_INGEST` is a trusted service capability, not a human RBAC permission. Provider ingress uses signed request authentication, TLS, timestamp/nonce replay protection and server-resolved opaque credentials. Tenant comes from the authenticated ingress context and is validated against the provider/device association, never telemetry payload authority. No broad `GPS_ADMIN`, Customer location access, Driver private-data access, raw-payload access or credential-read permission exists. The three human permissions above are seeded by V73.
