@@ -90,3 +90,12 @@ US-73 final acceptance covers exactly one governed outbound JSON-file adapter wi
 | Scheduling | Driver/Fleet payroll-input feature | Duty/roster baseline | Planned only; no current accepted dependency and no overtime inference |
 | Payroll/HRMS | Transport suite | Final payroll calculation, acknowledgement and settlement outcome | External/deferred; no Phase 1 inbound contract |
 | Finance | Payroll/HRMS outcome | Ledger/tax/bank/payment posting | External to US-46 |
+
+# US-48 Frozen Dependencies
+
+| Provider | Consumer | Contract | Status |
+| :--- | :--- | :--- | :--- |
+| Fleet | Tracking | Same-Tenant Vehicle identity/reference validation | FROZEN_US48 / NOT_IMPLEMENTED |
+| Trip | Tracking | Minimized active Vehicle assignment fact where later composition requires it | FROZEN_US48 / OPTIONAL_NOT_IMPLEMENTED |
+| Tracking | US-49..55 | Trusted latest and immutable accepted position contracts | FROZEN_US48 / CONSUMERS_NOT_IMPLEMENTED |
+| Integration | Tracking | Provider configuration and opaque credential reference only; never high-rate packet transport | FROZEN_US48 / EXTENSION_NOT_IMPLEMENTED |
