@@ -169,10 +169,12 @@ Lists default to 20 and cap at 100. Allow-listed filters are Customer, source ty
 
 No generic status mutation, finalized edit/delete, tax invoice, journal/posting, payment/banking, Customer balance, raw Integration payload, manual retry or manual external-success route exists. This implementation awaits independent technical closure and acceptance.
 
-# US-48 Live Vehicle Tracking API (Implemented in V73; Acceptance Pending)
+# US-48 Live Vehicle Tracking API (V73 + V74 Remediation; Acceptance Pending)
 
 Tracking owns human routes `GET /api/v1/tracking/vehicles`, `GET /api/v1/tracking/vehicles/{vehicleId}/latest`, bounded keyset `GET /api/v1/tracking/vehicles/{vehicleId}/positions`, `GET /api/v1/tracking/devices`, `GET /api/v1/tracking/devices/{deviceId}`, device create/update and explicit activate/disable commands, plus explicit association start/end commands. Lists default to 20 and cap at 100. History requires `from`/`to`, caps the window at 24 hours, defaults to 100 and caps at 500, and orders by source time then ID descending.
 
-External signed HTTPS JSON ingress is separate at `POST /api/integration/v1/tracking/positions`, maximum 500 messages and 1 MiB. It uses provider/device authentication rather than browser JWT; Tenant is resolved server-side and is never payload authority. No public ingest, generic status PATCH, raw-payload, credential, purge, detector, Customer, export or arbitrary provider-success route is approved.
+External signed HTTPS JSON ingress is separate at `POST /api/integration/v1/tracking/positions`, maximum 500 messages and 1 MiB. Required authority headers are opaque `X-Tracking-Provider-Key-Id`, asserted `X-Tracking-Provider`, epoch `X-Tracking-Timestamp`, nonce and HMAC signature. The exact signature input is `epoch + "\n" + nonce + "\n" + providerKeyId + "\n" + providerAlias + "\n" + rawBody`. Tenant, trusted alias and opaque credential reference derive only from the ACTIVE Tracking binding; a caller Tenant header/payload cannot override them. Secrets resolve only through `IntegrationSecretResolver`; failures are sanitized `401 / TRACKING_PROVIDER_UNAUTHORIZED`.
+
+Provider-binding, retention-policy and projection-rebuild operations are internal maintenance use cases and add no public human endpoint or permission. No generic status PATCH, raw-payload, credential, purge, detector, Customer, export or arbitrary provider-success route is approved.
 
 US-48 live updates use 15-second visible polling with bounded 30/60-second failure backoff; SSE/WebSocket is deferred to US-54 if measured fanout justifies it. Controlled-provider PostgreSQL and Chromium implementation evidence passes; physical-device/real-provider final acceptance remains pending.

@@ -12,6 +12,8 @@ The Vehicle positions tab refreshes every 15 seconds while the page is visible a
 
 Authorized device managers can register a provider-neutral external device reference, optionally record a hardware serial reference, activate/disable the device, and start/end an effective-dated Vehicle association. One device and one Vehicle may each have only one active association. View-only users see masked reference values and never see provider credentials.
 
+Trusted provider bindings and retention configuration are operational maintenance functions and are not exposed in the business UI. Telemetry providers authenticate with an opaque provider key and signed raw payload; any legacy Tenant value cannot select the Tenant. Operators can inspect sanitized Tracking health/metrics through the existing secured management surface without device IDs, coordinates, nonces, signatures, credentials, Driver or Customer data.
+
 ## Known limitations
 
-US-48 supplies foundational live/last-known facts only. Geofences, speeding, idle detection, route deviation, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled until an external legal retention policy is configured. Final acceptance still requires a physical GPS device and real provider payload.
+US-48 supplies foundational live/last-known facts only. Geofences, speeding, idle detection, route deviation, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. Final acceptance still requires a physical GPS device and real provider payload.

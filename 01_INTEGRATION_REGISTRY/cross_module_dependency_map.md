@@ -93,11 +93,11 @@ US-73 final acceptance covers exactly one governed outbound JSON-file adapter wi
 
 # US-48 Frozen Dependencies
 
-US-48 is now `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING` at V73. Tracking validates logical same-Tenant Vehicle UUIDs through the published Fleet reporting query, stores no Fleet entity/FK, and does not require Trip assignment. High-rate telemetry remains local Tracking state and does not traverse Integration/US-73 or P1-01. US-49–55 remain consumers of this foundation and are not implemented by US-48.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING` at current head V74; remediation is complete and technical closure rerun is required. Tracking validates logical same-Tenant Vehicle UUIDs through the published Fleet reporting query and uses Integration's published `IntegrationSecretResolver` only for an opaque credential reference. It stores no Fleet/Integration entity or cross-module FK. High-rate telemetry remains local Tracking state and does not traverse Integration exchange processing or P1-01. US-49–55 remain unimplemented consumers.
 
 | Provider | Consumer | Contract | Status |
 | :--- | :--- | :--- | :--- |
 | Fleet | Tracking | Same-Tenant Vehicle identity/reference validation | FROZEN_US48 / NOT_IMPLEMENTED |
 | Trip | Tracking | Minimized active Vehicle assignment fact where later composition requires it | FROZEN_US48 / OPTIONAL_NOT_IMPLEMENTED |
 | Tracking | US-49..55 | Trusted latest and immutable accepted position contracts | FROZEN_US48 / CONSUMERS_NOT_IMPLEMENTED |
-| Integration | Tracking | Provider configuration and opaque credential reference only; never high-rate packet transport | FROZEN_US48 / EXTENSION_NOT_IMPLEMENTED |
+| Integration | Tracking | Published `IntegrationSecretResolver` for opaque credential reference only; never table/repository access or packet transport | ACTIVE_MVP / V74_REMEDIATION_COMPLETE |
