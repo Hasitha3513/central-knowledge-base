@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; V74 technical remediation is complete and independent technical closure passes. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts. The trusted provider/Tenant authority, retention, observability, audit and rebuild remediation is implemented. Accounting remains 72/87 with 15 remaining; physical-device and real-provider final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; V75 provider-connection persistence is complete and independently verified. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts. The trusted provider/Tenant authority, retention, observability, audit and rebuild remediation is implemented. Accounting remains 72/87 with 15 remaining; physical-device and real-provider final acceptance is still required.
 
 Phase 1 owns a narrow `TrackingDevice` reference registry, effective-dated one-device/one-Vehicle active association, immutable normalized `PositionEvent` history, ingestion dedupe/conflict/order/trust, last-received and last-trusted projections, freshness/connectivity, retention metadata, safe queries, provider adapter health and minimal operator UI.
 
@@ -23,7 +23,7 @@ Fleet owns Vehicle master; Trip owns assignment/execution; Routing owns planned 
 - Privacy: precise location requires same-Tenant `TRACKING_VIEW`; history also requires `TRACKING_HISTORY_VIEW`; no Customer exposure, Driver profile, raw payload or credential exposure.
 - P1-01: no per-packet event. `VehicleTrackingStateChangedV1` is inactive until a consumer is approved and is then coalesced/state-change-only through the shared durable outbox.
 
-## Implemented persistence (V73 + V74 remediation)
+## Implemented persistence (V73–V75)
 
 Tracking owns `tracking_device`, `tracking_vehicle_device_assignment`, `tracking_position`, `tracking_vehicle_latest`, `tracking_ingest_nonce`, and `tracking_audit_event`. Every table is Tenant-owned. Device/association/latest same-module relationships are Tenant-consistent; `vehicle_id` is a logical Fleet reference without a physical cross-module FK. Tenant-leading indexes cover Vehicle/source time, device/source time, latest lookup, active associations, provider-message/dedupe identity, nonce expiry and audit time. `tracking_position` is trigger-enforced append-only and association history allows only its one-time close operation.
 
@@ -40,14 +40,26 @@ Tracking owns `tracking_device`, `tracking_vehicle_device_assignment`, `tracking
 | `id` | UUID | NO | - | PRIMARY KEY; UNIQUE with `tenant_id` | Binding ID |
 | `tenant_id` | UUID | NO | - | Tenant scope; immutable | Trusted Tenant authority |
 | `provider_key_id` | VARCHAR(160) | NO | - | GLOBALLY UNIQUE; immutable | Opaque non-secret lookup ID |
-| `provider_alias` | VARCHAR(80) | NO | - | Tenant aliases may repeat | Trusted provider alias |
+| `provider_alias` | VARCHAR(80) | NO | - | UNIQUE with `tenant_id`; immutable | Trusted provider alias |
+| `provider_type` | VARCHAR(64) | NO | - | `[A-Z][A-Z0-9_]{0,63}` | Installed adapter type |
+| `display_name` | VARCHAR(120) | NO | - | Trimmed, nonblank; UNIQUE with `tenant_id` | Tenant-local operator name |
+| `endpoint_uri` | VARCHAR(500) | YES | NULL | No embedded credentials | Optional provider endpoint |
+| `safe_configuration` | JSONB | NO | `{}` | Object; serialized size <= 8,192 bytes; application rejects secrets | Non-secret provider configuration |
 | `credential_reference` | VARCHAR(160) | NO | - | Opaque; no plaintext secret | `IntegrationSecretResolver` reference |
-| `lifecycle` | VARCHAR(16) | NO | - | CHECK `ACTIVE`,`DISABLED` | Authentication lifecycle |
+| `lifecycle` | VARCHAR(16) | NO | - | CHECK `DRAFT`,`ACTIVE`,`DISABLED`,`RETIRED` | Connection lifecycle; RETIRED terminal |
+| `poll_interval_seconds` | INTEGER | NO | `5` | 5..86,400 | Poll cadence |
+| `page_size` | INTEGER | NO | `500` | 1..500 | Provider page bound |
+| `test_status` | VARCHAR(24) | NO | `NOT_TESTED` | Exact approved status vocabulary | Orthogonal connection-test result |
+| `last_tested_at`, `last_successful_poll_at`, `last_provider_message_at` | TIMESTAMPTZ | YES | NULL | - | Operational observations |
+| `last_error_category` | VARCHAR(40) | YES | NULL | Uppercase bounded safe category | Sanitized latest error category |
+| `next_poll_at` | TIMESTAMPTZ | YES | NULL | Partial due-work index for ACTIVE rows | Scheduling cursor |
+| `lease_owner` | VARCHAR(120) | YES | NULL | Paired with `lease_until` | Coordinator lease owner |
+| `lease_until` | TIMESTAMPTZ | YES | NULL | Paired with `lease_owner` | Coordinator lease expiry |
 | `created_at`, `updated_at` | TIMESTAMPTZ | NO | - | - | Audit timestamps |
 | `created_by`, `updated_by` | UUID | NO | - | Logical actor references | Audit actors |
 | `version` | BIGINT | NO | `0` | Optimistic version | Mutation version |
 
-Indexes: global unique `provider_key_id`; `(tenant_id,lifecycle,provider_alias,id)`. A trigger prevents Tenant or provider-key reassignment.
+Indexes: global unique `provider_key_id`; unique `(tenant_id,provider_alias)` and `(tenant_id,display_name)`; `(tenant_id,provider_type,lifecycle,id)`; partial `(next_poll_at,id)` for due ACTIVE connections; legacy `(tenant_id,lifecycle,provider_alias,id)`. A trigger prevents Tenant or provider-key reassignment.
 
 ### Table: `tracking_provider_ingest_nonce`
 
@@ -88,7 +100,7 @@ PostgreSQL acceptance must prove migration, Tenant constraints, association uniq
 
 ## Completed technical remediation
 
-V74 is implemented as the current head; V1–V73 remain immutable. It contains only the Tracking-owned trusted provider binding, binding-scoped replay protection and Tenant retention-policy persistence. It contains no US-49..55 schema or outbox.
+V75 is implemented as the current head; V1–V74 remain immutable. V75 extends the existing `tracking_provider_binding` as the sole runtime provider-connection authority and reserves the four-state lifecycle on `tracking_device`. It creates no competing connection table or device-provider binding table; CS03 owns the latter.
 
 Inbound Tenant authority will be derived from a globally unique opaque provider key ID resolved to an active Tracking-owned binding containing Tenant, bounded provider alias and an opaque credential reference. The secret is resolved only through Integration's published `IntegrationSecretResolver`. Provider alias may repeat across Tenants and never establishes authority. Caller Tenant headers/payloads cannot select or override Tenant. Authentication verifies the binding-derived credential, signed timestamp/body and binding-scoped nonce before resolving the device and source-time association solely inside the derived Tenant. All failures are sanitized and fail closed.
 
@@ -122,12 +134,12 @@ Controlled documentation-aligned tests and real PostgreSQL-backed controlled-pro
 
 ## Authorized pluggable supported-adapter architecture (CS01 implemented)
 
-`US-48-PLUGGABLE-DEVICE-ONBOARDING-ARCHITECTURE-001` approves `PLUG_AND_PLAY_FOR_SUPPORTED_ADAPTERS`. Runtime administrators may onboard many devices and provider connections across Tenants without restart once the provider adapter is installed. New proprietary protocol code still requires a reviewed deployment; dynamic JAR upload is prohibited. CS01 provider SPI and registry implementation is COMPLETE; CS02 provider-connection persistence is next.
+`US-48-PLUGGABLE-DEVICE-ONBOARDING-ARCHITECTURE-001` approves `PLUG_AND_PLAY_FOR_SUPPORTED_ADAPTERS`. Runtime administrators may onboard many devices and provider connections across Tenants without restart once the provider adapter is installed. New proprietary protocol code still requires a reviewed deployment; dynamic JAR upload is prohibited. CS01 provider SPI/registry and CS02 provider-connection persistence are COMPLETE; CS03 device-provider binding persistence is next.
 
 The implemented provider-neutral outbound SPI is `TrackingProviderAdapter`, discovered through the immutable `TrackingProviderAdapterRegistry`. `ProviderType` is a strict uppercase value (`[A-Z][A-Z0-9_]{0,63}`); duplicate types fail startup and unsupported required lookups fail with `TRACKING_PROVIDER_TYPE_UNSUPPORTED`. The exact immutable capability catalogue is `POLLING`, `WEBHOOK`, `MQTT`, `DISCOVERY`, `SOURCE_TIMESTAMP`, `ACCURACY`, `SPEED`, `HEADING`, `IGNITION`, `ODOMETER`, `ENGINE_HOURS`, `MESSAGE_ID`, `SEQUENCE`, `HISTORY`, and `REPLAY`. The SPI returns only normalized candidates and bounded provider-neutral cursors; provider DTOs, raw payloads, transport types, Tenant claims and secrets remain inside adapter packages. Unsupported discovery is explicit and safe. Initially only FLESPI is supported.
 
-V75 is authorized but not implemented. It will extend `tracking_provider_binding` into the runtime provider-connection persistence authority with provider type, display/endpoint/bounded schema-validated safe configuration, poll/page limits, test/health state, scheduling cursor and lease facts. Lifecycle becomes DRAFT/ACTIVE/DISABLED/RETIRED. It will create one Tracking-owned `tracking_device_provider_binding` table with same-Tenant device/connection foreign keys, provider external reference, bounded safe configuration, lifecycle, accepted-ingest watermark, scheduling cursor, audit fields and optimistic version. Unique Tenant+connection+external-reference and one-active-binding-per-device constraints prevent duplicate sources. Existing device provider columns become compatibility projections during migration, not execution authority.
+V75 extends `tracking_provider_binding` into the runtime provider-connection persistence authority with provider type, display/endpoint/bounded safe configuration, poll/page limits, test/health state, scheduling cursor and lease facts. Lifecycle is DRAFT/ACTIVE/DISABLED/RETIRED. Tenant-scoped management reads and optimistic updates are implemented through `TrackingProviderConnectionStore`. The separate `tracking_device_provider_binding` table, compatibility projections and device-binding execution authority remain explicitly deferred to CS03.
 
 One bounded `ProviderPollingCoordinator` dynamically claims due connections using database leases and `FOR UPDATE SKIP LOCKED`, pages/batches active device bindings and enforces provider quotas; no per-device scheduler/thread or environment variable exists. Internal polling uses a non-web ingestion port that reloads ACTIVE connection, Tenant and device binding before calling the identical normalized ingestion service. External push providers retain the V74 signed HMAC/nonce endpoint. Provider disable stops future claims while last-known state remains available.
 
-Provider connection/device onboarding persistence, APIs and UI are authorized but not implemented. They reuse `TRACKING_DEVICE_MANAGE`, never return credentials, and preserve current position/history APIs. CS01 introduced no migration, public API, permission, event, scheduler, provider persistence, domain-position change, or Flespi runtime change; Flyway remains V74. Real FMC130/Flespi evidence remains mandatory. Accounting stays 72/87; US-49 remains blocked. Next task: `US-48-PLUGGABLE-DEVICE-ONBOARDING-CS02-V75-PROVIDER-CONNECTION-PERSISTENCE-001`.
+Provider-connection persistence is implemented; device-binding persistence, coordinator, APIs and UI remain authorized but not implemented. Future management reuses `TRACKING_DEVICE_MANAGE`, never returns credentials, and preserves current position/history APIs. CS02 introduced no public API, permission, event, scheduler, device binding, domain-position change, or Flespi runtime change; Flyway is V75. Real FMC130/Flespi evidence remains mandatory. Accounting stays 72/87; US-49 remains blocked. Next task: `US-48-PLUGGABLE-DEVICE-ONBOARDING-CS03-DEVICE-PROVIDER-BINDING-PERSISTENCE-001`.
