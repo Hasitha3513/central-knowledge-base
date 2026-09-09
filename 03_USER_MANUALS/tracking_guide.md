@@ -10,9 +10,11 @@ The Vehicle positions tab refreshes every 15 seconds while the page is visible a
 
 ## Tracking devices
 
-Authorized device managers can register a provider-neutral external device reference, optionally record a hardware serial reference, activate/disable the device, and start/end an effective-dated Vehicle association. One device and one Vehicle may each have only one active association. View-only users see masked reference values and never see provider credentials.
+Authorized device managers can register a provider-neutral external device reference in DRAFT, optionally record a hardware serial reference, bind or rebind it to an installed provider connection, activate/disable/retire it, and start/end an effective-dated Vehicle association. One device and one Vehicle may each have only one active association. RETIRED is terminal. View-only users see masked reference values and never see provider credentials.
 
-Trusted provider bindings and retention configuration are operational maintenance functions and are not exposed in the business UI. Telemetry providers authenticate with an opaque provider key and signed raw payload; any legacy Tenant value cannot select the Tenant. Operators can inspect sanitized Tracking health/metrics through the existing secured management surface without device IDs, coordinates, nonces, signatures, credentials, Driver or Customer data.
+The backend management API lets a `TRACKING_DEVICE_MANAGE` operator list installed provider types; create, inspect and update same-Tenant provider connections; replace an opaque credential reference; test a connection; activate, disable or retire it; and request bounded discovery only when the installed adapter advertises that capability. New connections start in DRAFT. Test Connection does not create telemetry. Responses show only safe configuration and whether a credential is configured; they never echo its reference or secret. A graphical provider/device onboarding workflow is not available until the later frontend change sets.
+
+Telemetry providers authenticate with an opaque provider key and signed raw payload; any legacy Tenant value cannot select the Tenant. Operators can inspect sanitized Tracking health/metrics through the existing secured management surface without device IDs, coordinates, nonces, signatures, credentials, Driver or Customer data.
 
 ## Known limitations
 
