@@ -93,7 +93,7 @@ US-73 final acceptance covers exactly one governed outbound JSON-file adapter wi
 
 # US-48 Frozen Dependencies
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING` at current head V74; remediation is complete and technical closure rerun is required. Tracking validates logical same-Tenant Vehicle UUIDs through the published Fleet reporting query and uses Integration's published `IntegrationSecretResolver` only for an opaque credential reference. It stores no Fleet/Integration entity or cross-module FK. High-rate telemetry remains local Tracking state and does not traverse Integration exchange processing or P1-01. US-49–55 remain unimplemented consumers.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING` at current head V74; remediation is complete and independent technical closure passes. Tracking validates logical same-Tenant Vehicle UUIDs through the published Fleet reporting query and uses Integration's published `IntegrationSecretResolver` only for an opaque credential reference. It stores no Fleet/Integration entity or cross-module FK. High-rate telemetry remains local Tracking state and does not traverse Integration exchange processing or P1-01. Physical-device/real-provider final acceptance remains pending, and US-49–55 remain unimplemented consumers.
 
 | Provider | Consumer | Contract | Status |
 | :--- | :--- | :--- | :--- |
