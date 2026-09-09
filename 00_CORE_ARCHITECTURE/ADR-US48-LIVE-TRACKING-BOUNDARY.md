@@ -33,3 +33,13 @@ Precise coordinates are sensitive Tenant-owned operational data. Customers recei
 ## Consequences
 
 US-48 implementation is split into device/association, ingestion/trust, history/projection, security, API/frontend, real-provider/device, and performance/concurrency change sets. Current Flyway head V72 is not reserved. Story accounting remains 72/87 until independent final acceptance.
+
+## 2026-09-09 amendment — supported-adapter runtime onboarding
+
+`US-48-PLUGGABLE-DEVICE-ONBOARDING-ARCHITECTURE-001` is APPROVED and amends only the provider/device onboarding edge. The product term is `PLUG_AND_PLAY_FOR_SUPPORTED_ADAPTERS`: administrators may create, bind, activate, disable, retire and reassign devices and provider connections at runtime when a reviewed adapter is installed. Unknown proprietary protocols still require an adapter release/deployment; arbitrary runtime JAR/plugin upload is prohibited.
+
+Tracking remains the owner. A provider-neutral `TrackingProviderAdapter` SPI and registry isolate vendor DTOs. The existing V74 provider binding evolves into the runtime provider-connection aggregate; V75 is authorized to add bounded connection configuration/lease fields, DRAFT/ACTIVE/DISABLED/RETIRED lifecycle and one same-Tenant `tracking_device_provider_binding` table with external identity, safe adapter configuration and accepted-ingest watermark. Secrets remain opaque references resolved by `IntegrationSecretResolver`; no per-device environment variables are permitted.
+
+One database-discovered coordinator claims due ACTIVE connections with bounded workers, provider quotas and PostgreSQL leases; no scheduler/thread exists per device. Activation and disable take effect without restart. Internal polling adapters use a private provider-neutral ingestion port that reloads ACTIVE connection, Tenant and device binding before delegating to the existing normalized ingestion service. The signed HMAC/nonce endpoint remains unchanged for external push providers. Neither path accepts payload Tenant authority.
+
+Existing position/history contracts, effective-dated Vehicle association, dedupe/trust/freshness/connectivity/retention, permissions and real-device acceptance remain unchanged. Provider/device management reuses `TRACKING_DEVICE_MANAGE`; new provider-neutral management APIs are authorized but not implemented. Accounting remains 72/87 and US-49 remains blocked.

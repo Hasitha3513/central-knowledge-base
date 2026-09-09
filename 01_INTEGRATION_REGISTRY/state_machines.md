@@ -88,3 +88,9 @@ Validation failure leaves the batch `DRAFT`. External failure leaves it `EXPORT_
 The frozen regular lifecycle is `DRAFT -> VALIDATED -> APPROVED -> FINALIZED -> EXPORT_REQUESTED -> EXPORTED`. Validation failure and edits leave/return the record to `DRAFT`. A reasoned `DRAFT -> CANCELLED` transition is final. The preparer cannot approve the same record.
 
 Finalization locks source/Customer/currency/lines/tax/cost-centre/calculation/approval facts. A new `REVERSAL` record references and exactly compensates one finalized original; the original becomes `REVERSED` only when that reversal finalizes. There is no delete, reopen, generic status patch, tax-invoice-issued, posted, booked, settled, paid or accounting-acknowledged state. `EXPORTED` proves only controlled Integration file/hash delivery. This lifecycle is `PRODUCT_DECISIONS_FROZEN_US47`; implementation has not started.
+
+# US-48 Provider Connection and Device Binding (Authorized / Not Implemented)
+
+The pluggable supported-adapter decision authorizes provider connections, Tracking devices and device-provider bindings with `DRAFT -> ACTIVE <-> DISABLED -> RETIRED`; RETIRED is terminal. New devices/connections begin DRAFT. Activation requires supported adapter type, valid bounded configuration, resolvable credential, successful connection validation where applicable, and a non-conflicting same-Tenant device binding. Provider disable prevents new coordinator claims but preserves position history and last-known state.
+
+Provider connection test status is orthogonal: `NOT_TESTED`, `PASS`, `AUTH_FAILED`, `UNREACHABLE`, or `INVALID_CONFIGURATION`. It creates no telemetry state. Rebinding disables the previous active device-provider binding and creates the replacement atomically; it never rewrites effective-dated Vehicle association or position history. These lifecycles are `AUTHORIZED_NOT_IMPLEMENTED_US48_V75`.
