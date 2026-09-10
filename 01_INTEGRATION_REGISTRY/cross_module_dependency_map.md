@@ -112,9 +112,9 @@ The ARB disposition places US-48 physical acceptance `ON_HOLD_EXTERNAL_PREREQUIS
 | Provider | Consumer | Contract | Status |
 | :--- | :--- | :--- | :--- |
 | Tracking US-48 | Tracking US-49 | Same-Tenant TRUSTED, IN_ORDER WGS84 accepted position with Vehicle, source timestamp and position UUID | FROZEN_TECHNICAL_CONTRACT; no US-48 acceptance inheritance |
-| Organization | Tracking US-49 | Explicit-Tenant active location lookup for DEPOT/CUSTOMER_SITE logical references | PROPOSED_EXTENSION; no foreign persistence or SQL |
-| Tracking US-49 | Notification | Minimized durable `VehicleGeofenceTransitionedV1` transition event | APPROVED_FOR_IMPLEMENTATION / NOT_ACTIVE |
+| Organization | Tracking US-49 | Explicit-Tenant location lookup for DEPOT/CUSTOMER_SITE logical references; activation requires active same-Tenant result | CS01_PUBLISHED_CONTRACT_IMPLEMENTED; no foreign persistence or SQL |
+| Tracking US-49 | Notification | Minimized `VehicleGeofenceTransitionedV1` transition fact | CS01_PUBLICATION_PORT_ONLY / DURABLE_ADAPTER_NOT_ACTIVE |
 | Tracking US-49 | Operations | No direct contract | NONE; US-55 owns later GPS-exception integration |
 | Delivery US-63 | Tracking US-49 | No shared aggregate, table or polygon | EXPLICITLY_DISTINCT; serviceability/capacity versus telemetry boundary detection |
 
-US-49 is `PRODUCT_DECISIONS_COMPLETE / IMPLEMENTATION_PENDING`. Tracking owns geofence definitions, evaluation jobs, per-Vehicle state and immutable transitions. Organization remains owner of depot/customer-site locations, Notification remains owner of delivery channels/recipients, and no cross-module physical foreign key, repository, join or entity relationship is approved. Next task: `US-49-MANAGE-GEOFENCES-CS01-DOMAIN-PORTS-001`.
+US-49 CS01 domain and ports are `COMPLETE`; US-49 remains implementation-in-progress without acceptance credit. Tracking owns geofence definitions, evaluation jobs, per-Vehicle state and immutable transitions. Organization remains owner of depot/customer-site locations, Notification remains owner of delivery channels/recipients, and no cross-module physical foreign key, repository, join or entity relationship is approved. Next task: `US-49-MANAGE-GEOFENCES-CS02-V77-PERSISTENCE-001`.
