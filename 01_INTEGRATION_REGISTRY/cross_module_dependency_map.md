@@ -99,5 +99,10 @@ US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM` at curre
 | :--- | :--- | :--- | :--- |
 | Fleet | Tracking | Same-Tenant Vehicle identity/reference validation | FROZEN_US48 / NOT_IMPLEMENTED |
 | Trip | Tracking | Minimized active Vehicle assignment fact where later composition requires it | FROZEN_US48 / OPTIONAL_NOT_IMPLEMENTED |
-| Tracking | US-49..55 | Trusted latest and immutable accepted position contracts | FROZEN_US48 / CONSUMERS_NOT_IMPLEMENTED |
+| Tracking | US-49/50/52/53 | Trusted latest, normalized optional speed and immutable accepted position/history contracts | FROZEN_US48 / TECHNICAL_DEPENDENCY_SATISFIED; no physical-acceptance inheritance |
+| Tracking | US-51 | Engine-state plus movement telemetry | BLOCKED_REQUIRED_CAPABILITY; current FLESPI does not advertise IGNITION and no accepted alternate source exists |
+| Tracking | US-54 | US-49..53 producer states/events and Tracking freshness | BLOCKED_PRODUCERS; dashboard cannot recreate detector logic |
+| Tracking | US-55 | Loss/delay/trust plus tamper/spoof/battery signals | PARTIAL_TECHNICAL_CONTRACT / BLOCKED_REQUIRED_SIGNALS_AND_DECISIONS |
 | Integration | Tracking | Published `IntegrationSecretResolver` for opaque credential reference only; never table/repository access or packet transport | ACTIVE_MVP / V74_REMEDIATION_COMPLETE |
+
+The ARB disposition places US-48 physical acceptance `ON_HOLD_EXTERNAL_PREREQUISITE` until a physical FMC130 and live Flespi prerequisites become available. The hold is not completion, acceptance or waiver: US-48 remains `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM` and accounting remains 72/87. Downstream implementation may consume technically proven frozen contracts without inheriting US-48 acceptance. US-49 is the next source-ordered task and is `TECHNICAL_DEPENDENCY_SATISFIED / READY_FOR_PRODUCT_DECISIONS`; US-50 and US-52 are likewise ready for decisions, and US-53 is ready after earlier Wave C decisions for its optional overlays. US-51 is blocked by missing engine-state capability, US-54 by US-49..53 producers, and full US-55 by unestablished tamper/spoof/battery signals and decisions.
