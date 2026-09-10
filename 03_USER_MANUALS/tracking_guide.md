@@ -26,6 +26,14 @@ Privileged changes and denied management attempts are recorded with safe audit f
 
 Telemetry providers authenticate with an opaque provider key and signed raw payload; any legacy Tenant value cannot select the Tenant. Operators can inspect sanitized Tracking health/metrics through the existing secured management surface without device IDs, coordinates, nonces, signatures, credentials, Driver or Customer data.
 
+## Geofence management API
+
+US-49 CS04 provides the backend geofence-management workflow; an operator UI is not available yet. Call the `/api/v1/tracking/geofences` API using a same-Tenant authenticated session. `GEOFENCE_VIEW` permits definition and stable-membership reads, `GEOFENCE_MANAGE` permits create/update/activate/disable/retire commands, and `GEOFENCE_EVENT_VIEW` permits transition and unauthorized-transition history. These permissions are independent.
+
+Create a DRAFT with a unique name, type, 3–100 WGS84 polygon vertices and entry/exit alert choices. DEPOT and CUSTOMER_SITE require an active same-Tenant Organization location ID; UNAUTHORIZED_ZONE must omit it. Supply `Idempotency-Key` on create and lifecycle commands. Update is allowed only in DRAFT or DISABLED and requires the current `expectedVersion`. Activate only after validation; no Tenant may exceed 500 ACTIVE definitions. Disable and retire require the current version and a reason. Reactivate a DISABLED definition with Activate. Retirement is permanent; there is no delete or reopen action.
+
+Definition and membership lists are bounded to 100 rows per page. Memberships expose confirmed stable state only. Transition history is cursor-bounded to 100 and may be filtered by geofence, Vehicle, type and source-time range; unauthorized history contains only unauthorized-zone entries. Cross-Tenant identifiers appear not found. History responses and audit records do not expose coordinates, provider/device credentials, Driver PII or Customer data.
+
 ## Known limitations
 
-US-48 supplies foundational live/last-known facts only. Geofences, speeding, idle detection, route deviation, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. Final acceptance still requires a physical GPS device and real provider payload.
+US-49 geofence backend management and query APIs are available, but its Notification integration, operator UI and final acceptance are not. Speeding, idle detection, route deviation, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 final acceptance still requires a physical GPS device and real provider payload.

@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through its V76 migration. The current repository Flyway head is V77 for US-49 geofence persistence. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts. The trusted provider/Tenant authority, retention, observability, audit and rebuild remediation is implemented. Accounting remains 72/87 with 15 remaining; physical-device/real-provider final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V78 for US-49 geofence permissions. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence evaluation. US-49 CS01–CS04A are complete; accounting remains 72/87 with 15 remaining and physical-device/real-provider US-48 final acceptance is still required.
 
 Phase 1 owns a narrow `TrackingDevice` reference registry, effective-dated one-device/one-Vehicle active association, immutable normalized `PositionEvent` history, ingestion dedupe/conflict/order/trust, last-received and last-trusted projections, freshness/connectivity, retention metadata, safe queries, provider adapter health and minimal operator UI.
 
@@ -372,3 +372,29 @@ violations, PMD passes and SpotBugs reports zero findings/errors. No API, contro
 Notification, domain, geofence-table, public-contract or accounting change belongs to CS04A. US-49 remains
 implementation-in-progress, accounting remains 72/87 and the US-48 external hold is unchanged. Next is
 `US-49-MANAGE-GEOFENCES-CS04-APIS-RBAC-AUDIT-001-RERUN`.
+
+## US-49 geofence APIs, RBAC and audit (CS04 complete)
+
+CS04 implements the exact `/api/v1/tracking/geofences` definition, membership, transition and
+unauthorized-transition route family. Explicit create/update/activate/disable/retire commands replace any
+generic status mutation; DISABLED-to-ACTIVE is the reactivation path and RETIRED remains terminal. Definition
+and membership lists are page-bounded to 100; transition history is source-time filtered with a deterministic
+cursor and maximum 100. Only stable memberships are returned.
+
+The web adapter resolves Tenant and actor facts through trusted `CurrentTenant` and passes them explicitly to
+the application service. DEPOT/CUSTOMER_SITE validation consumes only Organization's published explicit-Tenant
+`LocationLookup`; Tracking stores a logical UUID and has no Organization implementation, repository, entity,
+SQL join or physical foreign key. Cross-Tenant identifiers are not-found-shaped.
+
+`GEOFENCE_VIEW`, `GEOFENCE_MANAGE` and `GEOFENCE_EVENT_VIEW` are enforced independently in the HTTP chain and
+at the direct use-case boundary. Existing `tracking_audit_event` persistence provides Tenant-scoped durable
+idempotency claims for create/activate/disable/retire and safe management audit without a new schema. Audit
+details exclude polygons, coordinates, raw telemetry, provider/device secrets, Driver PII and Customer data.
+The Tenant-wide 500 ACTIVE limit is serialized with a Tenant advisory lock.
+
+Final evidence: focused API/PostgreSQL 10/10, complete Tracking 164/164, security regression 51/51,
+architecture 52/52 and Maven 1,570/0/0/15 in 10:07 all pass. Checkstyle reports zero violations, PMD passes,
+SpotBugs reports zero findings, and the real PostgreSQL-backed Chromium gate measures 424.0 msg/s sustained
+and 1,459.5 msg/s burst. All authoritative database evidence uses `transport_logistics_acceptance`. Flyway
+remains V78; V79 does not exist. Accounting remains 72/87 and US-48's external hold is unchanged. Next task:
+`US-49-MANAGE-GEOFENCES-CS05-NOTIFICATION-INTEGRATION-001`.

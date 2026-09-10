@@ -115,6 +115,8 @@ commits before definition revalidation prevents a transition; an evaluation comm
 history. Worker processing is at least once, with job identity, source ordering, state locking and
 transition identity providing idempotent effects.
 
-The definition lifecycle remains frozen but management commands are not implemented until CS04. The
-vehicle membership/hysteresis lifecycle is `IMPLEMENTED_US49_CS03`; durable cross-module publication and
-Notification consumption remain inactive until CS05.
+CS04 implements the definition lifecycle commands with optimistic versioning, Tenant-scoped durable
+idempotency for create/activate/disable/retire and safe management audit. Reactivation uses the same
+DISABLED-to-ACTIVE command and revalidates geometry, location and the Tenant-wide 500 ACTIVE limit under
+a Tenant advisory lock. The vehicle membership/hysteresis lifecycle is `IMPLEMENTED_US49_CS03`; durable
+cross-module publication and Notification consumption remain inactive until CS05.
