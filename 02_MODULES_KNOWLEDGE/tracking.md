@@ -322,3 +322,37 @@ Index `idx_tracking_geofence_job_due(tenant_id,status,next_attempt_at,lease_unti
 bounded `FOR UPDATE SKIP LOCKED` claims. JDBC primitives implement idempotent enqueue, claim, renew,
 release, retry, complete and expired-lease reclaim with owner-safe predicates. CS02 does not wire ingestion
 or start a worker.
+
+## US-49 geofence evaluation and transition production (CS03 complete)
+
+Every newly accepted eligible Tracking position atomically enqueues exactly one Tenant/position evaluation
+job inside the existing ingestion transaction. Duplicate facts enqueue nothing and rollback leaves no job.
+Ingress performs no polygon evaluation and emits no per-position cross-module event.
+
+One disabled-by-default, narrowly feature-flagged Tracking scheduler claims bounded V77 work using
+`FOR UPDATE SKIP LOCKED`, fixed workers and a bounded queue. Default bounds are claim 16, four workers,
+queue 32 and a two-minute lease. Expired leases recover; only the current unexpired owner may renew,
+release, complete, retry or terminally fail work. Persistent retry is at least once. Queue/worker/backlog,
+oldest-due, result and transition-latency observations use bounded metric dimensions.
+
+Execution reloads the authoritative position using persisted Tenant and position ID, then revalidates
+TRUSTED, Vehicle-associated, valid WGS84, IN_ORDER and at-most-five-minute eligibility. The evaluator
+fails closed above 500 ACTIVE definitions for one Tenant. V77 bounding boxes reduce polygon candidates;
+definitions outside the box without current state initialize silently as OUTSIDE using a lightweight
+identity/version scan, while definitions with current state remain candidates so exits are detected.
+
+Each candidate uses an owning Tracking transaction with definition lock/lifecycle/version revalidation and
+serialized Tenant/geofence/Vehicle state locking, including concurrent first-row creation. CS01 geometry,
+source-time plus UUID ordering and two-position hysteresis remain authoritative. Initial observation and
+definition-version reset are silent. Confirmed state and deterministic immutable transition commit
+atomically; overlap is independent. Unauthorized entry is `UNAUTHORIZED_ZONE_ENTERED`, HIGH and mandatory
+alert intent. The publication port is invoked only after commit for configured transitions, but CS03 binds
+a no-op adapter: CS05 still owns durable P1-01 and Notification activation. Flyway remains V77; no REST,
+permission, frontend, event-contract or external dependency change is part of CS03.
+
+Verification: focused CS03 PostgreSQL selection 22/22, complete Tracking Java 152/152, architecture 52/52,
+full Maven 1,558 tests with zero failures/errors and 15 skipped in 09:38, Chromium evaluator-enabled ingress
+580.9 msg/s sustained and 1,577.1 msg/s burst, latest p95 0.734 ms and history p95 0.425 ms. Accepted
+database evidence used only `transport_logistics_acceptance`. US-49 remains implementation-in-progress;
+next is `US-49-MANAGE-GEOFENCES-CS04-APIS-RBAC-AUDIT-001`. Accounting remains 72/87 and the US-48
+external hold is unchanged.

@@ -183,7 +183,7 @@ Customer/contact names, addresses, cargo detail, notes, credentials, bank/paymen
 
 Raw accepted telemetry is `LOCAL_STATE_ONLY`; US-48 must not publish one P1-01 or Spring event per packet. This protects the shared outbox and consumers from high-rate event storms. `VehicleTrackingStateChangedV1` is reserved as `NOT_ACTIVATED_NO_CURRENT_CONSUMER`: activation requires a registered US-49..55 consumer and exact payload review. When activated it uses the canonical P1-01 envelope, Tenant/event idempotency, at-least-once semantics and no global ordering, and emits only a freshness/connectivity/trust state change or at most one materially newer trusted position per Vehicle per minute. It may contain minimized Tenant/Vehicle, trusted position/time/accuracy and state facts; Driver/Customer identity, device secret/reference, raw payload and unrestricted provider metadata are forbidden. No second outbox is approved.
 
-## VehicleGeofenceTransitionedV1 (US-49; Approved for Implementation, Not Active)
+## VehicleGeofenceTransitionedV1 (US-49; Production Port Implemented, Durable Contract Not Active)
 
 - **Owner / producer:** Tracking.
 - **Consumer:** Notification only in US-49; Operations integration is NONE.
@@ -194,4 +194,9 @@ Raw accepted telemetry is `LOCAL_STATE_ONLY`; US-48 must not publish one P1-01 o
 - **Privacy:** no coordinates, device/provider identity, credentials, raw payload, Driver PII or Customer data.
 - **Identity:** transition identity is deterministic SHA-256 over Tenant, geofence, definition version, Vehicle, from/to state and confirming position.
 
-This contract is frozen by `US-49-MANAGE-GEOFENCES-PRODUCT-DECISIONS-001` but remains `NOT_ACTIVE` until its implementation change set is verified. Unauthorized-zone confirmed entry uses `UNAUTHORIZED_ZONE_ENTERED` with HIGH severity and mandatory alert publication; it does not create an Operations exception in US-49.
+CS03 now produces deterministic immutable transition records and invokes the provider-neutral publication
+port only after the owning state/transition transaction commits and only for configured alert transitions.
+The bound CS03 adapter is intentionally a no-op, so no P1-01 row or Notification delivery exists yet.
+Accordingly this cross-module contract remains `NOT_ACTIVE`; CS05 owns its durable adapter, consumer and
+activation verification. Unauthorized-zone confirmed entry uses `UNAUTHORIZED_ZONE_ENTERED` with HIGH
+severity and mandatory alert intent; it does not create an Operations exception in US-49.

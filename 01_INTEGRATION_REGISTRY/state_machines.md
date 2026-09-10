@@ -99,10 +99,22 @@ CS04 execution is `IMPLEMENTED_US48_V76`: only ACTIVE, due, unleased/expired con
 
 CS05 does not add a lifecycle. Flespi connection/device execution now follows only the CS04 state above. Provider disable stops subsequent claims, binding/device disable removes subsequent fetch eligibility, and credential-reference replacement is resolved on the next execution without restart. The retired singleton scheduler and its in-memory cursor are not rollback states. Operational rollback disables the coordinator and affected FLESPI connections while preserving V76 state/history; dual runtime is prohibited.
 
-# US-49 Geofence Definition and Vehicle-State Lifecycle (Frozen; Not Implemented)
+# US-49 Geofence Definition and Vehicle-State Lifecycle (CS03 Implemented)
 
 Definition lifecycle: `DRAFT -> ACTIVE <-> DISABLED -> RETIRED`. RETIRED is terminal. Geometry, type, linked location and alert configuration are editable only in DRAFT or DISABLED. Activation requires a valid polygon and, for DEPOT/CUSTOMER_SITE, an active same-Tenant Organization location. `UNAUTHORIZED_ZONE` must be free-standing. There is no hard delete, reopen from RETIRED, arbitrary status patch or separate effective-dating model.
 
 Vehicle/geofence state is separate from definition lifecycle. The first eligible observation initializes INSIDE or OUTSIDE silently. A candidate state becomes stable only after two distinct consecutive eligible observations agree; only a stable OUTSIDE-to-INSIDE or INSIDE-to-OUTSIDE change creates ENTERED or EXITED. Boundary is INSIDE. Delayed, out-of-order, future, stale, untrusted or duplicate positions do not mutate current state. Source timestamp orders positions, with position UUID as tie-break. Dwell is not in scope. Overlapping geofences evaluate independently, and unauthorized-zone entry remains HIGH severity regardless of overlap.
 
-This lifecycle is `PRODUCT_DECISIONS_FROZEN_US49 / NOT_IMPLEMENTED`; CS01 is next.
+CS03 implements the vehicle-state evaluation lifecycle on V77 persistence. Accepted eligible positions
+enqueue one durable Tenant/position job atomically with ingestion. A bounded leased worker reloads the
+position, prefilters same-Tenant ACTIVE definitions by bounding box, locks and revalidates the definition,
+and serializes the Tenant/geofence/Vehicle state identity. Stable state and a confirmed deterministic
+immutable transition commit atomically. Initial state and definition-version changes remain silent;
+duplicate, stale, untrusted and out-of-order observations cannot advance state. Disable or retire that
+commits before definition revalidation prevents a transition; an evaluation committed first remains valid
+history. Worker processing is at least once, with job identity, source ordering, state locking and
+transition identity providing idempotent effects.
+
+The definition lifecycle remains frozen but management commands are not implemented until CS04. The
+vehicle membership/hysteresis lifecycle is `IMPLEMENTED_US49_CS03`; durable cross-module publication and
+Notification consumption remain inactive until CS05.
