@@ -352,7 +352,7 @@ permission, frontend, event-contract or external dependency change is part of CS
 
 Verification: focused CS03 PostgreSQL selection 22/22, complete Tracking Java 152/152, architecture 52/52,
 full Maven 1,558 tests with zero failures/errors and 15 skipped in 09:38, Chromium evaluator-enabled ingress
-580.9 msg/s sustained and 1,577.1 msg/s burst, latest p95 0.734 ms and history p95 0.425 ms. Accepted
+580.9 msg/s sustained and 1,577.1 msg/s burst, latest p95 0.380 ms and history p95 0.273 ms. Accepted
 database evidence used only `transport_logistics_acceptance`. US-49 remains implementation-in-progress;
 next is `US-49-MANAGE-GEOFENCES-CS04-APIS-RBAC-AUDIT-001`. Accounting remains 72/87 and the US-48
 external hold is unchanged.
