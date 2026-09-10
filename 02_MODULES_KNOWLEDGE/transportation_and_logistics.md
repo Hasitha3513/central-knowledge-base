@@ -327,6 +327,14 @@ V43 deterministically seeds UUID `4f8b6a3b-2c1e-4d89-9a72-f9e4c5b3671a`, `CLTS-L
 
 V58 also permits `SMS` in Notification channel constraints, permits `EVENT_CUSTOMER` in rule recipient types, expands `notification.recipient` to `VARCHAR(320)`, adds `(tenant_id, aggregate_type, aggregate_id, created_at DESC)` on `notification_rule_execution`, and seeds ten version-1 templates plus ten Tenant-scoped rules for the five frozen Delivery events.
 
+V79 adds the minimum US-49 Notification catalogue metadata without changing the Notification schema: one
+global active version-1 IN_APP template for `VEHICLE_GEOFENCE_TRANSITIONED_V1`, and one enabled
+Tenant-scoped `ROLE` / `DISPATCHER` rule plus default policy per current Tenant. The policy disables quiet
+hours and escalation and uses a zero-minute suppression window. Template content is minimized to safe
+Vehicle/geofence/type/transition/source-time facts; it excludes coordinates, polygon, device/provider
+identity, credentials, raw telemetry, Driver PII and Customer data. Durable Tracking publication,
+Notification consumption and delivery-attempt creation remain unimplemented until US-49 CS05.
+
 ### Customer self-service tables (V59)
 
 #### Table: `delivery_self_service_access`
