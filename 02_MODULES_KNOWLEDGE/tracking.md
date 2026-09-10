@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified at V76. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts. The trusted provider/Tenant authority, retention, observability, audit and rebuild remediation is implemented. Accounting remains 72/87 with 15 remaining; physical-device/real-provider final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through its V76 migration. The current repository Flyway head is V77 for US-49 geofence persistence. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts. The trusted provider/Tenant authority, retention, observability, audit and rebuild remediation is implemented. Accounting remains 72/87 with 15 remaining; physical-device/real-provider final acceptance is still required.
 
 Phase 1 owns a narrow `TrackingDevice` reference registry, effective-dated one-device/one-Vehicle active association, immutable normalized `PositionEvent` history, ingestion dedupe/conflict/order/trust, last-received and last-trusted projections, freshness/connectivity, retention metadata, safe queries, provider adapter health and minimal operator UI.
 
@@ -190,7 +190,7 @@ The first operational readiness execution is `BLOCKED / PHYSICAL_HARDWARE_REQUIR
 
 ## External hold and downstream disposition
 
-The ARB approves `ON_HOLD_EXTERNAL_PREREQUISITE` for US-48 physical capture after two unchanged hardware-blocked readiness attempts. No further readiness task is scheduled until a physical FMC130 or verified live Flespi prerequisite materially changes. Physical capture and independent final acceptance remain mandatory; US-48 is not complete or waived, Flyway remains V76, and accounting remains 72/87.
+The ARB approves `ON_HOLD_EXTERNAL_PREREQUISITE` for US-48 physical capture after two unchanged hardware-blocked readiness attempts. No further readiness task is scheduled until a physical FMC130 or verified live Flespi prerequisite materially changes. Physical capture and independent final acceptance remain mandatory; US-48 is not complete or waived, its migration baseline remains through V76 while the repository head is V77, and accounting remains 72/87.
 
 The frozen technical Tracking contract is sufficient to begin downstream decisions without acceptance inheritance. US-49 is `TECHNICAL_DEPENDENCY_SATISFIED / READY_FOR_PRODUCT_DECISIONS` because it needs trusted WGS84 position, Vehicle and source time. US-50 and US-52 are likewise ready for product decisions against normalized speed and trusted-position/Routing contracts respectively; real speed fidelity remains a US-50 final-evidence gate. US-53 immutable-history dependency is satisfied but overlay decisions follow earlier producers. US-51 remains `BLOCKED_BY_REQUIRED_TELEMETRY_CAPABILITY` because current FLESPI does not advertise IGNITION and no accepted alternate engine-state source exists. US-54 remains blocked by US-49..53 producers. Full US-55 remains blocked because tamper, spoofing and battery signals/product semantics are not established, despite existing loss/delay/trust support. Next task: `US-49-MANAGE-GEOFENCES-PRODUCT-DECISIONS-001`.
 
@@ -208,4 +208,117 @@ Confirmed unauthorized entry is `UNAUTHORIZED_ZONE_ENTERED`, severity HIGH and a
 
 The implemented outbound publication-port payload is the minimized `VehicleGeofenceTransitionedV1`, to be consumed by Notification only after its later implementation slice. It contains geofence ID, Vehicle ID, nullable Organization location ID, geofence type, transition, severity, source timestamp and definition version; it excludes coordinates, device/provider facts and person/Customer data. CS01 adds no durable event or Notification adapter. Operations integration is NONE for US-49; US-55 owns any later GPS-exception integration.
 
-The proposed permissions are `GEOFENCE_VIEW`, `GEOFENCE_MANAGE` and `GEOFENCE_EVENT_VIEW`, with Tenant isolation only and no generic ABAC engine. Proposed APIs remain under `/api/v1/tracking/geofences`; CS01 implements no REST surface. The completed framework-neutral inbound ports are `GeofenceManagementUseCase`, `GeofenceQuery` and `GeofenceEvaluationUseCase`; outbound ports cover definition/state/transition/job persistence, explicit-Tenant Organization location lookup and transition publication. Organization's published `LocationLookup` now includes an explicit `(tenantId, locationId)` operation backed by tenant-scoped persistence while retaining its established consumer-compatible operation. Forward migration V77 remains reserved for Tracking-owned geofence definition, Vehicle state, transition and evaluation-job persistence and was not created in CS01. The next controlled task is `US-49-MANAGE-GEOFENCES-CS02-V77-PERSISTENCE-001`. Accounting remains 72/87 and US-48 remains on external-prerequisite hold.
+The proposed permissions are `GEOFENCE_VIEW`, `GEOFENCE_MANAGE` and `GEOFENCE_EVENT_VIEW`, with Tenant isolation only and no generic ABAC engine. Proposed APIs remain under `/api/v1/tracking/geofences`; CS01/CS02 implement no REST surface. The completed framework-neutral inbound ports are `GeofenceManagementUseCase`, `GeofenceQuery` and `GeofenceEvaluationUseCase`; outbound ports cover definition/state/transition/job persistence, explicit-Tenant Organization location lookup and transition publication. Organization's published `LocationLookup` includes an explicit `(tenantId, locationId)` operation backed by tenant-scoped persistence while retaining its established consumer-compatible operation. V77 implements the four Tracking-owned persistence tables and JDBC adapters described below. The next controlled task is `US-49-MANAGE-GEOFENCES-CS03-EVALUATION-TRANSITIONS-001`. Accounting remains 72/87 and US-48 remains on external-prerequisite hold.
+
+## US-49 V77 persistence (CS02 complete)
+
+V77 is the current Flyway head; V1–V76 are immutable. It creates only the four Tracking-owned tables below.
+Organization `location_id` and Fleet `vehicle_id` remain logical UUID references without physical
+cross-module foreign keys. PostgreSQL structural constraints supplement, but do not replace, domain rules.
+No PostGIS extension, permission seed, API, outbox event or evaluator wiring is included.
+
+#### Table: `tracking_geofence`
+
+- **Purpose:** Tenant-owned geofence definition and lifecycle authority.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, Tenant-leading indexes)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :---: | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY; UNIQUE with `tenant_id` | Geofence identity |
+| `tenant_id` | UUID | NO | - | Tenant scope; UNIQUE with `id` and `name` | Trusted Tenant |
+| `name` | VARCHAR(160) | NO | - | Trimmed nonblank; UNIQUE with `tenant_id` | Operator name |
+| `type` | VARCHAR(24) | NO | - | DEPOT, CUSTOMER_SITE, UNAUTHORIZED_ZONE | Frozen type |
+| `polygon_vertices` | JSONB | NO | - | Array length 4–101; encoded size <=16 KiB | Canonical closed WGS84 ring |
+| `min_longitude` | NUMERIC(10,7) | NO | - | -180..180; <= max | Derived bounding box |
+| `max_longitude` | NUMERIC(10,7) | NO | - | -180..180 | Derived bounding box |
+| `min_latitude` | NUMERIC(10,7) | NO | - | -90..90; <= max | Derived bounding box |
+| `max_latitude` | NUMERIC(10,7) | NO | - | -90..90 | Derived bounding box |
+| `location_id` | UUID | YES | NULL | Logical Organization reference; required for DEPOT/CUSTOMER_SITE and absent for UNAUTHORIZED_ZONE | Optional site |
+| `alert_enter_enabled` | BOOLEAN | NO | - | TRUE for UNAUTHORIZED_ZONE | Entry alert policy |
+| `alert_exit_enabled` | BOOLEAN | NO | - | - | Exit alert policy |
+| `lifecycle` | VARCHAR(16) | NO | - | DRAFT, ACTIVE, DISABLED, RETIRED | Definition lifecycle |
+| `version` | BIGINT | NO | 0 | >=0 | Optimistic version |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Creation time |
+| `created_by` | UUID | NO | - | - | Creating actor |
+| `updated_at` | TIMESTAMPTZ | NO | - | - | Last update time |
+| `updated_by` | UUID | NO | - | - | Last updating actor |
+
+Indexes are `idx_tracking_geofence_active_bbox(tenant_id,lifecycle,min_longitude,max_longitude,min_latitude,max_latitude)`
+and `idx_tracking_geofence_location(tenant_id,location_id)`. The activation-count persistence primitive
+uses a Tenant-keyed transaction advisory lock; CS03/CS04 will enforce the 500-ACTIVE limit atomically.
+
+#### Table: `tracking_vehicle_geofence_state`
+
+- **Purpose:** Rebuildable current per-Vehicle/per-geofence membership and hysteresis state.
+- **Primary Key:** (`tenant_id`, `geofence_id`, `vehicle_id`)
+- **Multi-Tenant Key:** `tenant_id` (composite primary key and index)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :---: | :--- | :--- | :--- |
+| `tenant_id` | UUID | NO | - | Composite PK; same-module FK with `geofence_id` | Tenant scope |
+| `geofence_id` | UUID | NO | - | Composite PK; FK → `tracking_geofence(tenant_id,id)` RESTRICT | Definition |
+| `vehicle_id` | UUID | NO | - | Composite PK; logical Fleet reference | Vehicle |
+| `definition_version` | BIGINT | NO | - | >=0 | Evaluated definition version |
+| `stable_state` | VARCHAR(8) | YES | NULL | INSIDE or OUTSIDE | Stable membership; null before initialization |
+| `pending_candidate` | VARCHAR(8) | YES | NULL | INSIDE or OUTSIDE; coherent with pending fields | Pending side |
+| `pending_count` | SMALLINT | NO | 0 | 0 or 1 through coherence check | Confirmation count |
+| `pending_position_id` | UUID | YES | NULL | Logical Tracking position reference | First confirmation |
+| `last_evaluated_position_id` | UUID | YES | NULL | Paired with source timestamp | Ordering tie-break |
+| `last_evaluated_source_timestamp` | TIMESTAMPTZ | YES | NULL | Paired with position ID | Latest evaluated source time |
+| `version` | BIGINT | NO | 0 | >=0 | Optimistic version |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Creation time |
+| `updated_at` | TIMESTAMPTZ | NO | - | - | Last update time |
+
+Index `idx_tracking_geofence_state_vehicle(tenant_id,vehicle_id,geofence_id)` supports bounded memberships.
+
+#### Table: `tracking_geofence_transition`
+
+- **Purpose:** Append-only immutable geofence transition evidence.
+- **Primary Key:** `id` (UUID, deterministic transition UUID)
+- **Multi-Tenant Key:** `tenant_id` (Tenant-leading uniqueness and history indexes)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :---: | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY; UNIQUE with `tenant_id` | Transition UUID |
+| `tenant_id` | UUID | NO | - | Tenant scope | Trusted Tenant |
+| `geofence_id` | UUID | NO | - | Same-module FK → `tracking_geofence(tenant_id,id)` RESTRICT | Definition |
+| `vehicle_id` | UUID | NO | - | Logical Fleet reference | Vehicle |
+| `location_id` | UUID | YES | NULL | Logical Organization reference | Optional site |
+| `geofence_type` | VARCHAR(24) | NO | - | Frozen geofence values | Type snapshot |
+| `transition` | VARCHAR(32) | NO | - | ENTERED, EXITED, UNAUTHORIZED_ZONE_ENTERED | Transition classification |
+| `severity` | VARCHAR(8) | NO | - | NORMAL or HIGH | Severity |
+| `source_timestamp` | TIMESTAMPTZ | NO | - | - | Confirming source time |
+| `definition_version` | BIGINT | NO | - | >=0 | Definition snapshot version |
+| `confirming_position_id` | UUID | NO | - | Same-module FK → `tracking_position(tenant_id,id)` RESTRICT | Confirming position |
+| `from_state` | VARCHAR(8) | NO | - | INSIDE/OUTSIDE; differs from `to_state` | Previous membership |
+| `to_state` | VARCHAR(8) | NO | - | INSIDE/OUTSIDE | Confirmed membership |
+| `transition_identity` | UUID | NO | - | UNIQUE with `tenant_id` | Deterministic idempotency identity |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Persistence time |
+
+Tenant-leading history indexes support geofence/source time, Vehicle/source time and partial unauthorized
+source-time queries. Trigger `trg_tracking_geofence_transition_immutable` rejects UPDATE and DELETE. No
+coordinates, geometry, raw payload, provider/device identity or person/customer data are stored.
+
+#### Table: `tracking_geofence_evaluation_job`
+
+- **Purpose:** Durable bounded evaluation work keyed idempotently by accepted Tracking position.
+- **Primary Key:** (`tenant_id`, `position_id`)
+- **Multi-Tenant Key:** `tenant_id` (composite primary key and due-job index)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :---: | :--- | :--- | :--- |
+| `tenant_id` | UUID | NO | - | Composite PK; same-module FK with position | Tenant scope |
+| `position_id` | UUID | NO | - | Composite PK; FK → `tracking_position(tenant_id,id)` RESTRICT | One logical job per position |
+| `status` | VARCHAR(16) | NO | - | PENDING, PROCESSING, COMPLETED, FAILED | Job state |
+| `attempt` | INTEGER | NO | 0 | >=0 | Claim attempt count |
+| `next_attempt_at` | TIMESTAMPTZ | NO | - | - | Due time |
+| `lease_owner` | VARCHAR(120) | YES | NULL | Both lease fields null or non-null | Current worker |
+| `lease_until` | TIMESTAMPTZ | YES | NULL | Both lease fields null or non-null | Lease expiry |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Enqueue time |
+| `updated_at` | TIMESTAMPTZ | NO | - | - | Last state change |
+
+Index `idx_tracking_geofence_job_due(tenant_id,status,next_attempt_at,lease_until,position_id)` supports
+bounded `FOR UPDATE SKIP LOCKED` claims. JDBC primitives implement idempotent enqueue, claim, renew,
+release, retry, complete and expired-lease reclaim with owner-safe predicates. CS02 does not wire ingestion
+or start a worker.
