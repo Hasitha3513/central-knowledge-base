@@ -106,3 +106,15 @@ US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM` at curre
 | Integration | Tracking | Published `IntegrationSecretResolver` for opaque credential reference only; never table/repository access or packet transport | ACTIVE_MVP / V74_REMEDIATION_COMPLETE |
 
 The ARB disposition places US-48 physical acceptance `ON_HOLD_EXTERNAL_PREREQUISITE` until a physical FMC130 and live Flespi prerequisites become available. The hold is not completion, acceptance or waiver: US-48 remains `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM` and accounting remains 72/87. Downstream implementation may consume technically proven frozen contracts without inheriting US-48 acceptance. US-49 is the next source-ordered task and is `TECHNICAL_DEPENDENCY_SATISFIED / READY_FOR_PRODUCT_DECISIONS`; US-50 and US-52 are likewise ready for decisions, and US-53 is ready after earlier Wave C decisions for its optional overlays. US-51 is blocked by missing engine-state capability, US-54 by US-49..53 producers, and full US-55 by unestablished tamper/spoof/battery signals and decisions.
+
+# US-49 Frozen Dependencies (Product Decisions Complete; Not Implemented)
+
+| Provider | Consumer | Contract | Status |
+| :--- | :--- | :--- | :--- |
+| Tracking US-48 | Tracking US-49 | Same-Tenant TRUSTED, IN_ORDER WGS84 accepted position with Vehicle, source timestamp and position UUID | FROZEN_TECHNICAL_CONTRACT; no US-48 acceptance inheritance |
+| Organization | Tracking US-49 | Explicit-Tenant active location lookup for DEPOT/CUSTOMER_SITE logical references | PROPOSED_EXTENSION; no foreign persistence or SQL |
+| Tracking US-49 | Notification | Minimized durable `VehicleGeofenceTransitionedV1` transition event | APPROVED_FOR_IMPLEMENTATION / NOT_ACTIVE |
+| Tracking US-49 | Operations | No direct contract | NONE; US-55 owns later GPS-exception integration |
+| Delivery US-63 | Tracking US-49 | No shared aggregate, table or polygon | EXPLICITLY_DISTINCT; serviceability/capacity versus telemetry boundary detection |
+
+US-49 is `PRODUCT_DECISIONS_COMPLETE / IMPLEMENTATION_PENDING`. Tracking owns geofence definitions, evaluation jobs, per-Vehicle state and immutable transitions. Organization remains owner of depot/customer-site locations, Notification remains owner of delivery channels/recipients, and no cross-module physical foreign key, repository, join or entity relationship is approved. Next task: `US-49-MANAGE-GEOFENCES-CS01-DOMAIN-PORTS-001`.

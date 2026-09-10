@@ -150,3 +150,11 @@ Preparer and approver must differ. These permissions grant no Customer/source mu
 - `TRACKING_DEVICE_MANAGE`: same-Tenant device-reference lifecycle, effective-dated Vehicle association, and implemented provider-connection/device-binding create, update, test, discovery, activate, disable, retire and rebind operations. HTTP and method security cover the literal `/api/v1/tracking` management routes; `TRACKING_VIEW` and `TRACKING_HISTORY_VIEW` grant no mutation authority. Cross-Tenant management is not-found-shaped and authenticated denied management commands are safely audited where Tenant context exists. No separate credential/configuration permission is authorized; APIs return only configured/masked state and never credential references or secret values.
 
 `TRACKING_INGEST` is a trusted service capability, not a human RBAC permission. Provider ingress uses signed request authentication, TLS, timestamp/nonce replay protection and server-resolved opaque credentials. Tenant comes from the authenticated ingress context and is validated against the provider/device association, never telemetry payload authority. No broad `GPS_ADMIN`, Customer location access, Driver private-data access, raw-payload access or credential-read permission exists. The three human permissions above are seeded by V73.
+
+## US-49 Geofence Permissions (Frozen; Not Implemented)
+
+- `GEOFENCE_VIEW`: view same-Tenant geofence definitions and safe status.
+- `GEOFENCE_MANAGE`: create and edit eligible definitions and execute activate, disable and retire commands.
+- `GEOFENCE_EVENT_VIEW`: view same-Tenant immutable entry/exit transition history.
+
+These are the only approved US-49 human permissions. They grant no Tracking device/provider management, raw telemetry, credential access, cross-Tenant access, Organization-location mutation, Delivery Zone mutation or Operations exception authority. Tenant isolation is mandatory; no generic ABAC engine is introduced. Exact coordinates remain sensitive and are excluded from published transitions. The permissions are `APPROVED_FOR_IMPLEMENTATION / NOT_SEEDED`; likely V77 work must not begin before CS01 domain/port closure.
