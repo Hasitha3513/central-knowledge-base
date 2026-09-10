@@ -356,3 +356,19 @@ full Maven 1,558 tests with zero failures/errors and 15 skipped in 09:38, Chromi
 database evidence used only `transport_logistics_acceptance`. US-49 remains implementation-in-progress;
 next is `US-49-MANAGE-GEOFENCES-CS04-APIS-RBAC-AUDIT-001`. Accounting remains 72/87 and the US-48
 external hold is unchanged.
+
+## US-49 V78 permission seed (CS04A complete)
+
+V78 is the current Flyway head; V1–V77 remain immutable and no V79 exists. It changes only global Identity
+RBAC metadata by seeding the three frozen active permission codes `GEOFENCE_VIEW`, `GEOFENCE_MANAGE` and
+`GEOFENCE_EVENT_VIEW`. It conditionally grants them only to existing `ADMIN` and `LOCAL_MVP_ADMIN` roles
+and creates neither roles nor non-administrative grants. The local Identity bootstrap catalogue is aligned
+to the same codes and its canonical permission count is 181.
+
+Clean V1→V78 and explicit V77→V78 paths pass on `transport_logistics_acceptance`; focused Identity/RBAC
+and Tracking security compatibility is 46/46, complete Tracking is 154/154, full Maven is 1,560 tests with
+zero failures/errors and 15 skipped in 09:34, and architecture is 52/52. Checkstyle reports zero configured
+violations, PMD passes and SpotBugs reports zero findings/errors. No API, controller, frontend, event,
+Notification, domain, geofence-table, public-contract or accounting change belongs to CS04A. US-49 remains
+implementation-in-progress, accounting remains 72/87 and the US-48 external hold is unchanged. Next is
+`US-49-MANAGE-GEOFENCES-CS04-APIS-RBAC-AUDIT-001-RERUN`.
