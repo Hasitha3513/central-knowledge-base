@@ -121,7 +121,7 @@ DISABLED-to-ACTIVE command and revalidates geometry, location and the Tenant-wid
 a Tenant advisory lock. The vehicle membership/hysteresis lifecycle is `IMPLEMENTED_US49_CS03`; durable
 cross-module publication and Notification consumption remain inactive until CS05.
 
-# US-50 Speed Rule, State and Episode (Frozen; Not Implemented)
+# US-50 Speed Rule, State and Episode (CS01 Domain Implemented)
 
 Speed rules use `DRAFT -> ACTIVE <-> DISABLED -> RETIRED`; RETIRED is terminal. Editing is allowed only in
 DRAFT or DISABLED. Activation creates an immutable incremented rule version/effective fact and permits at
@@ -136,5 +136,5 @@ state. Rule activation/version change resets affected current/candidate state wi
 
 An episode is immutable after closure. A newly confirmed episode under the same rule ID/version within ten
 minutes of the previous end is a HIGH repeat; otherwise it is WARNING. Further above-threshold samples update
-only maximum speed/sample count. One deterministic event exists per confirmed episode. This lifecycle is
-`PRODUCT_DECISIONS_FROZEN_US50 / NOT_IMPLEMENTED`.
+only maximum speed/sample count. One deterministic publication model exists per confirmed episode; durable
+event infrastructure remains deferred. This lifecycle is `IMPLEMENTED_US50_CS01`.

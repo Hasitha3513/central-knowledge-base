@@ -124,7 +124,7 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 | Provider | Consumer | Contract | Status |
 | :--- | :--- | :--- | :--- |
 | Tracking US-48 | Tracking US-50 | Optional normalized `speedKph`, trusted/in-order Vehicle association, source time and immutable position identity | ACTIVE_TECHNICAL_CONTRACT; no US-48 acceptance inheritance |
-| Trip | Tracking US-50 | Proposed `VehicleTripAssignmentLookup.findAt(tenantId,vehicleId,sourceTimestamp)` returning optional logical Trip/Driver/route/version attribution | FROZEN_US50 / NOT_IMPLEMENTED; no foreign persistence or join |
-| Tracking US-50 | Notification | Minimized `VehicleSpeedingDetectedV1` through shared P1-01 outbox | FROZEN_US50 / NOT_IMPLEMENTED; at-least-once with idempotent consumption |
+| Trip | Tracking US-50 | Published `VehicleTripAssignmentLookup.findAt(tenantId,vehicleId,sourceTimestamp)` returning optional logical Trip/Driver/route/version attribution | CS01_CONTRACT_IMPLEMENTED / PROVIDER_ADAPTER_DEFERRED; no foreign persistence or join |
+| Tracking US-50 | Notification | Minimized `VehicleSpeedingDetectedV1` publication-port model; future shared P1-01 outbox | CS01_MODEL_IMPLEMENTED / PUBLICATION_AND_CONSUMPTION_DEFERRED |
 | Routing | Tracking US-50 | No dynamic legal road-limit or segment-matching contract | NONE_PHASE1; route/version is logical attribution only and thresholds are Tracking-owned operational configuration |
 | Tracking US-50 | Driver | No mutation or event contract | NONE; Driver retains violation, discipline, performance, payroll and licence ownership |

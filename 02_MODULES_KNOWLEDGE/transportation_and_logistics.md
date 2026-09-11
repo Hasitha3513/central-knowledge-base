@@ -1078,12 +1078,12 @@ Database assertions are supplemental and may not create, update, delete, repair,
 
 `US-48-LIVE-VEHICLE-TRACKING-TECHNICAL-CLOSURE-001-RERUN` passes at current head V74. Fresh evidence is focused security/status/PostgreSQL 32/32 with exact concurrency 9/9, clean Flyway V1→V74, full Maven 1,430 tests with zero failures/errors and 15 skipped in 07:14, architecture 46/46, Checkstyle/PMD/SpotBugs, TypeScript, Vitest 265/265, production build and changed-file lint PASS, and controlled-provider real PostgreSQL-backed Chromium 11/11. Caller Tenant authority is removed; the Tracking-owned provider binding, `IntegrationSecretResolver`-only secret boundary, binding-scoped nonce, retention/TOO_OLD behavior, rebuild, observability, health and audit contracts pass without per-packet P1-01 or a second outbox. US-48 remains acceptance pending, accounting remains 72/87, and real-device/real-provider final acceptance is next.
 
-### US-50 Trip attribution contract decision
+### US-50 Trip attribution contract (CS01 published)
 
-US-50 freezes a proposed published read-only Trip contract,
+US-50 CS01 publishes the read-only Trip contract,
 `VehicleTripAssignmentLookup.findAt(tenantId, vehicleId, sourceTimestamp)`, returning optional logical
 `tripId`, nullable `driverId`, nullable `routeId` and nullable `routeVersion` for the assignment covering
 source time. Trip remains owner of assignment facts. Tracking may snapshot only these minimized identifiers;
 it may not query Trip persistence, create a physical foreign key, infer last-known Driver assignment or mutate
-Driver/Trip state. The contract is `PRODUCT_DECISIONS_FROZEN_US50 / NOT_IMPLEMENTED` and belongs to the
-US-50 controlled implementation sequence.
+Driver/Trip state. The provider-side adapter remains deferred; CS01 adds no Trip repository access,
+persistence change or behavior change.

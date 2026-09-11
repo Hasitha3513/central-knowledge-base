@@ -210,7 +210,7 @@ V1→V79 PostgreSQL journey proves one transition, one outbox identity and one I
 producer/consumer replay idempotency and Tenant-B exclusion. Initial membership and the first hysteresis
 candidate publish nothing, so stable packet streams do not create per-position events.
 
-## VehicleSpeedingDetectedV1 (US-50; Frozen, Not Implemented)
+## VehicleSpeedingDetectedV1 (US-50; CS01 Port Model Implemented, Publication Inactive)
 
 - **Owner / producer:** Tracking.
 - **Consumer:** Notification only; Driver/Operations consumers are NONE.
@@ -226,5 +226,5 @@ candidate publish nothing, so stable packet streams do not create per-position e
 
 Notification owns recipient resolution, template, preference, channel, suppression, retry and history. A
 P1-01 replay must not create a second logical notification. This contract is
-`PRODUCT_DECISIONS_FROZEN_US50 / NOT_IMPLEMENTED`; CS05 may activate it only after domain/persistence/API
+`CS01_CONTRACT_MODEL_IMPLEMENTED / PUBLICATION_INACTIVE`; CS05 may activate it only after domain/persistence/API
 slices pass. No Driver violation, performance, payroll or licence side effect is authorized.
