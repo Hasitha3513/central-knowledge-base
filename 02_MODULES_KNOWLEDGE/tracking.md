@@ -2,9 +2,9 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V79 for the US-49 Notification catalogue seed. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence evaluation. US-49 CS01–CS06 are complete; accounting remains 72/87 with 15 remaining and physical-device/real-provider US-48 final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V80 for US-49 geofence index hardening. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence evaluation. US-49 CS01–CS06 and CS07A are complete; accounting remains 72/87 with 15 remaining and physical-device/real-provider US-48 final acceptance is still required.
 
-US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, migration, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 concurrency/performance is next.
+US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07A V80 index hardening is complete; the CS07 concurrency/performance rerun is next.
 
 Phase 1 owns a narrow `TrackingDevice` reference registry, effective-dated one-device/one-Vehicle active association, immutable normalized `PositionEvent` history, ingestion dedupe/conflict/order/trust, last-received and last-trusted projections, freshness/connectivity, retention metadata, safe queries, provider adapter health and minimal operator UI.
 
@@ -214,7 +214,7 @@ The proposed permissions are `GEOFENCE_VIEW`, `GEOFENCE_MANAGE` and `GEOFENCE_EV
 
 ## US-49 V77 persistence (CS02 complete)
 
-V77 is the current Flyway head; V1–V76 are immutable. It creates only the four Tracking-owned tables below.
+At CS02 completion V77 was the Flyway head; V1–V76 are immutable. It creates only the four Tracking-owned tables below.
 Organization `location_id` and Fleet `vehicle_id` remain logical UUID references without physical
 cross-module foreign keys. PostgreSQL structural constraints supplement, but do not replace, domain rules.
 No PostGIS extension, permission seed, API, outbox event or evaluator wiring is included.
@@ -361,7 +361,7 @@ external hold is unchanged.
 
 ## US-49 V78 permission seed (CS04A complete)
 
-V78 is the current Flyway head; V1–V77 remain immutable and no V79 exists. It changes only global Identity
+At CS04A completion V78 was the Flyway head; V1–V77 remain immutable. It changes only global Identity
 RBAC metadata by seeding the three frozen active permission codes `GEOFENCE_VIEW`, `GEOFENCE_MANAGE` and
 `GEOFENCE_EVENT_VIEW`. It conditionally grants them only to existing `ADMIN` and `LOCAL_MVP_ADMIN` roles
 and creates neither roles nor non-administrative grants. The local Identity bootstrap catalogue is aligned
@@ -402,7 +402,7 @@ remained V78 at CS04. Accounting remains 72/87 and US-48's external hold is unch
 
 ## US-49 V79 Notification catalogue seed (CS05A complete)
 
-V79 is the current Flyway head; V1–V78 remain immutable and V80 does not exist. It creates no table and
+At CS05A completion V79 was the Flyway head; V1–V78 remain immutable. It creates no table and
 uses only Notification-owned catalogue tables. It seeds one global active version-1 IN_APP template for
 `VEHICLE_GEOFENCE_TRANSITIONED_V1`, plus one enabled Tenant-scoped `ROLE` / `DISPATCHER` rule and its
 existing policy row per current Tenant. The policy has no quiet hours, zero suppression and no escalation.
@@ -420,3 +420,31 @@ and rendered-content privacy, and replay idempotency. Tracking is 171/171, Notif
 security/privacy is 78/78, full Maven is 1,583/0/0/15 in 10:16, architecture is 52/52, and the configured
 static gates pass. Accounting remains 72/87 and US-48's external hold is unchanged. Next task:
 `US-49-MANAGE-GEOFENCES-CS06-FRONTEND-001`.
+
+## US-49 V80 geofence index hardening (CS07A complete)
+
+V80 is the current Flyway head; V1–V79 remain immutable and no V81 exists. It adds only two
+Tracking-owned physical-design indexes. `idx_tracking_geofence_job_global_due` is ordered by
+`(next_attempt_at, tenant_id, position_id)` and includes `status` and `lease_until`, matching the global
+bounded `FOR UPDATE SKIP LOCKED` due-job claim. Partial
+`idx_tracking_geofence_active_bbox_upper` is ordered by `(tenant_id, max_longitude)`, includes the other
+bbox coordinates and definition ID, and contains only ACTIVE definitions.
+
+The candidate lookup remains explicitly Tenant-scoped and logically unchanged: it unions definitions whose
+bbox contains the position with ACTIVE definitions already represented in the same Vehicle's current state,
+then performs the bounded definition lookup. Coordinate parameters are explicitly cast to PostgreSQL
+`numeric` so the indexed numeric columns are not cast to `double precision`. This preserves exit detection,
+initialization, overlap, lifecycle, ordering and the 500-candidate bound.
+
+At 5,000 definitions the pre-V80 bbox plan sequentially scanned and removed 4,990 rows (2.405 ms); V80 uses
+the new index-only scan and existing state-vehicle index and completes in 0.118 ms. At 5,000 jobs the pre-V80
+claim sequentially scanned and sorted (1.112 ms); V80 uses the ordered claim index with no sequential scan or
+explicit sort and completes in 0.036 ms. Clean V1→V80 and V79→V80 both pass on
+`transport_logistics_acceptance`.
+
+Verification: focused PostgreSQL 31/31, full Maven 1,595 tests with zero failures/errors and 15 skipped,
+architecture 52/52, configured static gates, TypeScript/build, Vitest 299/299, Chromium US-49 6/6 and
+performance 1/1 all pass. Performance measured 1,083.4 msg/s sustained, 1,423.4 msg/s burst, latest p95
+16.2 ms and history p95 13.3 ms. No public API, permission, event, frontend, lifecycle, accounting or external
+dependency changed. Accounting remains 72/87; US-48's external hold is unchanged. Next task:
+`US-49-MANAGE-GEOFENCES-CS07-POSTGRES-CONCURRENCY-PERFORMANCE-001-RERUN`.
