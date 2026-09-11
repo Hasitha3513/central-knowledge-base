@@ -2,9 +2,9 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V80 for US-49 geofence index hardening. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence evaluation. US-49 CS01–CS06 and CS07A are complete; accounting remains 72/87 with 15 remaining and physical-device/real-provider US-48 final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V80 for US-49 geofence index hardening. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence evaluation. US-49 CS01–CS07 and CS07A are complete; accounting remains 72/87 with 15 remaining and physical-device/real-provider US-48 final acceptance is still required.
 
-US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07A V80 index hardening is complete; the CS07 concurrency/performance rerun is next.
+US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; technical closure is next.
 
 Phase 1 owns a narrow `TrackingDevice` reference registry, effective-dated one-device/one-Vehicle active association, immutable normalized `PositionEvent` history, ingestion dedupe/conflict/order/trust, last-received and last-trusted projections, freshness/connectivity, retention metadata, safe queries, provider adapter health and minimal operator UI.
 
@@ -447,4 +447,32 @@ architecture 52/52, configured static gates, TypeScript/build, Vitest 299/299, C
 performance 1/1 all pass. Performance measured 1,083.4 msg/s sustained, 1,423.4 msg/s burst, latest p95
 16.2 ms and history p95 13.3 ms. No public API, permission, event, frontend, lifecycle, accounting or external
 dependency changed. Accounting remains 72/87; US-48's external hold is unchanged. Next task:
-`US-49-MANAGE-GEOFENCES-CS07-POSTGRES-CONCURRENCY-PERFORMANCE-001-RERUN`.
+`US-49-MANAGE-GEOFENCES-TECHNICAL-CLOSURE-001`.
+
+## US-49 PostgreSQL concurrency and performance (CS07 complete)
+
+The unchanged 31-test PostgreSQL race matrix passed three consecutive executions on
+`transport_logistics_acceptance`: 31/31 each and 93/93 combined. The 500-ACTIVE-definition initialization
+workloads completed in 822 ms, 2,581 ms and 917 ms, each producing exactly 500 silent initial states and
+zero transition/outbox events. The matrix covers duplicate initialization and confirmation serialization,
+source-time ordering and rewind prevention, lifecycle/version races, the 499+2 activation boundary,
+Tenant-independent limits, immutable transition uniqueness, overlapping-geofence independence, durable
+job claim/lease ownership and recovery, idempotent publication/Notification consumption, controlled
+failure atomicity, and bounded-worker saturation release.
+
+Across the three executions, the approximately 5,000-row bbox lookup used
+`idx_tracking_geofence_active_bbox_upper` as an index-only scan, returned 10 candidates, and completed in
+0.097–0.107 ms without filtering the full Tenant population. The approximately 5,000-row global due-job
+claim used `idx_tracking_geofence_job_global_due` as an ordered index scan, returned the bounded 16 rows,
+and completed in 0.027–0.033 ms without a full sequential scan or global explicit sort. No deadlock,
+connection leak, pool exhaustion, timeout storm or global isolation-level change was observed.
+
+Closure regression evidence: Tracking 183/183, Notification 164/164, security/Tenant/privacy/RBAC
+152/152, full Maven 1,595 tests with zero failures/errors and 15 skipped in 10:44, architecture 52/52,
+configured Checkstyle/PMD/SpotBugs gates, TypeScript and production build, Vitest 299/299, and real
+PostgreSQL-backed Chromium 7/7 all pass. Signed-ingress performance measured 1,287.7 msg/s sustained,
+1,442.4 msg/s burst, latest p95 10.5 ms and history p95 14.8 ms. The global ESLint baseline remains 71
+unrelated Delivery findings; CS07 changed no frontend files and introduced no lint debt. No production,
+schema, API, event, permission, lifecycle, frontend, dependency or accounting change was required. V80
+remains current, no V81 exists, US-49 remains `IMPLEMENTATION_IN_PROGRESS`, and US-48's external hold is
+unchanged. Next task: `US-49-MANAGE-GEOFENCES-TECHNICAL-CLOSURE-001`.
