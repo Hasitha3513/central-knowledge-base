@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V79 for the US-49 Notification catalogue seed. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence evaluation. US-49 CS01–CS05A are complete; accounting remains 72/87 with 15 remaining and physical-device/real-provider US-48 final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V79 for the US-49 Notification catalogue seed. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence evaluation. US-49 CS01–CS05 are complete; accounting remains 72/87 with 15 remaining and physical-device/real-provider US-48 final acceptance is still required.
 
 Phase 1 owns a narrow `TrackingDevice` reference registry, effective-dated one-device/one-Vehicle active association, immutable normalized `PositionEvent` history, ingestion dedupe/conflict/order/trust, last-received and last-trusted projections, freshness/connectivity, retention metadata, safe queries, provider adapter health and minimal operator UI.
 
@@ -407,11 +407,14 @@ existing policy row per current Tenant. The policy has no quiet hours, zero supp
 
 The template renders only Vehicle ID, geofence ID/type, transition and source timestamp. Coordinates,
 polygon, device/provider facts, credentials, raw telemetry, Driver PII and Customer data are neither
-required nor rendered. Catalogue and rule/template resolution are ready, but no durable publisher,
-Notification consumer or delivery attempt is implemented by CS05A; the cross-module event remains
-`NOT_ACTIVE` until CS05.
+required nor rendered. CS05 activates the contract through Tracking's shared P1-01 durable publisher and
+Notification's registered durable bridge. The bridge resolves the V79 Tenant rule, eligible same-Tenant
+Dispatcher recipients and the version-1 template, then persists the existing Notification model's IN_APP
+equivalent of a delivery attempt. Execution identity prevents duplicates during consumer or producer replay.
 
-Clean V1→V79 and V78→V79 pass on `transport_logistics_acceptance`; Notification regression is 164/164,
-security/privacy is 52/52, full Maven is 1,574/0/0/15 in 10:29, and architecture is 52/52. Accounting
-remains 72/87 and US-48's external hold is unchanged. Next task:
-`US-49-MANAGE-GEOFENCES-CS05-NOTIFICATION-INTEGRATION-001-RERUN`.
+Clean V1→V79 passes on `transport_logistics_acceptance` and proves initial/pending silence, one confirmed
+transition, one outbox event, one Tenant-A Dispatcher notification, Tenant-B exclusion, minimized payload
+and rendered-content privacy, and replay idempotency. Tracking is 171/171, Notification is 164/164,
+security/privacy is 78/78, full Maven is 1,583/0/0/15 in 10:16, architecture is 52/52, and the configured
+static gates pass. Accounting remains 72/87 and US-48's external hold is unchanged. Next task:
+`US-49-MANAGE-GEOFENCES-CS06-FRONTEND-001`.

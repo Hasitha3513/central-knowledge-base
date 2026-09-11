@@ -107,14 +107,14 @@ US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM` at curre
 
 The ARB disposition places US-48 physical acceptance `ON_HOLD_EXTERNAL_PREREQUISITE` until a physical FMC130 and live Flespi prerequisites become available. The hold is not completion, acceptance or waiver: US-48 remains `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM` and accounting remains 72/87. Downstream implementation may consume technically proven frozen contracts without inheriting US-48 acceptance. US-49 is the next source-ordered task and is `TECHNICAL_DEPENDENCY_SATISFIED / READY_FOR_PRODUCT_DECISIONS`; US-50 and US-52 are likewise ready for decisions, and US-53 is ready after earlier Wave C decisions for its optional overlays. US-51 is blocked by missing engine-state capability, US-54 by US-49..53 producers, and full US-55 by unestablished tamper/spoof/battery signals and decisions.
 
-# US-49 Dependencies (CS01–CS04A Implemented)
+# US-49 Dependencies (CS01–CS05 Implemented)
 
 | Provider | Consumer | Contract | Status |
 | :--- | :--- | :--- | :--- |
 | Tracking US-48 | Tracking US-49 | Same-Tenant TRUSTED, IN_ORDER WGS84 accepted position with Vehicle, source timestamp and position UUID | FROZEN_TECHNICAL_CONTRACT; no US-48 acceptance inheritance |
 | Organization | Tracking US-49 | Published explicit-Tenant location lookup for DEPOT/CUSTOMER_SITE create/update/activation validation | CS04_ACTIVE_CONSUMPTION; root contract only, no foreign persistence or SQL |
-| Tracking US-49 | Notification | Minimized `VehicleGeofenceTransitionedV1` transition fact | CS01_PUBLICATION_PORT_ONLY / DURABLE_ADAPTER_NOT_ACTIVE |
+| Tracking US-49 | Notification | Minimized `VehicleGeofenceTransitionedV1` transition fact through shared P1-01 outbox; V79 Tenant `ROLE` / `DISPATCHER` rule and IN_APP template | CS05_ACTIVE_DURABLE_AT_LEAST_ONCE / IDEMPOTENT_NOTIFICATION |
 | Tracking US-49 | Operations | No direct contract | NONE; US-55 owns later GPS-exception integration |
 | Delivery US-63 | Tracking US-49 | No shared aggregate, table or polygon | EXPLICITLY_DISTINCT; serviceability/capacity versus telemetry boundary detection |
 
-US-49 CS01–CS04A are `COMPLETE`; US-49 remains implementation-in-progress without acceptance credit. Tracking owns geofence definitions, evaluation jobs, per-Vehicle state, immutable transitions, management APIs and safe audit. Organization remains owner of depot/customer-site locations and is accessed only through its published Tenant-aware lookup. Notification remains owner of delivery channels/recipients; no cross-module physical foreign key, repository, join or entity relationship exists. Next task: `US-49-MANAGE-GEOFENCES-CS05-NOTIFICATION-INTEGRATION-001`.
+US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress without acceptance credit. Tracking owns geofence definitions, evaluation jobs, per-Vehicle state, immutable transitions, management APIs, safe audit and durable transition publication. Notification remains owner of rules, recipients, templates and notification persistence. Organization remains owner of depot/customer-site locations and is accessed only through its published Tenant-aware lookup. No cross-module physical foreign key, repository, join or entity relationship exists. Next task: `US-49-MANAGE-GEOFENCES-CS06-FRONTEND-001`.

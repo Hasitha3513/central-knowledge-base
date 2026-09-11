@@ -332,8 +332,12 @@ global active version-1 IN_APP template for `VEHICLE_GEOFENCE_TRANSITIONED_V1`, 
 Tenant-scoped `ROLE` / `DISPATCHER` rule plus default policy per current Tenant. The policy disables quiet
 hours and escalation and uses a zero-minute suppression window. Template content is minimized to safe
 Vehicle/geofence/type/transition/source-time facts; it excludes coordinates, polygon, device/provider
-identity, credentials, raw telemetry, Driver PII and Customer data. Durable Tracking publication,
-Notification consumption and delivery-attempt creation remain unimplemented until US-49 CS05.
+identity, credentials, raw telemetry, Driver PII and Customer data. US-49 CS05 activates durable Tracking
+publication through the shared P1-01 outbox and the registered
+Notification bridge. The seeded Tenant rule resolves eligible same-Tenant Dispatchers and the version-1
+IN_APP template; Notification execution identity makes producer and consumer replay idempotent. A clean
+V1→V79 PostgreSQL journey proves one transition, one outbox identity, one Tenant-A notification and no
+Tenant-B recipient or notification. No Notification schema, channel or recipient-model change was required.
 
 ### Customer self-service tables (V59)
 
