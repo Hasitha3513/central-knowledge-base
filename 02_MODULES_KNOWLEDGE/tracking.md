@@ -531,4 +531,127 @@ lifecycle, threshold resolution, eligibility, state transitions, repeat/severity
 and deterministic identity; domain-neutral ports cover evaluation, management, queries, future persistence,
 attribution and publication. Technical closure may use signed
 fixtures; final real-speed fidelity requires verified physical device/provider speed and otherwise remains
-`ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`. Next: `US-50-MONITOR-SPEED-CS02-V81-PERSISTENCE-001`.
+`ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`.
+
+## US-50 V81 speed-monitoring persistence (CS02 complete)
+
+V81 is the current Flyway head; V1–V80 remain immutable and no V82 exists. CS02 creates exactly four
+Tracking-owned Tenant-scoped tables and JDBC adapters. It adds no API, permission, audit/outbox table,
+Notification catalogue, frontend, scheduler, worker or cross-module physical foreign key. US-50 remains
+`IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87, and US-48's external hold is unchanged.
+
+#### Table: `tracking_speed_rule`
+
+- **Purpose:** Versioned Tenant or route-version speed threshold configuration.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, indexed through Tenant-leading uniqueness/lookups)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY; UNIQUE with `tenant_id` | Deterministic rule identity |
+| `tenant_id` | UUID | NO | - | Tenant scope | Owning Tenant |
+| `name` | VARCHAR(120) | NO | - | Trimmed and non-empty | Operator name |
+| `scope` | VARCHAR(16) | NO | - | `TENANT`, `ROUTE_VERSION` | Resolution scope |
+| `route_id` | UUID | YES | NULL | Logical Routing reference; required only for route scope | Route identity |
+| `route_version` | VARCHAR(120) | YES | NULL | Trimmed; required only for route scope | Immutable route version |
+| `threshold_kph` | NUMERIC(7,3) | NO | - | `> 0 AND <= 400` | Canonical threshold |
+| `lifecycle` | VARCHAR(16) | NO | - | `DRAFT`, `ACTIVE`, `DISABLED`, `RETIRED` | Rule lifecycle |
+| `version` | BIGINT | NO | - | `> 0`; optimistic update token | Rule version |
+| `effective_at` | TIMESTAMPTZ | YES | NULL | Required for ACTIVE | Activation instant |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | - | Creation instant |
+| `updated_at` | TIMESTAMPTZ | NO | `now()` | - | Last update instant |
+
+Partial unique indexes enforce one ACTIVE Tenant fallback and one ACTIVE rule per
+`(tenant_id,route_id,route_version)`. Tenant-leading partial covering indexes serve route/version and fallback
+resolution.
+
+#### Table: `tracking_speed_state`
+
+- **Purpose:** One durable current speed-monitoring state per Tenant and Vehicle.
+- **Primary Key:** `(tenant_id, vehicle_id)`
+- **Multi-Tenant Key:** `tenant_id` (UUID, leading primary-key column)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `tenant_id` | UUID | NO | - | Composite PRIMARY KEY | Owning Tenant |
+| `vehicle_id` | UUID | NO | - | Composite PRIMARY KEY; logical Fleet reference | Vehicle identity |
+| `state` | VARCHAR(16) | NO | - | `UNKNOWN`, `NORMAL`, `SPEEDING` | Current state |
+| `availability` | VARCHAR(32) | NO | - | `AVAILABLE`, `NOT_EVALUATED`, `CONFIGURATION_UNAVAILABLE` | Evaluation availability |
+| `effective_rule_id` | UUID | YES | NULL | Paired with positive rule version | Applied rule |
+| `effective_rule_version` | BIGINT | YES | NULL | Positive when present | Applied version |
+| `candidate_position_id` | UUID | YES | NULL | Candidate tuple is all-present or all-absent | First sample |
+| `candidate_source_timestamp` | TIMESTAMPTZ | YES | NULL | Candidate tuple | First-sample source time |
+| `candidate_observed_speed_kph` | NUMERIC(7,3) | YES | NULL | `0..400` when present | Candidate speed |
+| `candidate_sample_count` | SMALLINT | NO | `0` | `0` or `1` coherently | Pending confirmation count |
+| `active_episode_id` | UUID | YES | NULL | Required exactly when SPEEDING | Active episode |
+| `last_evaluated_source_timestamp` | TIMESTAMPTZ | YES | NULL | Paired with position ID | Ordering watermark |
+| `last_evaluated_position_id` | UUID | YES | NULL | Paired with source timestamp | Ordering tie-breaker |
+| `version` | BIGINT | NO | `0` | `>= 0`; optimistic token | State version |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | - | Creation instant |
+| `updated_at` | TIMESTAMPTZ | NO | `now()` | - | Last update instant |
+
+#### Table: `tracking_speed_episode`
+
+- **Purpose:** Append-preserved confirmed speeding evidence and repeat attribution.
+- **Primary Key:** `id` (domain-generated deterministic UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, Tenant-leading unique/history indexes)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY; no database generation | Deterministic episode identity |
+| `tenant_id` | UUID | NO | - | UNIQUE with `id` | Owning Tenant |
+| `vehicle_id` | UUID | NO | - | Logical Fleet reference | Vehicle evidence owner |
+| `trip_id` | UUID | YES | NULL | Logical Trip reference | Source-time Trip attribution |
+| `driver_id` | UUID | YES | NULL | Logical Driver reference | Source-time Driver attribution |
+| `route_id` | UUID | YES | NULL | Logical Routing reference | Source-time route attribution |
+| `route_version` | VARCHAR(120) | YES | NULL | Logical Routing reference | Route version |
+| `rule_id` | UUID | NO | - | Logical immutable rule reference | Applied rule |
+| `rule_version` | BIGINT | NO | - | `> 0` | Applied rule version |
+| `threshold_source` | VARCHAR(16) | NO | - | `ROUTE_CONFIG`, `TENANT_CONFIG` | Resolution source |
+| `effective_threshold_kph` | NUMERIC(7,3) | NO | - | `> 0 AND <= 400` | Effective threshold |
+| `start_source_timestamp` | TIMESTAMPTZ | NO | - | Chronology constrained | First-sample time |
+| `confirmation_source_timestamp` | TIMESTAMPTZ | NO | - | `>= start` | Confirmation time |
+| `end_source_timestamp` | TIMESTAMPTZ | YES | NULL | NULL while active; `>= confirmation` | Closure time |
+| `max_observed_speed_kph` | NUMERIC(7,3) | NO | - | `0..400`; cannot decrease | Maximum speed |
+| `eligible_above_threshold_sample_count` | INTEGER | NO | - | `>= 2`; cannot decrease | Evidence count |
+| `severity` | VARCHAR(8) | NO | - | `WARNING`, `HIGH` | Frozen severity |
+| `repeat_count` | INTEGER | NO | - | `>= 0` | Ten-minute repeat count |
+| `first_candidate_position_id` | UUID | NO | - | Logical Tracking position reference | First evidence identity |
+| `confirming_position_id` | UUID | NO | - | Logical Tracking position reference | Confirming evidence identity |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | Immutable | Creation instant |
+| `updated_at` | TIMESTAMPTZ | NO | `now()` | Monotonic while active | Last progress instant |
+
+One partial unique index allows only one active episode per Tenant and Vehicle. Vehicle history, severity
+history and same-rule/version closed-repeat indexes use stable descending source-time/ID ordering. Trigger
+`trg_tracking_speed_episode_protection` rejects DELETE, every mutation after closure, immutable identity-field
+changes and backwards active progress.
+
+#### Table: `tracking_speed_evaluation_job`
+
+- **Purpose:** Durable idempotent work queue for accepted Tracking positions.
+- **Primary Key:** `(tenant_id, position_id)`
+- **Multi-Tenant Key:** `tenant_id` (UUID, included in key and every repository mutation)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `tenant_id` | UUID | NO | - | Composite PRIMARY KEY; same-module FK to `tracking_position` | Owning Tenant |
+| `position_id` | UUID | NO | - | Composite PRIMARY KEY; same-module FK to `tracking_position` | Idempotent work identity |
+| `vehicle_id` | UUID | NO | - | Logical Fleet reference; validated from position | Vehicle identity |
+| `source_timestamp` | TIMESTAMPTZ | NO | - | UTC-compatible source time | Evaluation time |
+| `status` | VARCHAR(16) | NO | - | `PENDING`, `PROCESSING`, `COMPLETED`, `FAILED` | Job lifecycle |
+| `attempt_count` | INTEGER | NO | `0` | `>= 0` | Claim attempts |
+| `next_attempt_at` | TIMESTAMPTZ | NO | - | Global due-order key | Next eligibility |
+| `lease_owner` | VARCHAR(120) | YES | NULL | Required exactly while PROCESSING | Worker owner |
+| `lease_until` | TIMESTAMPTZ | YES | NULL | Required exactly while PROCESSING | Lease deadline |
+| `last_error_code` | VARCHAR(120) | YES | NULL | Trimmed non-empty when present | Safe failure code |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | - | Creation instant |
+| `updated_at` | TIMESTAMPTZ | NO | `now()` | - | Last transition instant |
+
+`idx_tracking_speed_job_global_due(next_attempt_at,tenant_id,position_id) INCLUDE(status,lease_until)` aligns
+with the global bounded claim order and `FOR UPDATE SKIP LOCKED`. JDBC mutations are Tenant- and owner-qualified;
+expired leases are reclaimable and stale owners cannot renew, release, complete, retry or fail work.
+
+Clean V1→V81 and V80→V81 pass on `transport_logistics_acceptance`; focused persistence/domain/ownership is
+32/32, Tracking is 212/212, Trip is 101/101, architecture is 52/52 and full Maven is 1,624 tests with zero
+failures/errors and 15 skipped. Checkstyle, PMD, SpotBugs and `git diff --check` pass. Next:
+`US-50-MONITOR-SPEED-CS03-EVALUATION-EPISODES-001`.
