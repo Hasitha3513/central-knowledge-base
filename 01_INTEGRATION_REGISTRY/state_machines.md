@@ -120,3 +120,21 @@ idempotency for create/activate/disable/retire and safe management audit. Reacti
 DISABLED-to-ACTIVE command and revalidates geometry, location and the Tenant-wide 500 ACTIVE limit under
 a Tenant advisory lock. The vehicle membership/hysteresis lifecycle is `IMPLEMENTED_US49_CS03`; durable
 cross-module publication and Notification consumption remain inactive until CS05.
+
+# US-50 Speed Rule, State and Episode (Frozen; Not Implemented)
+
+Speed rules use `DRAFT -> ACTIVE <-> DISABLED -> RETIRED`; RETIRED is terminal. Editing is allowed only in
+DRAFT or DISABLED. Activation creates an immutable incremented rule version/effective fact and permits at
+most one ACTIVE Tenant fallback plus one ACTIVE rule per Tenant/route/version. There is no default rule.
+
+Per-Vehicle current state is `UNKNOWN | NORMAL | SPEEDING`. One above-threshold eligible observation is a
+silent candidate; two distinct consecutive observations above the same rule version confirm SPEEDING and
+open an episode from the first candidate's source time. One eligible observation at or below the threshold
+returns to NORMAL and closes the episode. Missing/ineligible data exposes UNKNOWN availability but neither
+clears nor rewinds evidence. Duplicate, out-of-order, stale, future or untrusted observations cannot advance
+state. Rule activation/version change resets affected current/candidate state without rewriting history.
+
+An episode is immutable after closure. A newly confirmed episode under the same rule ID/version within ten
+minutes of the previous end is a HIGH repeat; otherwise it is WARNING. Further above-threshold samples update
+only maximum speed/sample count. One deterministic event exists per confirmed episode. This lifecycle is
+`PRODUCT_DECISIONS_FROZEN_US50 / NOT_IMPLEMENTED`.

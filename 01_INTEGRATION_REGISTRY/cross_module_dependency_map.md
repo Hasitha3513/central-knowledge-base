@@ -118,3 +118,13 @@ The ARB disposition places US-48 physical acceptance `ON_HOLD_EXTERNAL_PREREQUIS
 | Delivery US-63 | Tracking US-49 | No shared aggregate, table or polygon | EXPLICITLY_DISTINCT; serviceability/capacity versus telemetry boundary detection |
 
 US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress without acceptance credit. Tracking owns geofence definitions, evaluation jobs, per-Vehicle state, immutable transitions, management APIs, safe audit and durable transition publication. Notification remains owner of rules, recipients, templates and notification persistence. Organization remains owner of depot/customer-site locations and is accessed only through its published Tenant-aware lookup. No cross-module physical foreign key, repository, join or entity relationship exists. Next task: `US-49-MANAGE-GEOFENCES-CS06-FRONTEND-001`.
+
+### US-50 frozen dependencies
+
+| Provider | Consumer | Contract | Status |
+| :--- | :--- | :--- | :--- |
+| Tracking US-48 | Tracking US-50 | Optional normalized `speedKph`, trusted/in-order Vehicle association, source time and immutable position identity | ACTIVE_TECHNICAL_CONTRACT; no US-48 acceptance inheritance |
+| Trip | Tracking US-50 | Proposed `VehicleTripAssignmentLookup.findAt(tenantId,vehicleId,sourceTimestamp)` returning optional logical Trip/Driver/route/version attribution | FROZEN_US50 / NOT_IMPLEMENTED; no foreign persistence or join |
+| Tracking US-50 | Notification | Minimized `VehicleSpeedingDetectedV1` through shared P1-01 outbox | FROZEN_US50 / NOT_IMPLEMENTED; at-least-once with idempotent consumption |
+| Routing | Tracking US-50 | No dynamic legal road-limit or segment-matching contract | NONE_PHASE1; route/version is logical attribution only and thresholds are Tracking-owned operational configuration |
+| Tracking US-50 | Driver | No mutation or event contract | NONE; Driver retains violation, discipline, performance, payroll and licence ownership |

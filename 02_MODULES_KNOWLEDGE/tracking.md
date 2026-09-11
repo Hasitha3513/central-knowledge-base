@@ -503,3 +503,28 @@ startup correction explicitly enables the documented geofence evaluator feature 
 contracts did not change. V80 remains the Flyway head and no V81 exists. US-49 is `COMPLETE / ACCEPTED`,
 accounting is 73/87 with 14 remaining, US-48's external hold is unchanged, and the next task is
 `US-50-MONITOR-SPEED-PRODUCT-DECISIONS-001`.
+
+## US-50 Monitor Speed — frozen product decision
+
+US-50 is `PRODUCT_DECISIONS_FROZEN / READY_FOR_IMPLEMENTATION`; accounting remains 73/87, Flyway remains
+V80 and US-48's external hold is unchanged. Tracking owns evaluation and evidence. The canonical signal is
+an eligible nonduplicate TRUSTED/IN_ORDER/source-time-associated `PositionEvent.speedKph` no more than five
+minutes old; missing speed remains UNKNOWN and historical late evaluation produces no alert. Kilometres per
+hour is canonical, tolerance is zero, equality is normal and invalid speed is rejected by US-48 normalization.
+
+Phase 1 uses explicit Tracking-owned route/version operational configuration with an ACTIVE Tenant fallback.
+There is no external road-law provider, segment map matching, Vehicle-class rule, Vehicle rule or default
+threshold, and the product makes no authoritative live-road-limit claim. Two consecutive eligible samples
+above the same rule version confirm a `SpeedingEpisode`; one eligible sample at/below threshold clears it.
+The first episode is WARNING; a new episode under the same rule within ten minutes is a HIGH repeat. One
+durable `VehicleSpeedingDetectedV1` fact is published per confirmed episode to Notification only. Driver,
+Trip and route attribution is nullable and comes solely from a proposed published source-time Trip lookup;
+missing attribution never drops Vehicle evidence and Tracking causes no Driver/disciplinary/payroll effect.
+
+The exact permissions are `SPEED_MONITOR_VIEW`, `SPEED_MONITOR_MANAGE` and `SPEED_EVENT_VIEW`. The planned
+bounded API family is `/api/v1/tracking/speed-monitoring`; the existing frontend stack supplies rule, current
+state and episode-history operator views without US-54 dashboard or a map dependency. V81 is likely for
+Tracking-owned `tracking_speed_rule`, `tracking_speed_state`, `tracking_speed_episode` and
+`tracking_speed_evaluation_job`, but this decision creates no migration. Technical closure may use signed
+fixtures; final real-speed fidelity requires verified physical device/provider speed and otherwise remains
+`ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`. Next: `US-50-MONITOR-SPEED-CS01-DOMAIN-PORTS-001`.

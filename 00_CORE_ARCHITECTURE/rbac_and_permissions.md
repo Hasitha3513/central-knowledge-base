@@ -158,3 +158,14 @@ Preparer and approver must differ. These permissions grant no Customer/source mu
 - `GEOFENCE_EVENT_VIEW`: view same-Tenant immutable entry/exit transition history.
 
 These are the only approved US-49 human permissions. They grant no Tracking device/provider management, raw telemetry, credential access, cross-Tenant access, Organization-location mutation, Delivery Zone mutation or Operations exception authority. Tenant isolation is mandatory; no generic ABAC engine is introduced. Exact coordinates remain sensitive and are excluded from published transitions. V78 seeds exactly these three active permission definitions and conditionally grants them only to existing `ADMIN` and `LOCAL_MVP_ADMIN` roles, following the established administrative convention. It creates no role and grants no Driver, Dispatcher, Customer, Rider or read-only Tracking role. The local bootstrap catalogue contains the same three codes. CS04 and CS04A are complete: literal `/api/v1/tracking/geofences` HTTP routes and direct use-case boundaries enforce the three capabilities independently; `GEOFENCE_MANAGE` does not imply event-history access, and cross-Tenant identifiers are not-found-shaped.
+
+## US-50 Speed Monitoring Permissions (Frozen; Not Seeded)
+
+- `SPEED_MONITOR_VIEW`: view same-Tenant speed rules and current monitoring state.
+- `SPEED_MONITOR_MANAGE`: create/update rules and execute explicit activate, disable and retire commands.
+- `SPEED_EVENT_VIEW`: view same-Tenant immutable SpeedingEpisode history and permitted logical attribution.
+
+These are the only approved US-50 human permissions. None implies another or grants Tracking device/provider,
+raw telemetry, precise-coordinate, Driver violation/discipline/performance/payroll/licence, cross-Tenant or
+Notification-management authority. Tenant derives only from trusted context and cross-Tenant identifiers are
+not-found-shaped. This is a product decision only: no permission definition, role grant or V81 seed exists.

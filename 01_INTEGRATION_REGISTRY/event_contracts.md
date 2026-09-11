@@ -209,3 +209,22 @@ CS05 activation resolves that seeded Tenant rule and template to eligible same-T
 V1→V79 PostgreSQL journey proves one transition, one outbox identity and one IN_APP notification, with
 producer/consumer replay idempotency and Tenant-B exclusion. Initial membership and the first hysteresis
 candidate publish nothing, so stable packet streams do not create per-position events.
+
+## VehicleSpeedingDetectedV1 (US-50; Frozen, Not Implemented)
+
+- **Owner / producer:** Tracking.
+- **Consumer:** Notification only; Driver/Operations consumers are NONE.
+- **Envelope:** canonical P1-01 Tenant envelope; event ID is the deterministic SpeedingEpisode UUID.
+- **Delivery:** shared durable outbox, at least once, Tenant/event consumer dedupe, no global ordering.
+- **Emission:** once when two distinct consecutive eligible observations confirm an episode; never per packet.
+- **Identity:** SHA-256 over Tenant, Vehicle, effective rule ID/version and first candidate position ID.
+- **Payload:** exactly `speedEpisodeId`, `vehicleId`, nullable `driverId`, nullable `tripId`, nullable `routeId`,
+  nullable `routeVersion`, `observedSpeedKph`, `effectiveThresholdKph`, `thresholdSource` (`ROUTE_CONFIG` or
+  `TENANT_CONFIG`), `ruleId`, `ruleVersion`, `severity` (`WARNING` or `HIGH`), `sourceTimestamp`, `repeatCount`.
+- **Privacy:** no coordinates, Position/device/provider identity, raw telemetry, credentials, Driver/Customer
+  PII or unrestricted metadata.
+
+Notification owns recipient resolution, template, preference, channel, suppression, retry and history. A
+P1-01 replay must not create a second logical notification. This contract is
+`PRODUCT_DECISIONS_FROZEN_US50 / NOT_IMPLEMENTED`; CS05 may activate it only after domain/persistence/API
+slices pass. No Driver violation, performance, payroll or licence side effect is authorized.

@@ -194,3 +194,19 @@ US-49 implements its Tenant-scoped management/query family under `/api/v1/tracki
 Create/update requests carry name, `DEPOT|CUSTOMER_SITE|UNAUTHORIZED_ZONE`, optional logical Organization `locationId`, 3–100 WGS84 polygon vertices and entry/exit alert policy. Definition responses carry the same configuration plus lifecycle, version and timestamps. Membership responses contain only geofence ID, Vehicle ID, stable state, definition version and last evaluated source timestamp; pending candidates are hidden. Transition responses contain only transition/geofence/Vehicle/logical-location IDs, type, transition, severity, source timestamp and definition version—never coordinates, Device/provider facts, credentials, Driver PII or Customer data. `GEOFENCE_VIEW`, `GEOFENCE_MANAGE` and `GEOFENCE_EVENT_VIEW` are enforced independently at HTTP and method boundaries.
 
 The Organization dependency exposes the published explicit-Tenant `find(tenantId, locationId)` lookup, backed by tenant-scoped persistence. Tracking uses it to validate DEPOT/CUSTOMER_SITE on create, update and activation, stores only the logical location UUID and does not access Organization persistence. Durable `VehicleGeofenceTransitionedV1` publication remains inactive until CS05.
+
+## US-50 Speed Monitoring Interfaces (Frozen; Not Implemented)
+
+The planned Tenant-scoped human family is `/api/v1/tracking/speed-monitoring`: bounded rule list/detail/create/
+update and explicit activate/disable/retire commands; bounded current-state list/detail; and bounded episode
+history/detail. Lists default to 20 and cap at 100. History requires a UTC range no greater than 31 days,
+uses `(startSourceTime,id)` keyset ordering, defaults to 100 and caps at 500. There is no generic status PATCH,
+raw telemetry/export, legal-road-limit claim, Driver violation mutation or unbounded query. Exact permissions
+are `SPEED_MONITOR_VIEW`, `SPEED_MONITOR_MANAGE` and `SPEED_EVENT_VIEW`; Tenant derives only from trusted
+context and cross-Tenant resources are not-found-shaped.
+
+US-50 also approves the provider-neutral, read-only Trip contract
+`VehicleTripAssignmentLookup.findAt(tenantId, vehicleId, sourceTimestamp)`. Its optional minimized result is
+`tripId`, nullable `driverId`, nullable `routeId` and nullable `routeVersion`, resolved from the assignment
+covering source time. It exposes no Trip entity, mutable service, repository or persistence. CS01 must define
+the framework-neutral consumer port and published provider contract without implementing web or persistence.
