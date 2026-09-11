@@ -2,9 +2,9 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V80 for US-49 geofence index hardening. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence evaluation. US-49 CS01–CS07 and CS07A are complete; accounting remains 72/87 with 15 remaining and physical-device/real-provider US-48 final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V80 for US-49 geofence index hardening. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence evaluation. US-49 is `IMPLEMENTATION_COMPLETE / READY_FOR_FINAL_ACCEPTANCE`; CS01–CS07, CS07A and technical closure are complete. Accounting remains 72/87 with 15 remaining and physical-device/real-provider US-48 final acceptance is still required.
 
-US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; technical closure is next.
+US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance is next.
 
 Phase 1 owns a narrow `TrackingDevice` reference registry, effective-dated one-device/one-Vehicle active association, immutable normalized `PositionEvent` history, ingestion dedupe/conflict/order/trust, last-received and last-trusted projections, freshness/connectivity, retention metadata, safe queries, provider adapter health and minimal operator UI.
 
@@ -476,3 +476,16 @@ unrelated Delivery findings; CS07 changed no frontend files and introduced no li
 schema, API, event, permission, lifecycle, frontend, dependency or accounting change was required. V80
 remains current, no V81 exists, US-49 remains `IMPLEMENTATION_IN_PROGRESS`, and US-48's external hold is
 unchanged. Next task: `US-49-MANAGE-GEOFENCES-TECHNICAL-CLOSURE-001`.
+
+## US-49 technical closure
+
+Technical closure is `COMPLETE`: the frozen domain, geometry, lifecycle, location ownership, eligibility,
+ordering, hysteresis, unauthorized-zone, overlap, persistence, API, three-permission RBAC, Tenant,
+idempotency, audit, durable `VehicleGeofenceTransitionedV1`, Notification and existing-stack frontend
+contracts match the implementation. No missing use case, ownership drift, implementation defect, product
+decision or unapproved dependency was found. Independent closure reruns passed PostgreSQL/API/security/
+Notification 40/40 on `transport_logistics_acceptance`, architecture 52/52 and focused frontend 8/8.
+The latest complete evidence remains Maven 1,595/0/0/15, Tracking 183/183, Notification 164/164,
+security/Tenant/privacy/RBAC 152/152, Vitest 299/299 and Chromium 7/7. V80 remains current and no V81
+exists. US-49 is `IMPLEMENTATION_COMPLETE / READY_FOR_FINAL_ACCEPTANCE`; accounting stays 72/87 and
+US-48's external hold is unchanged. Next task: `US-49-MANAGE-GEOFENCES-FINAL-ACCEPTANCE-001`.
