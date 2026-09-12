@@ -159,7 +159,7 @@ Preparer and approver must differ. These permissions grant no Customer/source mu
 
 These are the only approved US-49 human permissions. They grant no Tracking device/provider management, raw telemetry, credential access, cross-Tenant access, Organization-location mutation, Delivery Zone mutation or Operations exception authority. Tenant isolation is mandatory; no generic ABAC engine is introduced. Exact coordinates remain sensitive and are excluded from published transitions. V78 seeds exactly these three active permission definitions and conditionally grants them only to existing `ADMIN` and `LOCAL_MVP_ADMIN` roles, following the established administrative convention. It creates no role and grants no Driver, Dispatcher, Customer, Rider or read-only Tracking role. The local bootstrap catalogue contains the same three codes. CS04 and CS04A are complete: literal `/api/v1/tracking/geofences` HTTP routes and direct use-case boundaries enforce the three capabilities independently; `GEOFENCE_MANAGE` does not imply event-history access, and cross-Tenant identifiers are not-found-shaped.
 
-## US-50 Speed Monitoring Permissions (Frozen; Not Seeded)
+## US-50 Speed Monitoring Permissions (Seeded in V82; Runtime APIs Implemented)
 
 - `SPEED_MONITOR_VIEW`: view same-Tenant speed rules and current monitoring state.
 - `SPEED_MONITOR_MANAGE`: create/update rules and execute explicit activate, disable and retire commands.
@@ -168,4 +168,7 @@ These are the only approved US-49 human permissions. They grant no Tracking devi
 These are the only approved US-50 human permissions. None implies another or grants Tracking device/provider,
 raw telemetry, precise-coordinate, Driver violation/discipline/performance/payroll/licence, cross-Tenant or
 Notification-management authority. Tenant derives only from trusted context and cross-Tenant identifiers are
-not-found-shaped. This is a product decision only: no permission definition, role grant or V81 seed exists.
+not-found-shaped. V82 seeds exactly these three active definitions and grants them only to existing `ADMIN`
+and `LOCAL_MVP_ADMIN` roles; it creates no role and performs no unrelated grant. The local bootstrap catalogue
+contains the same codes. CS04 enforces them independently on literal `/api/v1/tracking/speed-monitoring`
+routes and direct use-case calls. Manage does not imply view or episode access.

@@ -38,6 +38,25 @@ Create a DRAFT with a unique name, type, 3–100 WGS84 polygon vertices and entr
 
 Definition and membership lists are bounded to 100 rows per page. Memberships expose confirmed stable state only. Transition history is cursor-bounded to 100 and may be filtered by geofence, Vehicle, type and source-time range; unauthorized history contains only unauthorized-zone entries. Cross-Tenant identifiers appear not found. History responses and audit records do not expose coordinates, provider/device credentials, Driver PII or Customer data.
 
+## Speed monitoring API
+
+The backend operator API is available under `/api/v1/tracking/speed-monitoring`; the dedicated web interface
+is scheduled separately. `SPEED_MONITOR_VIEW` reads configured operational rules and current Vehicle states,
+`SPEED_MONITOR_MANAGE` creates/updates rules and executes explicit activate, disable and retire commands, and
+`SPEED_EVENT_VIEW` reads speeding episode history/detail. These permissions are independent.
+
+Create either a Tenant fallback rule or a route/version rule with a positive threshold no greater than
+400 km/h. New rules are DRAFT. DRAFT and DISABLED rules may be edited or activated; ACTIVE rules may be
+disabled; DRAFT or DISABLED rules may be retired permanently. Supply `Idempotency-Key` for create and
+lifecycle commands, the current `expectedVersion` for update/lifecycle commands, and a reason for disable or
+retire. Concurrent or stale changes return a safe conflict and should be reloaded.
+
+Rules and states are paged with a maximum of 100. Episode history requires a UTC `from`/`to` range no greater
+than 31 days and allows at most 500 results per cursor page. Thresholds are configured operational controls,
+not authoritative legal road limits. UNKNOWN and CONFIGURATION_UNAVAILABLE are truthful states; missing speed
+is never displayed as zero. Cross-Tenant identifiers appear not found, and responses exclude coordinates,
+raw telemetry, device/provider details, credentials and personal data.
+
 ## Known limitations
 
-US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speeding, idle detection, route deviation, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 final acceptance still requires a physical GPS device and real provider payload.
+US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speed detection and its management/query API are implemented, but the speed Notification integration and dedicated frontend are not yet available. Idle detection, route deviation, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 and final US-50 fidelity acceptance still require a physical GPS device and verified real provider speed payload.

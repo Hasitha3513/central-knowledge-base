@@ -689,3 +689,28 @@ Tracking 227/227, Trip 101/101, architecture 52/52 and complete Maven 1,639 test
 burst 1,563.8 msg/s. Checkstyle, PMD, SpotBugs, V1→V81 and `git diff --check` pass; V82 is absent. US-50 remains
 `IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87 and US-48's external hold is unchanged. Next:
 `US-50-MONITOR-SPEED-CS04-APIS-RBAC-AUDIT-001`.
+
+## US-50 management/query APIs, RBAC and audit (CS04 complete)
+
+CS04 implements the Tenant-scoped `/api/v1/tracking/speed-monitoring` rule, state and episode family using
+V81 evidence tables. Rule/state page sizes default to 20 and cap at 100. Episode history requires an ordered
+UTC range no greater than 31 days, defaults to 100, caps at 500 and uses stable descending
+`(startSourceTimestamp,id)` cursor ordering. Public DTOs contain configured operational threshold and frozen
+episode facts only; candidate/position identity, coordinates, raw telemetry, device/provider/IMEI facts,
+credentials and Driver/Customer PII remain excluded.
+
+V82 is a narrow permission migration containing no schema/index/catalogue change. It seeds exactly
+`SPEED_MONITOR_VIEW`, `SPEED_MONITOR_MANAGE` and `SPEED_EVENT_VIEW` and grants them only to existing `ADMIN`
+and `LOCAL_MVP_ADMIN`. Literal HTTP matchers and a secured use-case decorator enforce the permissions
+independently. Tenant comes solely from authenticated `CurrentTenant`; repositories remain Tenant-qualified
+and foreign-Tenant IDs are not-found-shaped.
+
+Create and lifecycle commands use persistent Tenant-scoped idempotency claims in existing
+`tracking_audit_event`; same request replay is safe, changed reuse conflicts and another Tenant is independent.
+PUT uses optimistic concurrency and V81 uniqueness remains authoritative for active fallback and route rules.
+Successful management commands produce minimized safe audit facts, while reads, telemetry and evaluation do
+not create management audit noise. CS04 adds no frontend, durable event adapter, Notification catalogue/
+consumer, Driver mutation or evaluation semantic change. Accepted evidence on `transport_logistics_acceptance`
+is focused 72/72, security/permission 12/12, Tracking 238/238, Trip 101/101, architecture 52/52 and Maven
+1,650 tests with zero failures/errors and 15 skipped. Flyway V1→V82 and V81→V82 pass; V83 is absent. Next:
+`US-50-MONITOR-SPEED-CS05-NOTIFICATION-INTEGRATION-001`.

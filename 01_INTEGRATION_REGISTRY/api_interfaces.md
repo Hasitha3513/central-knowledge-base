@@ -195,7 +195,7 @@ Create/update requests carry name, `DEPOT|CUSTOMER_SITE|UNAUTHORIZED_ZONE`, opti
 
 The Organization dependency exposes the published explicit-Tenant `find(tenantId, locationId)` lookup, backed by tenant-scoped persistence. Tracking uses it to validate DEPOT/CUSTOMER_SITE on create, update and activation, stores only the logical location UUID and does not access Organization persistence. Durable `VehicleGeofenceTransitionedV1` publication remains inactive until CS05.
 
-## US-50 Speed Monitoring Interfaces (CS01 Ports Implemented; HTTP Not Implemented)
+## US-50 Speed Monitoring Interfaces (CS04 Implemented)
 
 The planned Tenant-scoped human family is `/api/v1/tracking/speed-monitoring`: bounded rule list/detail/create/
 update and explicit activate/disable/retire commands; bounded current-state list/detail; and bounded episode
@@ -210,4 +210,14 @@ US-50 CS01 publishes the provider-neutral, read-only Trip contract
 `tripId`, nullable `driverId`, nullable `routeId` and nullable `routeVersion`, resolved from the assignment
 covering source time. It exposes no Trip entity, mutable service, repository or persistence. Tracking's
 framework-neutral `SpeedAttributionLookupPort` mirrors this result for a future adapter. CS01 also defines
-evaluation, rule-management and monitoring-query inbound ports without web or persistence.
+evaluation, rule-management and monitoring-query inbound ports.
+
+CS04 implements `POST|GET /rules`, `GET|PUT /rules/{ruleId}`, explicit
+`POST /rules/{ruleId}/activate|disable|retire`, `GET /states`, `GET /states/{vehicleId}`, `GET /episodes`
+and `GET /episodes/{episodeId}`. Create and lifecycle commands require `Idempotency-Key`; update and every
+lifecycle command require the positive optimistic `expectedVersion`; disable/retire additionally require a
+bounded reason. Rule and state pages default to 20 and reject sizes above 100. Episode history requires
+`from`/`to`, rejects ranges above 31 days, defaults to 100, rejects limits above 500 and returns a stable
+descending source-time/ID cursor. Responses expose configured operational thresholds and minimized evidence,
+never legal-limit claims, positions, coordinates, raw telemetry, device/provider facts, credentials or PII.
+The literal `/api/v1/...` family and secured use-case boundary independently enforce the exact permissions.
