@@ -781,3 +781,14 @@ focused frontend tests; no implementation defect, product decision or V84 index 
 device/provider speed and unit fidelity remains an external final-acceptance evidence gate. Accounting stays
 73/87, US-48 remains externally blocked with no acceptance inheritance, and the next task is
 `US-50-MONITOR-SPEED-FINAL-ACCEPTANCE-001`.
+
+## US-50 final acceptance external hold
+
+Independent final acceptance reconfirmed the technical implementation with 78/78 representative backend and
+10/10 focused frontend tests. It did not receive acceptance credit because no genuine physical device/provider
+speed field, native-unit mapping, normalization proof or physical episode-to-Notification journey is available.
+The exact status is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM` with reason
+`PHYSICAL_SPEED_FIDELITY_EVIDENCE_PENDING`. Fixtures and simulators remain valid technical evidence but cannot
+substitute for physical fidelity. Accounting remains 73/87, Flyway remains V83, US-48 remains independently
+externally blocked, and Wave C proceeds with
+`US-52-MONITOR-ROUTE-DEVIATIONS-PRODUCT-DECISIONS-001`.
