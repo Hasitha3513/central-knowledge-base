@@ -714,3 +714,28 @@ consumer, Driver mutation or evaluation semantic change. Accepted evidence on `t
 is focused 72/72, security/permission 12/12, Tracking 238/238, Trip 101/101, architecture 52/52 and Maven
 1,650 tests with zero failures/errors and 15 skipped. Flyway V1→V82 and V81→V82 pass; V83 is absent. Next:
 `US-50-MONITOR-SPEED-CS05-NOTIFICATION-INTEGRATION-001`.
+
+## US-50 durable Notification integration (CS05 complete)
+
+CS05 replaces the temporary no-op publication adapter with atomic P1-01 outbox publication of
+`VehicleSpeedingDetectedV1`. The canonical event and aggregate ID is the deterministic SpeedingEpisode UUID,
+the aggregate type is `SPEEDING_EPISODE`, producer is `TRACKING`, and `occurredAt` is the confirmation source
+timestamp. The exact minimized payload is speed episode and Vehicle identity, nullable Driver/Trip/route/
+route-version attribution, observed and configured effective speed, threshold source, rule identity/version,
+WARNING/HIGH severity, confirmation source time and repeat count. Coordinates, Position/device/provider
+identity, raw telemetry, credentials and Driver/Customer PII are forbidden.
+
+The registered Notification bridge validates the exact version-1 envelope and payload, fails malformed events
+permanently, maps WARNING to Notification WARNING and HIGH to Notification CRITICAL, and relies on the existing
+Notification execution key for Tenant/event/rule/channel/recipient replay idempotency. V83 changes no Tracking
+schema: it is a narrow Notification catalogue seed for one IN_APP template and same-Tenant ROLE/DISPATCHER
+rule. Continued packets in one episode do not publish, and no Driver, payroll, licence, disciplinary or
+Operations behavior is introduced.
+
+Accepted CS05 evidence used only `transport_logistics_acceptance`: the PostgreSQL WARNING/repeat-HIGH,
+outbox, recipient, Tenant-B, privacy, non-flooding and replay journey passes; Tracking is 240/240, Notification
+is 165/165, architecture is 52/52, and complete Maven is 1,656 tests with zero failures/errors and 15 skipped.
+Checkstyle, PMD and SpotBugs pass. The signed Chromium ingestion smoke sustains 461.9 messages/second, reaches
+1,498.7 messages/second burst, and records 18.2 ms latest and 17.9 ms history p95. Flyway V1→V83 and V82→V83
+pass; V84 is absent. US-50 remains `IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87, and US-48's
+external hold is unchanged. Next: `US-50-MONITOR-SPEED-CS06-FRONTEND-001`.

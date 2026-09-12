@@ -210,7 +210,7 @@ V1→V79 PostgreSQL journey proves one transition, one outbox identity and one I
 producer/consumer replay idempotency and Tenant-B exclusion. Initial membership and the first hysteresis
 candidate publish nothing, so stable packet streams do not create per-position events.
 
-## VehicleSpeedingDetectedV1 (US-50; CS01 Port Model Implemented, Publication Inactive)
+## VehicleSpeedingDetectedV1 (US-50; Durable Tracking-to-Notification Contract Active)
 
 - **Owner / producer:** Tracking.
 - **Consumer:** Notification only; Driver/Operations consumers are NONE.
@@ -225,6 +225,15 @@ candidate publish nothing, so stable packet streams do not create per-position e
   PII or unrestricted metadata.
 
 Notification owns recipient resolution, template, preference, channel, suppression, retry and history. A
-P1-01 replay must not create a second logical notification. This contract is
-`CS01_CONTRACT_MODEL_IMPLEMENTED / PUBLICATION_INACTIVE`; CS05 may activate it only after domain/persistence/API
-slices pass. No Driver violation, performance, payroll or licence side effect is authorized.
+P1-01 replay must not create a second logical notification. CS05 atomically publishes the canonical event
+through the shared outbox and the registered `speeding-episode-notification-bridge` validates its exact
+version-1 envelope and payload before invoking Notification. WARNING maps to Notification WARNING and HIGH
+maps to Notification CRITICAL without changing the producer fact. No Driver violation, performance, payroll,
+licence or Operations side effect is authorized.
+
+V83 provisions the existing Notification model with one global active version-1 IN_APP template and one
+enabled Tenant-scoped `ROLE` / `DISPATCHER` rule and default policy per existing Tenant. Quiet hours,
+suppression and escalation are disabled. The template calls the threshold configured, not legal, and excludes
+coordinates, device/provider facts, credentials, raw telemetry and personal data. A clean V1→V83 PostgreSQL
+journey proves WARNING and repeat-HIGH delivery, exact payload, same-Tenant recipient resolution, Tenant-B
+exclusion, non-flooding continued packets and producer/consumer replay idempotency.

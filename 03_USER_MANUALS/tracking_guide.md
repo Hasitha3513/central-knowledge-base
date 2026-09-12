@@ -57,6 +57,13 @@ not authoritative legal road limits. UNKNOWN and CONFIGURATION_UNAVAILABLE are t
 is never displayed as zero. Cross-Tenant identifiers appear not found, and responses exclude coordinates,
 raw telemetry, device/provider details, credentials and personal data.
 
+When two eligible consecutive observations confirm a speeding episode, the system creates one durable
+same-Tenant IN_APP notification for eligible Dispatchers. Continued observations within the same episode do
+not create one notification per packet. A later repeat episode inside the configured ten-minute repeat window
+is presented with higher Notification severity. Durable replay does not create a second logical notification.
+Notification text describes the configured operational threshold and must not be interpreted as a legal-limit,
+violation, disciplinary, licence or payroll decision.
+
 ## Known limitations
 
-US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speed detection and its management/query API are implemented, but the speed Notification integration and dedicated frontend are not yet available. Idle detection, route deviation, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 and final US-50 fidelity acceptance still require a physical GPS device and verified real provider speed payload.
+US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speed detection, management/query API and Dispatcher IN_APP Notification integration are implemented, but the dedicated speed frontend is not yet available. Idle detection, route deviation, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 and final US-50 fidelity acceptance still require a physical GPS device and verified real provider speed payload.

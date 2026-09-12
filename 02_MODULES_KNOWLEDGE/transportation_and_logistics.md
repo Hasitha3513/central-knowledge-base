@@ -339,6 +339,16 @@ IN_APP template; Notification execution identity makes producer and consumer rep
 V1→V79 PostgreSQL journey proves one transition, one outbox identity, one Tenant-A notification and no
 Tenant-B recipient or notification. No Notification schema, channel or recipient-model change was required.
 
+V83 adds the minimum US-50 Notification catalogue metadata without changing the Notification schema: one
+global active version-1 IN_APP template for `VEHICLE_SPEEDING_DETECTED_V1`, and one enabled Tenant-scoped
+`ROLE` / `DISPATCHER` rule plus default policy per existing Tenant. Quiet hours, suppression and escalation
+are disabled. The template describes a configured operational threshold without making a legal-limit or
+punitive claim and excludes coordinates, Position/device/provider identity, raw telemetry, credentials and
+personal data. The registered durable bridge maps WARNING to Notification WARNING and HIGH to Notification
+CRITICAL; Notification execution identity makes producer and consumer replay idempotent. Clean PostgreSQL
+evidence proves same-Tenant Dispatcher delivery and Tenant-B exclusion. No Notification schema, channel,
+recipient model, permission or public API change was required.
+
 ### Customer self-service tables (V59)
 
 #### Table: `delivery_self_service_access`
