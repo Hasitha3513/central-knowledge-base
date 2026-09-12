@@ -770,3 +770,14 @@ Signed ingress with evaluation and durable Notification enabled measured 441.3 m
 msg/s burst, with latest p95 19.6 ms and history p95 18.4 ms. Full Maven passes 1,656 tests with zero
 failures/errors and 15 skipped; Chromium is 11/11 and architecture is 52/52. US-50 remains
 `IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87, and technical closure is next.
+
+## US-50 technical closure complete
+
+Source-to-implementation reconciliation confirms the V81-V83 speed-monitoring implementation satisfies the
+frozen domain, Tenant, API/RBAC, audit, durable event/Notification, frontend, concurrency, query-plan,
+performance and privacy contracts. Representative closure revalidation passes 73/73 backend tests and 10/10
+focused frontend tests; no implementation defect, product decision or V84 index is required. US-50 is
+`IMPLEMENTATION_COMPLETE / TECHNICAL_CLOSURE_COMPLETE`, but receives no acceptance credit: verified physical
+device/provider speed and unit fidelity remains an external final-acceptance evidence gate. Accounting stays
+73/87, US-48 remains externally blocked with no acceptance inheritance, and the next task is
+`US-50-MONITOR-SPEED-FINAL-ACCEPTANCE-001`.
