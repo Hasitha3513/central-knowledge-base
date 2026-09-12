@@ -237,3 +237,20 @@ suppression and escalation are disabled. The template calls the threshold config
 coordinates, device/provider facts, credentials, raw telemetry and personal data. A clean V1→V83 PostgreSQL
 journey proves WARNING and repeat-HIGH delivery, exact payload, same-Tenant recipient resolution, Tenant-B
 exclusion, non-flooding continued packets and producer/consumer replay idempotency.
+
+## VehicleRouteDeviationDetectedV1 and EscalatedV1 Frozen Not Implemented
+
+- **Owner / producer:** Tracking; **consumer:** Notification only; Operations is NONE in Phase 1.
+- **Envelope/delivery:** shared P1-01 outbox, canonical Tenant envelope, at least once, no global ordering,
+  Tenant/event replay idempotency.
+- **Detection:** deterministic episode event ID; emits once on two-position confirmation.
+- **Escalation:** deterministic over Tenant, episode and `DISTANCE_HIGH|REVIEW_REJECTED`; bounded and never per
+  position.
+- **Detection payload:** `routeDeviationEpisodeId`, `vehicleId`, nullable `tripId`, nullable `driverId`,
+  `routeId`, `routeVersion`, `severity`, `observedDistanceMeters`, `effectiveToleranceMeters`,
+  `sourceTimestamp`, `approvalRequired`; escalation adds only `escalationReason`.
+- **Privacy:** no coordinates, geometry, Position/device/provider identity, credentials, raw telemetry,
+  Driver/Customer PII or review notes.
+
+Notification owns same-Tenant Dispatcher resolution, templates, channels, preferences, retry and history.
+Notification failure cannot invalidate deviation evidence. Both families are `FROZEN_US52 / NOT_IMPLEMENTED`.

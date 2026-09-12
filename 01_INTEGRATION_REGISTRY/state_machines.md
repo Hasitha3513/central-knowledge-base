@@ -145,3 +145,15 @@ concurrent confirmation converges on one deterministic episode and one confirmat
 call. The active episode retains its frozen rule snapshot, missing/ineligible observations do not falsely
 clear it, and completed/replayed jobs cannot rewind it. Durable cross-module publication remains deferred to
 CS05. This lifecycle is `IMPLEMENTED_US50_CS03`.
+
+# US-52 Route Deviation Lifecycle Frozen Not Implemented
+
+Rule lifecycle is `DRAFT -> ACTIVE <-> DISABLED -> RETIRED`, with RETIRED terminal and edits only in
+DRAFT/DISABLED. Public Vehicle state is `UNKNOWN | ON_ROUTE | DEVIATING`. The first outside eligible point is
+a silent candidate; a second distinct consecutive outside point under the same Trip/route/rule confirms
+DEVIATING. One inside point clears or closes. Ineligible facts do not mutate stable state.
+
+Episode severity is monotonic `WARNING -> HIGH`. Review is `NOT_REQUIRED` for WARNING and
+`PENDING -> APPROVED | REJECTED` for HIGH; corrections create compensating records and require another approver. Approval
+annotates evidence only. Terminal outcomes are `RETURNED_TO_ROUTE`, `TRIP_ENDED_UNRESOLVED`, or `SUPERSEDED`.
+Route changes never rewrite history. This model is `FROZEN_US52 / NOT_IMPLEMENTED`.

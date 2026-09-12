@@ -1097,3 +1097,12 @@ source time. Trip remains owner of assignment facts. Tracking may snapshot only 
 it may not query Trip persistence, create a physical foreign key, infer last-known Driver assignment or mutate
 Driver/Trip state. The provider-side adapter remains deferred; CS01 adds no Trip repository access,
 persistence change or behavior change.
+
+### US-52 Published Route and Trip Contract Decision
+
+For US-52, Trip remains source-time assignment owner and must populate the existing optional
+`VehicleTripAssignmentLookup` route version as `REVISION:<positive-integer>`. Routing remains owner of route
+revisions and will publish `PlannedRouteGeometryLookup.find(tenantId,routeId,routeVersion)`, returning an
+immutable bounded WGS84 ordered-point snapshot without exposing Routing persistence. Route changes create new
+revisions/effective Trip attribution and never rewrite Tracking evidence. These extensions are
+`FROZEN_US52 / NOT_IMPLEMENTED`; Tracking has no foreign repository, SQL, entity or physical FK access.

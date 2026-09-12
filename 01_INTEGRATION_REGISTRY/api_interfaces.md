@@ -221,3 +221,14 @@ bounded reason. Rule and state pages default to 20 and reject sizes above 100. E
 descending source-time/ID cursor. Responses expose configured operational thresholds and minimized evidence,
 never legal-limit claims, positions, coordinates, raw telemetry, device/provider facts, credentials or PII.
 The literal `/api/v1/...` family and secured use-case boundary independently enforce the exact permissions.
+
+## US-52 Frozen Published Read Contracts
+
+- Trip to Tracking reuses `VehicleTripAssignmentLookup.findAt(tenantId,vehicleId,sourceTimestamp)`; routed
+  Trips populate the optional route version as `REVISION:<positive-integer>`.
+- Routing to Tracking adds `PlannedRouteGeometryLookup.find(tenantId,routeId,routeVersion)`, returning an
+  optional provider-neutral immutable 2–2,000-point WGS84 `(longitude,latitude)` snapshot.
+
+Both extensions are `FROZEN_US52 / NOT_IMPLEMENTED`. Missing attribution or geometry is NOT_EVALUATED and
+never permits foreign-table access. The proposed human REST family is
+`/api/v1/tracking/route-deviations`; no endpoint is implemented by the decision task.

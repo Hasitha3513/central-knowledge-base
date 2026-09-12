@@ -128,3 +128,17 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 | Tracking US-50 | Notification | Minimized `VehicleSpeedingDetectedV1` publication-port model; future shared P1-01 outbox | CS03_CONFIRMATION_PORT_INVOCATION_IMPLEMENTED / DURABLE_PUBLICATION_AND_CONSUMPTION_DEFERRED |
 | Routing | Tracking US-50 | No dynamic legal road-limit or segment-matching contract | NONE_PHASE1; route/version is logical attribution only and thresholds are Tracking-owned operational configuration |
 | Tracking US-50 | Driver | No mutation or event contract | NONE; Driver retains violation, discipline, performance, payroll and licence ownership |
+
+### US-52 frozen dependencies
+
+| Provider | Consumer | Contract | Status |
+| :--- | :--- | :--- | :--- |
+| Tracking US-48 | Tracking US-52 | TRUSTED, IN_ORDER, nonduplicate Vehicle position with WGS84, accuracy, source time and position ID | ACTIVE_TECHNICAL_CONTRACT; no US-48 acceptance inheritance |
+| Trip | Tracking US-52 | Existing source-time assignment lookup with canonical populated route revision | FROZEN_US52_EXTENSION / NOT_IMPLEMENTED |
+| Routing | Tracking US-52 | Tenant-qualified immutable bounded route-revision geometry lookup | FROZEN_US52_NEW_CONTRACT / NOT_IMPLEMENTED |
+| Tracking US-52 | Notification | Minimized detected/escalated durable facts through shared P1-01 outbox | FROZEN_US52 / NOT_IMPLEMENTED |
+| Tracking US-52 | Operations US-78 | No automatic exception creation | NONE_PHASE1 |
+| Routing US-22 | Tracking US-52 | Authorized changes use a new route revision and Trip attribution; optional disruption UUID only | FROZEN_OWNERSHIP; no foreign persistence |
+
+Approval annotates Tracking evidence only; it does not mutate Routing, Trip or Driver state. V84 is reserved
+subject to implementation head recheck.
