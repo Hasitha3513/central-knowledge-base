@@ -137,4 +137,11 @@ state. Rule activation/version change resets affected current/candidate state wi
 An episode is immutable after closure. A newly confirmed episode under the same rule ID/version within ten
 minutes of the previous end is a HIGH repeat; otherwise it is WARNING. Further above-threshold samples update
 only maximum speed/sample count. One deterministic publication model exists per confirmed episode; durable
-event infrastructure remains deferred. This lifecycle is `IMPLEMENTED_US50_CS01`.
+event infrastructure remains deferred.
+
+CS03 implements this lifecycle in the bounded V81 evaluation-job runtime. Accepted eligible speed positions
+are evaluated in `(sourceTimestamp, positionId)` order under PostgreSQL Tenant/Vehicle state serialization;
+concurrent confirmation converges on one deterministic episode and one confirmation-only publication-port
+call. The active episode retains its frozen rule snapshot, missing/ineligible observations do not falsely
+clear it, and completed/replayed jobs cannot rewind it. Durable cross-module publication remains deferred to
+CS05. This lifecycle is `IMPLEMENTED_US50_CS03`.

@@ -655,3 +655,37 @@ Clean V1→V81 and V80→V81 pass on `transport_logistics_acceptance`; focused p
 32/32, Tracking is 212/212, Trip is 101/101, architecture is 52/52 and full Maven is 1,624 tests with zero
 failures/errors and 15 skipped. Checkstyle, PMD, SpotBugs and `git diff --check` pass. Next:
 `US-50-MONITOR-SPEED-CS03-EVALUATION-EPISODES-001`.
+
+## US-50 runtime evaluation and episodes (CS03 complete)
+
+CS03 atomically adds one idempotent V81 speed-evaluation job for every accepted trusted, in-order, recent,
+Vehicle-associated Tracking position carrying valid normalized `speedKph`. Missing speed and ineligible
+positions do not create work. The one global `SpeedEvaluationCoordinator` is feature-gated by
+`app.tracking.speed-evaluator.enabled` (disabled by default), claims through the V81 global due-job index and
+`FOR UPDATE SKIP LOCKED`, and uses bounded claims, a fixed worker pool, bounded queue, owner-qualified lease
+renewal/release, maximum-five-attempt retry and privacy-safe error codes. There is no Tenant-, Vehicle- or
+device-specific scheduler.
+
+Evaluation orders observations by `(sourceTimestamp, positionId)` and locks Tenant/Vehicle state in PostgreSQL,
+so delayed/replayed work cannot rewind evidence and different Vehicles are not globally serialized. Trip
+attribution uses only `VehicleTripAssignmentLookup.findAt(tenantId,vehicleId,sourceTimestamp)` through the
+Trip-owned JDBC provider. Empty or safely failed attribution leaves nullable Trip/Driver/route/version facts
+and continues with the Tenant fallback. An ACTIVE matching route/version rule wins over the ACTIVE Tenant
+fallback; absence of both produces `CONFIGURATION_UNAVAILABLE` without an episode.
+
+The first above-threshold sample is a silent candidate and a second distinct consecutive sample under the same
+rule version confirms one deterministic episode. Continued speeding updates the same episode; one eligible
+sample at/below threshold closes it, while missing/ineligible data never falsely clears it. Active episodes
+retain their frozen rule facts. Same-rule episodes inside the inclusive ten-minute repeat window are HIGH and
+increment repeat count; first, different-rule and outside-window episodes are WARNING. Concurrent confirmation
+converges on one episode and one logical `SpeedingEpisodePublisherPort` invocation. Publication occurs only at
+confirmation and uses the confirming speed/source time with the minimized CS01 model. CS03 wires an explicit
+default no-op publisher only; durable P1-01 publication and Notification consumption remain deferred to CS05.
+There is no Driver mutation, API, permission seed, management audit flow or frontend behavior in CS03.
+
+Accepted evidence uses only `transport_logistics_acceptance`: focused runtime/domain/architecture 80/80,
+Tracking 227/227, Trip 101/101, architecture 52/52 and complete Maven 1,639 tests with zero failures/errors and
+15 skipped. A signed speed-bearing Chromium ingress smoke with the evaluator enabled sustained 432.7 msg/s and
+burst 1,563.8 msg/s. Checkstyle, PMD, SpotBugs, V1→V81 and `git diff --check` pass; V82 is absent. US-50 remains
+`IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87 and US-48's external hold is unchanged. Next:
+`US-50-MONITOR-SPEED-CS04-APIS-RBAC-AUDIT-001`.
