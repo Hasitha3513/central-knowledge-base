@@ -759,3 +759,14 @@ Verification passed with focused Vitest 10/10, full Vitest 309/309, TypeScript, 
 build, real PostgreSQL-backed Chromium 10/10, focused API/security 5/5 and architecture 52/52. Flyway remains
 V83 and V84 is absent. US-50 remains `IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87, and US-48's
 external hold is unchanged. Next: `US-50-MONITOR-SPEED-CS07-POSTGRES-CONCURRENCY-PERFORMANCE-001`.
+
+## US-50 PostgreSQL concurrency and performance (CS07 complete)
+
+The V83 implementation passes the PostgreSQL concurrency/race matrix 41/41 on three consecutive runs, with
+deterministic state/episode/event behavior, bounded disjoint `FOR UPDATE SKIP LOCKED` claims, lease recovery,
+Tenant isolation, immutable evidence and Notification replay idempotency. At 5,000 rows, all critical global
+claim, rule, state, repeat and episode-history queries use their intended V81 indexes; V84 is not required.
+Signed ingress with evaluation and durable Notification enabled measured 441.3 msg/s sustained and 1,265.5
+msg/s burst, with latest p95 19.6 ms and history p95 18.4 ms. Full Maven passes 1,656 tests with zero
+failures/errors and 15 skipped; Chromium is 11/11 and architecture is 52/52. US-50 remains
+`IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87, and technical closure is next.
