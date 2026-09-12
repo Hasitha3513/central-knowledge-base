@@ -739,3 +739,23 @@ Checkstyle, PMD and SpotBugs pass. The signed Chromium ingestion smoke sustains 
 1,498.7 messages/second burst, and records 18.2 ms latest and 17.9 ms history p95. Flyway V1→V83 and V82→V83
 pass; V84 is absent. US-50 remains `IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87, and US-48's
 external hold is unchanged. Next: `US-50-MONITOR-SPEED-CS06-FRONTEND-001`.
+
+## US-50 operator frontend (CS06 complete)
+
+US-50 CS06 adds the permission-aware React operator workflow for the existing V83 speed-monitoring contracts.
+`SPEED_MONITOR_VIEW` exposes rule and current-state reads, `SPEED_MONITOR_MANAGE` exposes rule creation,
+editing and lifecycle commands, and `SPEED_EVENT_VIEW` exposes bounded episode history/detail. Backend
+authorization remains authoritative, including literal `/api/v1/tracking/speed-monitoring` denial.
+
+Rules support Tenant fallback and route/version configuration, thresholds greater than zero and at most 400
+km/h, stable per-attempt idempotency keys, exact optimistic versions, and DRAFT/ACTIVE/DISABLED/RETIRED
+lifecycle controls. Retirement is permanent and the UI offers no delete action. Current state renders UNKNOWN,
+NORMAL and SPEEDING truthfully; unavailable or missing data is never presented as zero. Episode history uses the
+server cursor and an ordered UTC range of at most 31 days, preserves exact WARNING/HIGH Tracking severity and
+repeat evidence, and does not expose coordinates, raw telemetry, provider/device credentials, Customer data or
+inferred Driver identity. The UI does not claim live legal limits or provide discipline, a map or US-54 dashboard.
+
+Verification passed with focused Vitest 10/10, full Vitest 309/309, TypeScript, changed-file ESLint, production
+build, real PostgreSQL-backed Chromium 10/10, focused API/security 5/5 and architecture 52/52. Flyway remains
+V83 and V84 is absent. US-50 remains `IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87, and US-48's
+external hold is unchanged. Next: `US-50-MONITOR-SPEED-CS07-POSTGRES-CONCURRENCY-PERFORMANCE-001`.

@@ -66,4 +66,24 @@ violation, disciplinary, licence or payroll decision.
 
 ## Known limitations
 
-US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speed detection, management/query API and Dispatcher IN_APP Notification integration are implemented, but the dedicated speed frontend is not yet available. Idle detection, route deviation, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 and final US-50 fidelity acceptance still require a physical GPS device and verified real provider speed payload.
+US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speed detection, management/query API, Dispatcher IN_APP Notification integration and the dedicated rule/state/episode operator frontend are implemented. Idle detection, route deviation, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 and final US-50 fidelity acceptance still require a physical GPS device and verified real provider speed payload.
+
+## Monitor speed in the operator UI
+
+Users with `SPEED_MONITOR_VIEW` can open **Tracking → Speed Monitoring** to review Tenant or route/version
+rules and current Vehicle states. Users with `SPEED_MONITOR_MANAGE` can create and edit draft or disabled rules,
+activate, disable, reactivate, and permanently retire them. Thresholds are entered explicitly in km/h and must be
+greater than zero and no more than 400. The configured values are operational thresholds; the application does
+not claim they are live legal road-speed limits. Retired rules cannot be restored, and rules are never deleted.
+
+The **Current states** view shows UNKNOWN, NORMAL or SPEEDING. Configuration unavailable and missing values are
+shown explicitly and are never replaced with a false zero. Select a Vehicle row to review the returned rule and
+episode references. The UI does not reveal internal candidate samples.
+
+Users with `SPEED_EVENT_VIEW` can open **Tracking → Speed Episodes** independently of rule-view permission.
+Choose an ordered UTC interval no longer than 31 days and optionally filter by Vehicle or Driver UUID. History is
+loaded with the server cursor. Episode detail shows the frozen threshold source/value, rule version, source-time
+evidence, maximum observed speed, exact Tracking WARNING/HIGH severity, repeat count and nullable attribution.
+Unknown Driver, Trip or route attribution stays explicitly unknown. No coordinates, raw telemetry, provider or
+device credential, Customer identity, inferred Driver identity, discipline action, map or tracking dashboard is
+exposed by this workflow.
