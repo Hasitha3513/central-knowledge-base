@@ -1106,6 +1106,8 @@ revisions and publishes authoritative current revision identity through `RouteAs
 publish `PlannedRouteGeometryLookup.find(tenantId,routeId,routeVersion)`, returning an
 immutable bounded WGS84 ordered-point snapshot without exposing Routing persistence. Route changes create new
 revisions/effective Trip attribution and never rewrite Tracking evidence. These extensions are
-partially implemented: V85 makes the Trip route-version snapshot and source-time read path authoritative,
-while the Routing geometry provider remains for CS01. Tracking has no foreign repository, SQL, entity or
-physical FK access.
+implemented through CS01 at the contract boundary: V85 makes the Trip route-version snapshot and source-time
+read path authoritative; the Routing provider validates Tenant, route and exact revision but returns empty
+because existing revisions have ordered location IDs rather than immutable coordinates. It never queries
+Organization, synthesizes a chord or falls back to latest. CS02 owns the Routing geometry persistence gap.
+Tracking has no foreign repository, SQL, entity or physical FK access.

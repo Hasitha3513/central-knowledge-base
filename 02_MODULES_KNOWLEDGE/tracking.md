@@ -795,7 +795,7 @@ externally blocked, and Wave C proceeds with
 
 ## US-52 Route Deviation Monitoring Frozen Product Decision
 
-US-52 is `PRODUCT_DECISIONS_FROZEN / READY_FOR_IMPLEMENTATION`; accounting remains 73/87 and Flyway is V85
+US-52 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE`; accounting remains 73/87 and Flyway is V85
 after the Trip route-revision assignment prerequisite. Tracking owns planned-versus-actual comparison, current state, durable evaluation jobs,
 immutable deviation episodes, operational review and minimized durable publication. Routing retains route,
 revision, ordered immutable geometry and disruption ownership; Trip retains source-time assignment authority.
@@ -803,8 +803,10 @@ revision, ordered immutable geometry and disruption ownership; Trip retains sour
 Tracking reuses `VehicleTripAssignmentLookup.findAt(tenantId,vehicleId,sourceTimestamp)`, with Trip populating
 canonical `REVISION:<positive-integer>` route versions. Routing will publish the additive Tenant-qualified
 `PlannedRouteGeometryLookup`, returning a 2–2,000-point immutable WGS84 `(longitude,latitude)` revision
-snapshot. Trip's V85 snapshot and source-time lookup are implemented; the Routing geometry provider remains
-for CS01. Missing attribution/geometry is NOT_EVALUATED.
+snapshot. Trip's V85 snapshot and source-time lookup are implemented. CS01 completes the validated immutable
+published geometry result, exact Tenant/route/revision lookup and truthful provider; current Routing data lacks
+immutable coordinates, so the provider returns empty without foreign lookup, synthesized chord or latest
+fallback until CS02 persistence. Missing attribution/geometry is NOT_EVALUATED.
 
 Each route revision has one ACTIVE Tracking tolerance rule from 10 through 5,000 metres. Effective tolerance
 equals configured tolerance plus known accuracy from 0 through 1,000 metres; missing accuracy is NOT_EVALUATED.
@@ -821,4 +823,10 @@ ROUTE_DEVIATION_MANAGE, ROUTE_DEVIATION_EVENT_VIEW and ROUTE_DEVIATION_APPROVE.
 Detection and bounded HIGH/rejection escalation use the shared P1-01 outbox to Notification only; coordinates,
 geometry, provider/device facts, credentials and personal data are excluded. Technical acceptance may use
 deterministic fixtures; independent final acceptance requires safe physical position and accuracy fidelity.
-Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS01-DOMAIN-PORTS-001`.
+The CS01 Tracking foundation retains the deterministic local tangent-plane point-to-polyline calculator,
+10–5,000 metre tolerance, 0–1,000 metre accuracy eligibility, effective-tolerance arithmetic, inclusive
+inside boundary, WARNING/HIGH rules and non-downgrading severity. Availability distinguishes absent Trip,
+route/revision, geometry/rule, accuracy, ordering/trust/coordinate and provider/configuration conditions.
+Domain and ports remain framework-neutral and dormant workflow/persistence/event surfaces are not activated.
+
+Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS02-V86-PERSISTENCE-001`, after confirming V86 remains free.

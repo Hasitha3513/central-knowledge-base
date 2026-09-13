@@ -232,6 +232,9 @@ The literal `/api/v1/...` family and secured use-case boundary independently enf
 The Trip extension is `PREREQUISITE_COMPLETE / V85`: the client continues to provide only `routeId`, Routing's
 published `RouteAssignmentLookup` returns the current authoritative canonical revision, Trip snapshots it,
 and the source-time lookup returns only that persisted value. Historical null revisions remain explicitly
-absent. The geometry extension remains `FROZEN_US52 / CS01_PROVIDER_PENDING`. Missing attribution or geometry
+absent. The geometry extension is `IMPLEMENTED_US52_CS01`: the root contract and provider validate explicit
+Tenant, route and exact revision identity. Because current Routing revisions contain location IDs but no
+immutable coordinate snapshot, the provider truthfully returns empty without Organization access, endpoint
+chord synthesis or latest-revision fallback; CS02 owns the persistence gap. Missing attribution or geometry
 is NOT_EVALUATED and never permits foreign-table access. The proposed human REST family is
 `/api/v1/tracking/route-deviations`; no endpoint is implemented by the decision task.
