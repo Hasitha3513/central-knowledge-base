@@ -147,3 +147,9 @@ verified TimescaleDB foundation. Kafka is the durable Tracking-local telemetry b
 is only its live projection; neither changes foreign module ownership. V87 is reserved for
 Timescale policy hardening, so US-52 immutable route-geometry persistence is resequenced to V88.
 This sequencing change does not alter story accounting.
+
+TS02 is complete: Tracking secure ingress durably publishes the canonical
+`tracking.telemetry.ingested.v1` record keyed by Tenant and Vehicle after trusted provider,
+Tenant, Device and source-time association resolution. This remains Tracking-local infrastructure;
+it adds no cross-module dependency and does not replace the shared business-event outbox. Redis
+projection and Timescale consumption remain TS03 and TS04. Accounting remains 73/87.

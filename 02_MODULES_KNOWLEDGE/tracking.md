@@ -875,3 +875,18 @@ route/revision, geometry/rule, accuracy, ordering/trust/coordinate and provider/
 Domain and ports remain framework-neutral and dormant workflow/persistence/event surfaces are not activated.
 
 Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS02-V86-PERSISTENCE-001`, after confirming V86 remains free.
+
+## Hybrid Telemetry TS02 secure Kafka ingress
+
+TS02 is `COMPLETE`. The existing signed `/api/integration/v1/tracking/positions` boundary validates
+HMAC, timestamp freshness, nonce replay, size and active provider binding, then selects the governed
+Flespi, Traccar or Generic normalizer. Tenant, Device and source-time Vehicle authority come only
+from same-Tenant Tracking persistence. The controller publishes canonical version-1 normalized facts
+to `tracking.telemetry.ingested.v1`, keyed `{tenantId}:{vehicleId}`, and returns 202 only after durable
+broker acknowledgement. Producer idempotence, `acks=all`, six configurable partitions, LZ4,
+20-millisecond linger and 65,536-byte batching are active.
+
+TS02 makes no Redis or TimescaleDB write, adds no table or migration, and leaves Flyway at V86.
+Provider credentials, raw signatures and raw payloads never enter Kafka. Focused Tracking regression
+passes 243/243, architecture passes 58/58, and the complete Maven suite passes 1,695/1,695.
+Accounting remains 73/87. Next: `HYBRID-TELEMETRY-TS03-KAFKA-REDIS-LIVE-PROJECTOR`.

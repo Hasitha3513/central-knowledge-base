@@ -189,8 +189,11 @@ provider connection—not from caller Tenant authority. Existing provider-connec
 the gateway-settings authority; no singleton Tenant gateway or returned credential reference is
 approved. TS01 is complete at V86 and the three normalizers are implemented. The approved
 high-throughput amendment makes Kafka—not Redis Streams—the durable buffer: ingress returns 202
-only after broker acknowledgement, Redis is projected by a consumer, and the public dynamic
-ingress/live read remain inactive until their dedicated security/application slices.
+only after broker acknowledgement, Redis is projected by a consumer, and the live read remains
+inactive until its dedicated security/application slice. TS02 now implements that secure ingress:
+the authenticated binding selects the existing normalizer, server-side same-Tenant Device and
+source-time Vehicle authority overrides payload claims, and broker failure/timeout cannot return
+202. The controller writes neither Redis nor TimescaleDB.
 
 The implemented flespi Level-1 adapter uses bounded HTTPS REST polling for the selected FMC130 pilot and privately invokes the literal existing signed ingress above over loopback routing. It adds no provider-facing or human-facing endpoint. The adapter resolves a least-privilege flespi token through the binding's existing opaque credential reference, uses the same resolved high-entropy secret to construct the exact existing HMAC canonical request with a fresh secure nonce, and advances its bounded in-memory timestamp watermark only after accepted ingress. Requests are scoped to one configured flespi device, capped at 500 messages and a 1 MiB response, and use no more than a five-minute cold-start overlap. MQTT and webhook are not authorized for this first adapter. Implementation is complete with controlled documentation-aligned fixtures; real field names remain subject to physical FMC130 capture.
 

@@ -54,7 +54,7 @@ Compatibility rules: additive optional fields are backward compatible; renames, 
 
 ### `TRACKING_TELEMETRY_INGESTED_V1`
 
-Status: `APPROVED_NOT_IMPLEMENTED`. Producer: Tracking secure ingress. Topic:
+Status: `IMPLEMENTED_TS02`. Producer: Tracking secure ingress. Topic:
 `tracking.telemetry.ingested.v1`. Known consumers are Tracking-owned Redis live projection and
 TimescaleDB history persistence; geofence, speed and route-deviation consumers may activate only
 through their separately accepted contracts. This infrastructure event does not cross a Spring

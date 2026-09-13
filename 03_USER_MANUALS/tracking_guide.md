@@ -87,3 +87,19 @@ evidence, maximum observed speed, exact Tracking WARNING/HIGH severity, repeat c
 Unknown Driver, Trip or route attribution stays explicitly unknown. No coordinates, raw telemetry, provider or
 device credential, Customer identity, inferred Driver identity, discipline action, map or tracking dashboard is
 exposed by this workflow.
+
+## Provider telemetry delivery
+
+Active provider integrations continue to send signed telemetry to
+`POST /api/integration/v1/tracking/positions`. The provider must use its assigned key, current
+timestamp, unique nonce and valid HMAC signature; Tenant and Vehicle values in payloads are not
+trusted authority. Tracking resolves the provider connection, Device and source-time Vehicle
+association from server-side same-Tenant configuration and applies the configured Flespi, Traccar
+or Generic normalizer.
+
+A `202 Accepted` response now means Kafka durably acknowledged the canonical normalized record.
+Kafka unavailability or acknowledgement timeout returns a safe service-unavailable response, so
+operators should restore the broker and retry with the provider's governed idempotency behavior.
+Invalid signatures, stale timestamps, replayed nonces, unsupported versions, oversized batches,
+unknown Devices and inactive bindings fail closed. Responses and logs never expose credentials,
+raw signatures or raw provider payloads. Live Redis projection remains unavailable until TS03.
