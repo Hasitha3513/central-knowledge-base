@@ -48,7 +48,62 @@ Compatibility rules: additive optional fields are backward compatible; renames, 
 - Notification rule execution deduplicates by its stable execution key derived from event, rule, channel, and recipient. Email/SMS delivery is independently claimed and retried from database-backed Notification records with a stable attempt idempotency key.
 - Delivery ETA cache invalidation is a local after-commit reaction. Repeated eviction is intentionally idempotent.
 - Ordering is local publication order only; consumers must not assume global ordering. Where order matters, it is scoped to one aggregate and its version/time facts.
-- Events not selected for P1-01 durable handling remain non-durable across process failure and must not be described as guaranteed integration delivery. No Kafka or RabbitMQ infrastructure is approved.
+- Events not selected for P1-01 durable handling remain non-durable across process failure and must not be described as guaranteed integration delivery. Kafka is approved only for the Tracking-local high-rate telemetry contract below; it does not replace P1-01 business-event durability. RabbitMQ remains unapproved.
+
+## Tracking High-Rate Telemetry Stream
+
+### `TRACKING_TELEMETRY_INGESTED_V1`
+
+Status: `APPROVED_NOT_IMPLEMENTED`. Producer: Tracking secure ingress. Topic:
+`tracking.telemetry.ingested.v1`. Known consumers are Tracking-owned Redis live projection and
+TimescaleDB history persistence; geofence, speed and route-deviation consumers may activate only
+through their separately accepted contracts. This infrastructure event does not cross a Spring
+Modulith top-level boundary and is not transported by the P1-01 business outbox.
+
+Kafka record key is exactly `{tenantId}:{vehicleId}`. Default partition count is 6 and configurable.
+Ordering exists only for one Tenant/Vehicle key within a partition. Producer idempotence and
+`acks=all` are required. Delivery is at-least-once; consumer offsets commit only after the consumer
+side effect commits, and consumers deduplicate by `(tenantId,eventId)` or the stronger stored
+dedupe identity. No global ordering or exactly-once claim is permitted.
+
+Required headers are `tenantId: UUID`, `eventType: "TRACKING_TELEMETRY_INGESTED_V1"`, and
+`eventVersion: 1`; `correlationId` is optional and bounded to 128 characters. Consumers must reject
+any disagreement among key, headers and payload Tenant/Vehicle authority.
+
+Exact version-1 payload:
+
+```json
+{
+  "eventId": "UUID",
+  "eventType": "TRACKING_TELEMETRY_INGESTED_V1",
+  "eventVersion": 1,
+  "tenantId": "UUID",
+  "vehicleId": "UUID",
+  "deviceId": "UUID",
+  "providerAlias": "String <= 80",
+  "providerMessageId": "optional String <= 160",
+  "dedupeIdentity": "SHA-256 hex",
+  "latitude": "decimal WGS84 [-90,90]",
+  "longitude": "decimal WGS84 [-180,180]",
+  "speedKph": "optional non-negative decimal <= 400",
+  "headingDegrees": "optional decimal [0,360)",
+  "horizontalAccuracyMeters": "optional non-negative decimal",
+  "altitudeMeters": "optional decimal",
+  "engineState": "ON | OFF | UNKNOWN",
+  "odometerKm": "optional non-negative decimal",
+  "engineHours": "optional non-negative decimal",
+  "recordedAt": "Instant",
+  "receivedAt": "Instant"
+}
+```
+
+Tenant, Vehicle, device and provider facts derive from authenticated provider connection, binding
+and source-time association—not request payload authority. Security classification is precise
+Tenant-owned operational location data. Raw provider payload, credentials/references, Driver or
+Customer PII, addresses and arbitrary metadata are prohibited. Kafka retention must cover the
+approved recovery window and is configured operationally; Timescale raw history retention is 180
+days after V87 policy hardening. Schema evolution follows additive optional-field compatibility;
+required-field or semantic changes require a new event version.
 
 ## P1-01 Consumer Inventory and Durability Decision
 

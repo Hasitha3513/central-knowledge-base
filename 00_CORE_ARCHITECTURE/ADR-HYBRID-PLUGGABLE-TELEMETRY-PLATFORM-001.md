@@ -6,9 +6,9 @@
 
 ## Decision
 
-The current MVP promotes a provider-neutral multi-gateway normalization pipeline, Redis
-Tenant-qualified live-state projection and ingestion stream, TimescaleDB append-only telemetry
-history, gateway administration UX, and a permission-aware live Fleet map. The work extends
+The current MVP promotes a provider-neutral multi-gateway normalization pipeline, Kafka durable
+telemetry backbone, Redis Tenant-qualified live-state projection, TimescaleDB append-only history,
+gateway administration UX, and a permission-aware live Fleet map. The work extends
 US-48 and supports US-49 through US-55; it creates no new story ID and does not waive physical
 US-48 acceptance.
 
@@ -18,16 +18,19 @@ remain opaque `IntegrationSecretResolver` references. The signed endpoint at
 provider key resolves provider type, alias and Tenant before Flespi, Traccar or Generic
 normalization; URL and payload values never supply Tenant authority.
 
-Redis keys are `tracking:live:{tenantId}:{vehicleId}` and streams are
-`tracking:stream:{tenantId}`. TimescaleDB stores normalized append-only history. PostgreSQL
-continues to own configuration, nonce/dedupe authority, audit and detector state. Stream items
-are acknowledged only after an idempotent historical commit. Production readiness fails when
-either promoted storage capability is unavailable; no silent durability downgrade is allowed.
+Kafka topic `tracking.telemetry.ingested.v1` is keyed by `{tenantId}:{vehicleId}`, uses
+idempotent production with `acks=all`, and is the sole durable high-rate buffer. Redis Streams are
+superseded. Redis stores only `tracking:live:{tenantId}:{vehicleId}` projections populated by a
+Kafka consumer; TimescaleDB stores normalized append-only history through an independently
+acknowledged batch consumer. PostgreSQL continues to own configuration, nonce/dedupe authority,
+audit and detector state. Production readiness fails when Kafka or TimescaleDB is unavailable;
+Redis failure degrades live reads but Kafka retains replay authority.
 
 The provider UI enhances existing connection APIs rather than adding a singleton Tenant config.
 The Redis-backed `GET /api/v1/tracking/vehicles/live` requires `TRACKING_VIEW`, is Tenant scoped,
 bounded and PII-minimized. The React-Leaflet map polls at ten seconds while visible/online.
 
-V86 is allocated to this hybrid foundation. US-52 immutable route-geometry persistence moves to
-V87 after the hybrid change sets. Redis, TimescaleDB, Spring Data Redis, Leaflet and React-Leaflet
-are approved dependencies. Accounting remains 73/87.
+V86 is the immutable hybrid foundation. Forward V87 configures 7-day chunks, Tenant/Vehicle
+segmented compression after 7 days and 180-day raw retention. US-52 immutable route-geometry
+persistence moves to V88. Kafka, Spring Kafka, Redis, TimescaleDB, Spring Data Redis, Leaflet and
+React-Leaflet are approved dependencies. Accounting remains 73/87.

@@ -20,7 +20,7 @@ Fleet owns Vehicle master; Trip owns assignment/execution; Routing owns planned 
 - Clock/order: tolerate and mark up to 120s future skew; greater future skew is untrusted. Older arrivals remain ordered history, do not replace trusted latest; >24h at receipt is late, and pre-retention packets are too old.
 - Identity: provider message identity where stable, otherwise canonical SHA-256 over Tenant/device/source-time/coordinate/optional sequence. Exact replay is idempotent; different payload under one identity conflicts.
 - History: append-only normalized facts; raw provider payload is not retained. Retention duration is `EXTERNAL_POLICY`; policy/version/retain-until metadata is required; no public purge API.
-- Storage: the accepted hybrid platform promotion assigns Redis to replaceable Tenant-qualified live state and ingestion streams, TimescaleDB to append-only normalized telemetry history, and PostgreSQL to provider/device configuration, nonce/dedupe authority, audit and detector state. Kafka and PostGIS remain deferred.
+- Storage: the accepted high-throughput platform assigns Kafka to the durable Tenant/Vehicle-ordered telemetry stream, Redis to replaceable Tenant-qualified live state, TimescaleDB to append-only normalized history, and PostgreSQL to provider/device configuration, nonce/dedupe authority, audit and detector state. Redis Streams are superseded; PostGIS remains deferred.
 - UI: minimal list/map point/latest/last-known/freshness/connectivity/accuracy/history/device association; 15-second visible polling with 30/60-second failure backoff; no US-54 dashboard.
 - Privacy: precise location requires same-Tenant `TRACKING_VIEW`; history also requires `TRACKING_HISTORY_VIEW`; no Customer exposure, Driver profile, raw payload or credential exposure.
 - P1-01: no per-packet event. `VehicleTrackingStateChangedV1` is inactive until a consumer is approved and is then coalesced/state-change-only through the shared durable outbox.
@@ -31,8 +31,9 @@ The hybrid platform is `IMPLEMENTATION_IN_PROGRESS / TS01_COMPLETE`. V86 provide
 TimescaleDB extension and Tenant-qualified telemetry-history hypertable; local Compose provides
 TimescaleDB PostgreSQL 16 plus Redis 7.4 AOF/noeviction, and production hybrid mode is explicit.
 Flespi, Traccar and Generic normalizers are implemented behind a fail-fast registry. Secure
-dynamic ingress, Redis hot-path/stream execution, gateway UI, live Fleet map and closure remain.
-US-52 route-geometry persistence is resequenced to V87. Accounting remains 73/87 and US-48
+dynamic Kafka ingress, Redis projector, Timescale batch consumer/policies, gateway UI, live Fleet
+map and closure remain. V87 is reserved for forward Timescale policy hardening and US-52
+route-geometry persistence is resequenced to V88. Accounting remains 73/87 and US-48
 physical acceptance remains blocked independently.
 
 #### Table: `tracking_position_history`
