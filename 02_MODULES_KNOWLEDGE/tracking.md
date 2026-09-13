@@ -25,15 +25,15 @@ Fleet owns Vehicle master; Trip owns assignment/execution; Routing owns planned 
 - Privacy: precise location requires same-Tenant `TRACKING_VIEW`; history also requires `TRACKING_HISTORY_VIEW`; no Customer exposure, Driver profile, raw payload or credential exposure.
 - P1-01: no per-packet event. `VehicleTrackingStateChangedV1` is inactive until a consumer is approved and is then coalesced/state-change-only through the shared durable outbox.
 
-## Implemented persistence (V73–V76)
+## Implemented persistence (V73–V87)
 
-The hybrid platform is `IMPLEMENTATION_IN_PROGRESS / TS01_COMPLETE`. V86 provides the real
+The hybrid platform is `IMPLEMENTATION_IN_PROGRESS / TS04_COMPLETE`. V86 provides the real
 TimescaleDB extension and Tenant-qualified telemetry-history hypertable; local Compose provides
 TimescaleDB PostgreSQL 16 plus Redis 7.4 AOF/noeviction, and production hybrid mode is explicit.
 Flespi, Traccar and Generic normalizers are implemented behind a fail-fast registry. Secure
-dynamic Kafka ingress, Redis projector, Timescale batch consumer/policies, gateway UI, live Fleet
-map and closure remain. V87 is reserved for forward Timescale policy hardening and US-52
-route-geometry persistence is resequenced to V88. Accounting remains 73/87 and US-48
+dynamic Kafka ingress and the Redis projector are complete. V87 implements the transactional
+Timescale batch consumer/policies. Gateway UI, live Fleet map and platform closure remain. US-52
+route-geometry persistence is sequenced to V88. Accounting remains 73/87 and US-48
 physical acceptance remains blocked independently.
 
 #### Table: `tracking_position_history`
@@ -41,13 +41,17 @@ physical acceptance remains blocked independently.
 - **Purpose:** TimescaleDB append-only normalized telemetry history populated by the promoted micro-batch path.
 - **Primary Key:** (`tenant_id`, `source_timestamp`, `id`)
 - **Multi-Tenant Key:** `tenant_id` (UUID, leading in primary/query indexes)
-- **Hypertable partition:** `source_timestamp`, one-day chunks
+- **Hypertable partition:** `source_timestamp`, seven-day chunks
+- **Compression:** after seven days; segment by `tenant_id,vehicle_id`; order by `source_timestamp DESC,id DESC`
+- **Raw retention:** 180 days
+- **Database idempotency:** UNIQUE (`tenant_id`, `source_timestamp`, `dedupe_identity`)
 
 | Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `tenant_id` | UUID | NO | - | PRIMARY KEY component | Trusted Tenant scope |
 | `source_timestamp` | TIMESTAMPTZ | NO | - | PRIMARY KEY/partition component | Device source time |
 | `id` | UUID | NO | - | PRIMARY KEY component | Immutable position identity |
+| `event_version` | INTEGER | NO | `1` | CHECK = 1 | Canonical telemetry schema version |
 | `device_id` | UUID | NO | - | Logical Tracking device reference | Source device |
 | `vehicle_id` | UUID | NO | - | Logical Fleet Vehicle reference | Source-time Vehicle |
 | `provider_alias` | VARCHAR(80) | NO | - | - | Trusted provider alias |
@@ -874,7 +878,7 @@ inside boundary, WARNING/HIGH rules and non-downgrading severity. Availability d
 route/revision, geometry/rule, accuracy, ordering/trust/coordinate and provider/configuration conditions.
 Domain and ports remain framework-neutral and dormant workflow/persistence/event surfaces are not activated.
 
-Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS02-V86-PERSISTENCE-001`, after confirming V86 remains free.
+Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS02-V88-PERSISTENCE-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
@@ -911,3 +915,22 @@ TimescaleDB write. Focused real Kafka/Redis, DLT, Tracking regression, architect
 Maven suite pass; the final suite reports 1,702 tests with zero failures, errors or skips. Flyway
 remains V86 and accounting remains 73/87. Next:
 `HYBRID-TELEMETRY-TS04-V87-TIMESCALE-CONSUMER-AND-POLICIES`.
+
+## Hybrid Telemetry TS04 Kafka-to-Timescale history persistence
+
+TS04 is `COMPLETE`. Tracking consumes the canonical V1 telemetry stream through exact group
+`tracking-telemetry-persister-group` in configurable batches up to 500. Key, headers, payload,
+identity and normalized facts must agree. Manual acknowledgement occurs only after the atomic
+Tracking database batch commits; a database failure rolls back the batch and leaves the source
+offset uncommitted. Malformed/authority-mismatched records use the bounded access-controlled DLT.
+
+History is append-only and preserves valid late/out-of-order facts independently of Redis live
+projection. V87 adds event-version validation, Tenant-scoped database idempotency, seven-day chunks,
+compression after seven days segmented by Tenant/Vehicle, and 180-day raw retention. Static
+reduction uses exact decimal coordinates and only suppresses a consecutive zero-speed point with
+unchanged non-null engine, quality, trust, accuracy and meter facts; uncertainty is retained.
+
+Real Kafka/Timescale/DLT focused acceptance passes 11/11, affected Tracking regression passes
+247/247, architecture passes 58/58, and full Maven passes 1,711/1,711. No REST API or frontend was
+added. Flyway is V87; accounting remains 73/87. Next:
+`US-52-MONITOR-ROUTE-DEVIATIONS-CS02-V88-PERSISTENCE-001`.

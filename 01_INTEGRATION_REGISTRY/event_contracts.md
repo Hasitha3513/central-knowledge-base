@@ -54,7 +54,7 @@ Compatibility rules: additive optional fields are backward compatible; renames, 
 
 ### `TRACKING_TELEMETRY_INGESTED_V1`
 
-Status: `IMPLEMENTED_TS03` (producer TS02; Redis live consumer TS03). Producer: Tracking secure ingress. Topic:
+Status: `IMPLEMENTED_TS04` (producer TS02; Redis live consumer TS03; Timescale history consumer TS04). Producer: Tracking secure ingress. Topic:
 `tracking.telemetry.ingested.v1`. Known consumers are Tracking-owned Redis live projection and
 TimescaleDB history persistence; geofence, speed and route-deviation consumers may activate only
 through their separately accepted contracts. This infrastructure event does not cross a Spring
@@ -110,6 +110,15 @@ headers and canonical payload before projection, and acknowledges manually only 
 Redis operation succeeds. Poison records use bounded recovery and
 `tracking.telemetry.ingested.v1.dlt`; a Redis dependency outage is retried and then propagated so
 the source offset remains uncommitted rather than converting infrastructure loss into data loss.
+
+The TS04 consumer group is `tracking-telemetry-persister-group`, processes configurable batches up
+to 500, and manually acknowledges only after the complete Tracking-owned PostgreSQL transaction
+commits. V87 enforces `(tenant_id, source_timestamp, dedupe_identity)` uniqueness, seven-day chunks,
+Tenant/Vehicle-segmented compression after seven days and raw retention after 180 days. Exact static
+reduction applies only to consecutive, coordinate-identical, zero-speed points with unchanged
+non-null engine and unchanged quality/trust/meter facts. Late and out-of-order valid facts remain
+immutable history. Poison records use the same privacy-minimized DLT; database outages leave source
+offsets uncommitted for bounded retry and replay.
 
 Live state uses hash key `tracking:live:{tenantId}:{vehicleId}` and the bounded Tenant index
 `tracking:live-index:{tenantId}`. One Lua operation compares source timestamp and event identity,

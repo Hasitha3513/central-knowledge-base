@@ -114,5 +114,16 @@ cannot replace a newer position, while exact replays safely refresh the expiry w
 Operations should monitor the `tracking-live-projector-v1` consumer group, Redis availability and
 the `tracking.telemetry.ingested.v1.dlt` topic. Correct poison records through the governed replay
 process. For Redis outages, restore Redis and allow the uncommitted Kafka record to retry; do not
-manually create live keys, alter Tenant indexes or copy telemetry between Tenants. Historical
-TimescaleDB persistence remains unavailable until TS04.
+manually create live keys, alter Tenant indexes or copy telemetry between Tenants.
+
+## Historical telemetry operations
+
+TS04 persists accepted canonical telemetry asynchronously to TimescaleDB. It adds no operator UI or
+public history endpoint. Operators monitor `tracking-telemetry-persister-group` lag, database health,
+Timescale compression/retention jobs and the access-controlled DLT. A database outage leaves offsets
+uncommitted; restore TimescaleDB at V87 and allow Kafka redelivery to drain safely. Do not manufacture
+history from Redis, delete backlog, copy records between Tenants or expose precise location in logs.
+
+History uses seven-day chunks, compression after seven days and 180-day raw retention. The consumer
+can be disabled during recovery without deleting accepted history. Migration or policy correction
+requires a separately reviewed forward migration; V87 must not be edited or removed.
