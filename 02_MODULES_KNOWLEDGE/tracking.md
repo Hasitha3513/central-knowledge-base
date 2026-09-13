@@ -20,12 +20,19 @@ Fleet owns Vehicle master; Trip owns assignment/execution; Routing owns planned 
 - Clock/order: tolerate and mark up to 120s future skew; greater future skew is untrusted. Older arrivals remain ordered history, do not replace trusted latest; >24h at receipt is late, and pre-retention packets are too old.
 - Identity: provider message identity where stable, otherwise canonical SHA-256 over Tenant/device/source-time/coordinate/optional sequence. Exact replay is idempotent; different payload under one identity conflicts.
 - History: append-only normalized facts; raw provider payload is not retained. Retention duration is `EXTERNAL_POLICY`; policy/version/retain-until metadata is required; no public purge API.
-- Storage: standard PostgreSQL history/latest/dedupe and association tables. PostGIS, TimescaleDB, Kafka, Redis and partitioning are deferred pending measured evidence.
+- Storage: the accepted hybrid platform promotion assigns Redis to replaceable Tenant-qualified live state and ingestion streams, TimescaleDB to append-only normalized telemetry history, and PostgreSQL to provider/device configuration, nonce/dedupe authority, audit and detector state. Kafka and PostGIS remain deferred.
 - UI: minimal list/map point/latest/last-known/freshness/connectivity/accuracy/history/device association; 15-second visible polling with 30/60-second failure backoff; no US-54 dashboard.
 - Privacy: precise location requires same-Tenant `TRACKING_VIEW`; history also requires `TRACKING_HISTORY_VIEW`; no Customer exposure, Driver profile, raw payload or credential exposure.
 - P1-01: no per-packet event. `VehicleTrackingStateChangedV1` is inactive until a consumer is approved and is then coalesced/state-change-only through the shared durable outbox.
 
 ## Implemented persistence (V73–V76)
+
+The hybrid platform is `ARCHITECTURE_APPROVED / IMPLEMENTATION_PENDING`. V86 is allocated to its
+infrastructure foundation; US-52 route-geometry persistence is resequenced to V87. Delivery then
+continues through gateway normalizers/secure ingress, Redis hot path/micro-batch persistence,
+gateway UI, live Fleet map and technical closure. Existing V73–V76 behavior remains authoritative
+until those slices pass. Story accounting remains 73/87 and US-48 physical acceptance remains
+blocked independently.
 
 Tracking owns `tracking_device`, `tracking_vehicle_device_assignment`, `tracking_position`, `tracking_vehicle_latest`, `tracking_ingest_nonce`, and `tracking_audit_event`. Every table is Tenant-owned. Device/association/latest same-module relationships are Tenant-consistent; `vehicle_id` is a logical Fleet reference without a physical cross-module FK. Tenant-leading indexes cover Vehicle/source time, device/source time, latest lookup, active associations, provider-message/dedupe identity, nonce expiry and audit time. `tracking_position` is trigger-enforced append-only and association history allows only its one-time close operation.
 

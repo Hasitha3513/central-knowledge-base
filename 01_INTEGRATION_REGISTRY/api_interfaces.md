@@ -181,6 +181,14 @@ Provider-binding, retention-policy and projection-rebuild operations are interna
 
 US-48 live updates use 15-second visible polling with bounded 30/60-second failure backoff; SSE/WebSocket is deferred to US-54 if measured fanout justifies it. Controlled-provider PostgreSQL and Chromium implementation evidence passes; physical-device/real-provider final acceptance remains pending.
 
+The accepted hybrid telemetry platform amendment will add the Redis-backed, same-Tenant
+`GET /api/v1/tracking/vehicles/live` read and a ten-second visible/online live-map cadence. The
+existing signed `/api/integration/v1/tracking/positions` endpoint remains the only external trust
+boundary and will select Flespi, Traccar or Generic normalization from the authenticated ACTIVE
+provider connection—not from caller Tenant authority. Existing provider-connection APIs remain
+the gateway-settings authority; no singleton Tenant gateway or returned credential reference is
+approved. This amendment is architecture-approved and not yet implemented.
+
 The implemented flespi Level-1 adapter uses bounded HTTPS REST polling for the selected FMC130 pilot and privately invokes the literal existing signed ingress above over loopback routing. It adds no provider-facing or human-facing endpoint. The adapter resolves a least-privilege flespi token through the binding's existing opaque credential reference, uses the same resolved high-entropy secret to construct the exact existing HMAC canonical request with a fresh secure nonce, and advances its bounded in-memory timestamp watermark only after accepted ingress. Requests are scoped to one configured flespi device, capped at 500 messages and a 1 MiB response, and use no more than a five-minute cold-start overlap. MQTT and webhook are not authorized for this first adapter. Implementation is complete with controlled documentation-aligned fixtures; real field names remain subject to physical FMC130 capture.
 
 The implemented CS06 pluggable-onboarding extension adds provider-neutral management routes under `/api/v1/tracking`: `GET /provider-types`; `GET|POST /provider-connections`; `GET|PUT /provider-connections/{id}`; explicit `POST .../{id}/test|activate|disable|retire`; bounded capability-gated `GET .../{id}/devices/discover`; and `POST /devices/{deviceId}/provider-bindings` for bind/rebind. Existing device routes remain and gain an explicit retire command. All provider/device management uses `TRACKING_DEVICE_MANAGE`, active membership and server Tenant scope; lists default to 20/cap at 100 and mutations use optimistic version. Responses expose only safe configuration, capabilities, safe status and `credentialConfigured`/masked reference state—never credential references or secret values. Test Connection never creates telemetry or advances device state.
