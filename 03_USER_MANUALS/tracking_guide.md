@@ -102,4 +102,17 @@ Kafka unavailability or acknowledgement timeout returns a safe service-unavailab
 operators should restore the broker and retry with the provider's governed idempotency behavior.
 Invalid signatures, stale timestamps, replayed nonces, unsupported versions, oversized batches,
 unknown Devices and inactive bindings fail closed. Responses and logs never expose credentials,
-raw signatures or raw provider payloads. Live Redis projection remains unavailable until TS03.
+raw signatures or raw provider payloads.
+
+## Live telemetry cache operations
+
+When the governed hybrid-storage feature flag is enabled, accepted Kafka telemetry is projected to
+Redis for current fleet state. TS03 introduces no new operator UI or public API. Each Vehicle's live
+projection expires 24 hours after its most recently processed canonical record; stale source records
+cannot replace a newer position, while exact replays safely refresh the expiry window.
+
+Operations should monitor the `tracking-live-projector-v1` consumer group, Redis availability and
+the `tracking.telemetry.ingested.v1.dlt` topic. Correct poison records through the governed replay
+process. For Redis outages, restore Redis and allow the uncommitted Kafka record to retry; do not
+manually create live keys, alter Tenant indexes or copy telemetry between Tenants. Historical
+TimescaleDB persistence remains unavailable until TS04.

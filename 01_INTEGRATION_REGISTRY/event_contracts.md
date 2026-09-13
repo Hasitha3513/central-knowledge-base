@@ -54,7 +54,7 @@ Compatibility rules: additive optional fields are backward compatible; renames, 
 
 ### `TRACKING_TELEMETRY_INGESTED_V1`
 
-Status: `IMPLEMENTED_TS02`. Producer: Tracking secure ingress. Topic:
+Status: `IMPLEMENTED_TS03` (producer TS02; Redis live consumer TS03). Producer: Tracking secure ingress. Topic:
 `tracking.telemetry.ingested.v1`. Known consumers are Tracking-owned Redis live projection and
 TimescaleDB history persistence; geofence, speed and route-deviation consumers may activate only
 through their separately accepted contracts. This infrastructure event does not cross a Spring
@@ -104,6 +104,20 @@ Customer PII, addresses and arbitrary metadata are prohibited. Kafka retention m
 approved recovery window and is configured operationally; Timescale raw history retention is 180
 days after V87 policy hardening. Schema evolution follows additive optional-field compatibility;
 required-field or semantic changes require a new event version.
+
+The TS03 consumer group is `tracking-live-projector-v1`. It validates the Kafka key, required
+headers and canonical payload before projection, and acknowledges manually only after the atomic
+Redis operation succeeds. Poison records use bounded recovery and
+`tracking.telemetry.ingested.v1.dlt`; a Redis dependency outage is retried and then propagated so
+the source offset remains uncommitted rather than converting infrastructure loss into data loss.
+
+Live state uses hash key `tracking:live:{tenantId}:{vehicleId}` and the bounded Tenant index
+`tracking:live-index:{tenantId}`. One Lua operation compares source timestamp and event identity,
+updates the winning projection, applies an exact sliding 24-hour TTL, indexes the expiry time,
+prunes expired members and caps the index at 10,000 Vehicles. Older records cannot regress live
+state; equal source timestamps are resolved by the lexicographically greatest immutable event UUID;
+an exact replay refreshes TTL. Tenant listing is index-based, lazily pruned and capped at 500
+results; Redis keyspace scans are prohibited.
 
 ## P1-01 Consumer Inventory and Durability Decision
 

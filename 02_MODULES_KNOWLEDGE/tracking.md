@@ -890,3 +890,24 @@ TS02 makes no Redis or TimescaleDB write, adds no table or migration, and leaves
 Provider credentials, raw signatures and raw payloads never enter Kafka. Focused Tracking regression
 passes 243/243, architecture passes 58/58, and the complete Maven suite passes 1,695/1,695.
 Accounting remains 73/87. Next: `HYBRID-TELEMETRY-TS03-KAFKA-REDIS-LIVE-PROJECTOR`.
+
+## Hybrid Telemetry TS03 Kafka-to-Redis live projection
+
+TS03 is `COMPLETE`. Tracking consumes `TRACKING_TELEMETRY_INGESTED_V1` through consumer group
+`tracking-live-projector-v1`, validates the Kafka key, required headers and payload authority, and
+manually acknowledges only after the atomic Redis projection succeeds. Poison records follow
+bounded recovery to `tracking.telemetry.ingested.v1.dlt`. Redis dependency failures are retried and
+then propagated without committing the source offset.
+
+Live state is stored at `tracking:live:{tenantId}:{vehicleId}` with an exact sliding 24-hour TTL.
+The Tenant-scoped sorted-set index `tracking:live-index:{tenantId}` is expiry-scored, lazily pruned,
+capped at 10,000 Vehicles and queried with a maximum result size of 500; keyspace scans are not
+used. A single Lua operation prevents stale records from regressing state, resolves equal source
+timestamps by lexicographically greatest immutable event UUID, refreshes TTL for exact replays and
+keeps the live value and index consistent in the same Redis hash slot.
+
+TS03 adds no REST API, frontend surface, database table or Flyway migration and performs no
+TimescaleDB write. Focused real Kafka/Redis, DLT, Tracking regression, architecture and the complete
+Maven suite pass; the final suite reports 1,702 tests with zero failures, errors or skips. Flyway
+remains V86 and accounting remains 73/87. Next:
+`HYBRID-TELEMETRY-TS04-V87-TIMESCALE-CONSUMER-AND-POLICIES`.
