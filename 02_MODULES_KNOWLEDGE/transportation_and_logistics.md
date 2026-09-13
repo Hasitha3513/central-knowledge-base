@@ -1111,3 +1111,10 @@ read path authoritative; the Routing provider validates Tenant, route and exact 
 because existing revisions have ordered location IDs rather than immutable coordinates. It never queries
 Organization, synthesizes a chord or falls back to latest. CS02 owns the Routing geometry persistence gap.
 Tracking has no foreign repository, SQL, entity or physical FK access.
+
+CS02 closes the Routing persistence gap at V88. Routing owns `route_revision_geometry` (one
+Tenant/route/revision header) and `route_revision_geometry_point` (2–2,000 uniquely ordered WGS84
+points). Both are Tenant-qualified; geometry is immutable after insertion and linked only to the
+Routing-owned `route_revision` aggregate. `PlannedRouteGeometryLookup` now resolves only the exact
+stored revision and otherwise returns empty. No Organization coordinate, endpoint chord, latest
+revision or timestamp fallback exists.

@@ -878,7 +878,73 @@ inside boundary, WARNING/HIGH rules and non-downgrading severity. Availability d
 route/revision, geometry/rule, accuracy, ordering/trust/coordinate and provider/configuration conditions.
 Domain and ports remain framework-neutral and dormant workflow/persistence/event surfaces are not activated.
 
-Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS02-V88-PERSISTENCE-001`.
+## US-52 CS02 V88 Persistence
+
+US-52 is `IMPLEMENTATION_IN_PROGRESS / CS02_COMPLETE`; accounting remains 73/87. V88 adds
+Tenant-scoped Tracking persistence for tolerance rules, stable Vehicle state with complete
+candidate evidence, immutable episode evidence and append-only review evidence. The repositories
+implement the dormant CS01 ports with Tenant predicates, bounded reads, source-time ordering,
+advisory serialization and optimistic lock versions. Routing geometry is consumed only through
+`PlannedRouteGeometryLookup`; Tracking has no Routing/Trip SQL, entity, repository or physical FK.
+
+### Table: `tracking_route_deviation_rule`
+
+- **Purpose:** Versioned Tracking-owned tolerance configuration for one route revision.
+- **Primary Key:** `(tenant_id, id)`
+- **Multi-Tenant Key:** `tenant_id` (indexed)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `tenant_id`, `id` | UUID | NO | - | composite primary key | Tenant and rule identity |
+| `route_id` | UUID | NO | - | logical Routing reference | Route identity |
+| `route_version` | VARCHAR(120) | NO | - | `REVISION:<positive integer>` | Exact revision |
+| `configured_tolerance_meters` | NUMERIC(10,3) | NO | - | 10–5,000 | Frozen tolerance |
+| `rule_version` | BIGINT | NO | - | positive; Tenant revision unique | Version |
+| `active`, `created_at`, `updated_at` | BOOLEAN, TIMESTAMPTZ, TIMESTAMPTZ | NO | governed defaults | active-rule partial unique index | Lifecycle evidence |
+
+### Table: `tracking_route_deviation_state`
+
+- **Purpose:** One stable evaluation state and optional complete candidate per Tenant/Vehicle.
+- **Primary Key:** `(tenant_id, vehicle_id)`
+- **Multi-Tenant Key:** `tenant_id` (indexed)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `tenant_id`, `vehicle_id` | UUID | NO | - | composite primary key | Scope and Vehicle |
+| `last_position_id`, `last_source_timestamp` | UUID, TIMESTAMPTZ | NO | - | Tenant/source ordering index | Latest processed source |
+| `trip_id`, `route_id`, `route_version`, `rule_id`, `rule_version` | UUID/VARCHAR/BIGINT | YES | - | logical foreign references; no physical cross-module FK | Attribution/rule snapshot |
+| `candidate_*` | UUID/TIMESTAMPTZ/NUMERIC | YES | NULL | all-or-nothing completeness constraint | First/latest candidate identity, coordinates, accuracy, distances and counters |
+| `active_episode_id` | UUID | YES | NULL | Tracking-local logical identity | Open episode |
+| `lock_version`, `created_at`, `updated_at` | BIGINT/TIMESTAMPTZ | NO | governed defaults | nonnegative lock | Concurrency/audit timestamps |
+
+### Table: `tracking_route_deviation_episode`
+
+- **Purpose:** Durable deterministic deviation episode evidence.
+- **Primary Key:** `(tenant_id, id)`
+- **Multi-Tenant Key:** `tenant_id` (indexed)
+
+The table stores Tenant/Vehicle/Trip/Driver/route/revision/rule snapshots, lifecycle and severity,
+start/latest/end source identity and timestamps, maximum distance and configured/effective
+tolerance evidence, review requirement, lock version and creation/update timestamps. Constraints
+bound lifecycle, severity and nonnegative numeric values. A Tenant/Vehicle partial unique index
+permits only one open episode.
+
+### Table: `tracking_route_deviation_review`
+
+- **Purpose:** Immutable versioned review evidence owned by Tracking.
+- **Primary Key:** `(tenant_id, id)`
+- **Multi-Tenant Key:** `tenant_id` (indexed)
+
+The table stores Tenant-local episode identity, positive review version, APPROVED/REJECTED outcome,
+reviewer UUID, bounded note, reviewed/created timestamps, with a Tenant-local episode foreign key
+and `(tenant_id, episode_id, review_version)` uniqueness.
+
+V88 also adds Routing-owned immutable geometry tables documented by the Transportation/Routing
+context. PostgreSQL acceptance is 7/7, affected regression 224/224, architecture 58/58 and full
+Maven 1,718/1,718. No detector, workflow, event, Notification, audit publisher, scheduled job, API
+or frontend behavior is activated.
+
+Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS03-EVALUATION-EPISODES-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
