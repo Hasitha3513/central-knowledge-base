@@ -27,12 +27,49 @@ Fleet owns Vehicle master; Trip owns assignment/execution; Routing owns planned 
 
 ## Implemented persistence (V73–V76)
 
-The hybrid platform is `ARCHITECTURE_APPROVED / IMPLEMENTATION_PENDING`. V86 is allocated to its
-infrastructure foundation; US-52 route-geometry persistence is resequenced to V87. Delivery then
-continues through gateway normalizers/secure ingress, Redis hot path/micro-batch persistence,
-gateway UI, live Fleet map and technical closure. Existing V73–V76 behavior remains authoritative
-until those slices pass. Story accounting remains 73/87 and US-48 physical acceptance remains
-blocked independently.
+The hybrid platform is `IMPLEMENTATION_IN_PROGRESS / TS01_COMPLETE`. V86 provides the real
+TimescaleDB extension and Tenant-qualified telemetry-history hypertable; local Compose provides
+TimescaleDB PostgreSQL 16 plus Redis 7.4 AOF/noeviction, and production hybrid mode is explicit.
+Flespi, Traccar and Generic normalizers are implemented behind a fail-fast registry. Secure
+dynamic ingress, Redis hot-path/stream execution, gateway UI, live Fleet map and closure remain.
+US-52 route-geometry persistence is resequenced to V87. Accounting remains 73/87 and US-48
+physical acceptance remains blocked independently.
+
+#### Table: `tracking_position_history`
+
+- **Purpose:** TimescaleDB append-only normalized telemetry history populated by the promoted micro-batch path.
+- **Primary Key:** (`tenant_id`, `source_timestamp`, `id`)
+- **Multi-Tenant Key:** `tenant_id` (UUID, leading in primary/query indexes)
+- **Hypertable partition:** `source_timestamp`, one-day chunks
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `tenant_id` | UUID | NO | - | PRIMARY KEY component | Trusted Tenant scope |
+| `source_timestamp` | TIMESTAMPTZ | NO | - | PRIMARY KEY/partition component | Device source time |
+| `id` | UUID | NO | - | PRIMARY KEY component | Immutable position identity |
+| `device_id` | UUID | NO | - | Logical Tracking device reference | Source device |
+| `vehicle_id` | UUID | NO | - | Logical Fleet Vehicle reference | Source-time Vehicle |
+| `provider_alias` | VARCHAR(80) | NO | - | - | Trusted provider alias |
+| `provider_message_id` | VARCHAR(160) | YES | NULL | - | Stable provider identity when supplied |
+| `provider_sequence` | BIGINT | YES | NULL | - | Provider sequence when supplied |
+| `dedupe_identity` | CHAR(64) | NO | - | - | Canonical dedupe identity |
+| `received_at` | TIMESTAMPTZ | NO | - | - | Independent server receipt time |
+| `latitude` | NUMERIC(10,7) | NO | - | CHECK `[-90,90]` | WGS84 latitude |
+| `longitude` | NUMERIC(10,7) | NO | - | CHECK `[-180,180]` | WGS84 longitude |
+| `horizontal_accuracy_meters` | NUMERIC(10,3) | YES | NULL | CHECK non-negative | Provider accuracy |
+| `speed_kph` | NUMERIC(8,3) | YES | NULL | CHECK `[0,400]` | Normalized speed |
+| `heading_degrees` | NUMERIC(7,3) | YES | NULL | CHECK `[0,360)` | Heading |
+| `altitude_meters` | NUMERIC(12,3) | YES | NULL | - | Altitude |
+| `engine_state` | VARCHAR(10) | NO | - | CHECK ON/OFF/UNKNOWN | Engine state |
+| `odometer_km` | NUMERIC(14,3) | YES | NULL | - | Provider odometer |
+| `engine_hours` | NUMERIC(14,3) | YES | NULL | - | Provider engine hours |
+| `trust` | VARCHAR(12) | NO | - | CHECK TRUSTED/UNTRUSTED/UNKNOWN | Trust decision |
+| `quality` | VARCHAR(32) | NO | - | - | Quality classification |
+| `ordering_classification` | VARCHAR(20) | NO | - | CHECK frozen ordering vocabulary | Arrival ordering |
+| `retention_policy` | VARCHAR(80) | NO | - | - | Retention policy identity |
+| `retention_policy_version` | VARCHAR(40) | NO | - | - | Applied policy version |
+| `retain_until` | TIMESTAMPTZ | YES | NULL | Tenant-leading partial index | Optional retention boundary |
+| `safe_metadata` | JSONB | NO | `{}` | - | Bounded non-secret metadata |
 
 Tracking owns `tracking_device`, `tracking_vehicle_device_assignment`, `tracking_position`, `tracking_vehicle_latest`, `tracking_ingest_nonce`, and `tracking_audit_event`. Every table is Tenant-owned. Device/association/latest same-module relationships are Tenant-consistent; `vehicle_id` is a logical Fleet reference without a physical cross-module FK. Tenant-leading indexes cover Vehicle/source time, device/source time, latest lookup, active associations, provider-message/dedupe identity, nonce expiry and audit time. `tracking_position` is trigger-enforced append-only and association history allows only its one-time close operation.
 

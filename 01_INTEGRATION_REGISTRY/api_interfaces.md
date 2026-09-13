@@ -187,7 +187,8 @@ existing signed `/api/integration/v1/tracking/positions` endpoint remains the on
 boundary and will select Flespi, Traccar or Generic normalization from the authenticated ACTIVE
 provider connection—not from caller Tenant authority. Existing provider-connection APIs remain
 the gateway-settings authority; no singleton Tenant gateway or returned credential reference is
-approved. This amendment is architecture-approved and not yet implemented.
+approved. TS01 is complete at V86 and the three normalizers are implemented; the public dynamic
+ingress and Redis-backed live read remain inactive until their dedicated security/application slices.
 
 The implemented flespi Level-1 adapter uses bounded HTTPS REST polling for the selected FMC130 pilot and privately invokes the literal existing signed ingress above over loopback routing. It adds no provider-facing or human-facing endpoint. The adapter resolves a least-privilege flespi token through the binding's existing opaque credential reference, uses the same resolved high-entropy secret to construct the exact existing HMAC canonical request with a fresh secure nonce, and advances its bounded in-memory timestamp watermark only after accepted ingress. Requests are scoped to one configured flespi device, capped at 500 messages and a 1 MiB response, and use no more than a five-minute cold-start overlap. MQTT and webhook are not authorized for this first adapter. Implementation is complete with controlled documentation-aligned fixtures; real field names remain subject to physical FMC130 capture.
 

@@ -142,6 +142,6 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 
 Approval annotates Tracking evidence only; it does not mutate Routing, Trip or Driver state. V85 is occupied
 by the Trip route-revision prerequisite; CS01 is complete and later Tracking/Routing persistence expects V86
-subject to head recheck. The subsequently approved hybrid telemetry platform allocates V86 to
-Tracking infrastructure, so US-52 immutable route-geometry persistence is resequenced to V87
-after the hybrid slices close. This sequencing change does not alter module ownership or story accounting.
+subject to head recheck. The subsequently approved hybrid telemetry platform uses V86 for its
+verified TimescaleDB foundation, so US-52 immutable route-geometry persistence is resequenced to
+V87 after the hybrid slices close. This sequencing change does not alter module ownership or story accounting.
