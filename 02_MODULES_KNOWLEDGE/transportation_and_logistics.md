@@ -242,7 +242,7 @@ V43 deterministically seeds UUID `4f8b6a3b-2c1e-4d89-9a72-f9e4c5b3671a`, `CLTS-L
 | `vehicle` | Vehicle master | `id UUID` | registration_number varchar80, chassis_number/engine_number varchar120?, category_id/type_id UUID, manufacturer/model?, manufacture_year int?, ownership_type/operational_status varchar40, odometer/engine_hours/capacity double?, active boolean, capacity_kg numeric(19,4)?, tare_weight_kg numeric(19,4)?, gross_vehicle_weight_kg numeric(19,4)?, cargo_volume_capacity_m3 numeric(19,4)?, axle_count int?, max_axle_load_kg numeric(19,4)? | unique registration; FKs category/type; status and category/type indexes; capacity constraints |
 | `route` | Route master | `id UUID` | code varchar40, name varchar160, origin_location_id/destination_location_id UUID, distance double?, duration int?, active boolean | unique code; FKs locations; search index |
 | `route_stop` | Ordered route stop | `(route_id,stop_order)` | route_id UUID, stop_order int, location_id UUID | FK route cascade/location; unique route/location |
-| `trip` | Trip aggregate | `id UUID` | trip_number varchar60, customer/department/project/route UUID?, priority/status varchar, origin/destination UUID, requested times timestamptz, required vehicle/capacity?, cargo/passenger/instructions/notes?, assigned vehicle/driver?, actual times/readings/remarks?, created_at/updated_at | unique trip_number; lifecycle/period/allocation indexes; current physical FKs to references |
+| `trip` | Trip aggregate | `id UUID` | trip_number varchar60, customer/department/project/route UUID?, `route_version varchar(120)?`, priority/status varchar, origin/destination UUID, requested times timestamptz, required vehicle/capacity?, cargo/passenger/instructions/notes?, assigned vehicle/driver?, actual times/readings/remarks?, created_at/updated_at | unique trip_number; V85 route version is nullable for historical rows and, when present, requires route ID plus `REVISION:<positive-integer>`; lifecycle/period/allocation indexes; current physical FKs to references |
 | `vehicle_document` | Vehicle compliance document | `id UUID` | vehicle_id UUID, type/number, issue/expiry date?, file_reference?, mandatory boolean, status, active, audit timestamps/users | FK vehicle; date/status checks; vehicle/dispatch indexes |
 | `driver_license` | Driver licence | `id UUID` | driver_id UUID, number/class, issue/expiry date, status, active, audit timestamps/users | unique number; FK driver; date/status checks and availability index |
 | `trip_status_history` | Trip lifecycle audit | `id UUID` | trip_id UUID, from_status?, to_status, action, vehicle_id?, driver_id?, license_class?, actor, details?, occurred_at | FKs trip/vehicle/driver; trip-time and driver indexes |
@@ -1102,7 +1102,10 @@ persistence change or behavior change.
 
 For US-52, Trip remains source-time assignment owner and must populate the existing optional
 `VehicleTripAssignmentLookup` route version as `REVISION:<positive-integer>`. Routing remains owner of route
-revisions and will publish `PlannedRouteGeometryLookup.find(tenantId,routeId,routeVersion)`, returning an
+revisions and publishes authoritative current revision identity through `RouteAssignmentLookup`; it will also
+publish `PlannedRouteGeometryLookup.find(tenantId,routeId,routeVersion)`, returning an
 immutable bounded WGS84 ordered-point snapshot without exposing Routing persistence. Route changes create new
 revisions/effective Trip attribution and never rewrite Tracking evidence. These extensions are
-`FROZEN_US52 / NOT_IMPLEMENTED`; Tracking has no foreign repository, SQL, entity or physical FK access.
+partially implemented: V85 makes the Trip route-version snapshot and source-time read path authoritative,
+while the Routing geometry provider remains for CS01. Tracking has no foreign repository, SQL, entity or
+physical FK access.

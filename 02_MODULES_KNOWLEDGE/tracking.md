@@ -795,15 +795,16 @@ externally blocked, and Wave C proceeds with
 
 ## US-52 Route Deviation Monitoring Frozen Product Decision
 
-US-52 is `PRODUCT_DECISIONS_FROZEN / READY_FOR_IMPLEMENTATION`; accounting remains 73/87 and Flyway remains
-V83 with V84 absent. Tracking owns planned-versus-actual comparison, current state, durable evaluation jobs,
+US-52 is `PRODUCT_DECISIONS_FROZEN / READY_FOR_IMPLEMENTATION`; accounting remains 73/87 and Flyway is V85
+after the Trip route-revision assignment prerequisite. Tracking owns planned-versus-actual comparison, current state, durable evaluation jobs,
 immutable deviation episodes, operational review and minimized durable publication. Routing retains route,
 revision, ordered immutable geometry and disruption ownership; Trip retains source-time assignment authority.
 
 Tracking reuses `VehicleTripAssignmentLookup.findAt(tenantId,vehicleId,sourceTimestamp)`, with Trip populating
 canonical `REVISION:<positive-integer>` route versions. Routing will publish the additive Tenant-qualified
 `PlannedRouteGeometryLookup`, returning a 2–2,000-point immutable WGS84 `(longitude,latitude)` revision
-snapshot. Both extensions are frozen but not implemented; missing attribution/geometry is NOT_EVALUATED.
+snapshot. Trip's V85 snapshot and source-time lookup are implemented; the Routing geometry provider remains
+for CS01. Missing attribution/geometry is NOT_EVALUATED.
 
 Each route revision has one ACTIVE Tracking tolerance rule from 10 through 5,000 metres. Effective tolerance
 equals configured tolerance plus known accuracy from 0 through 1,000 metres; missing accuracy is NOT_EVALUATED.
@@ -813,7 +814,7 @@ IN_ORDER, Vehicle-associated valid WGS84 positions no older than five minutes.
 
 Episodes use deterministic identity and WARNING (`distance <= 2x effective tolerance`) or HIGH (`distance >
 2x`). HIGH requires operational review; APPROVED/REJECTED annotates evidence and never mutates Routing or
-suppresses monitoring. Proposed V84 tables are rule, state, episode, immutable review and durable evaluation
+suppresses monitoring. Later Tracking tables are rule, state, episode, immutable review and durable evaluation
 job. The API family is `/api/v1/tracking/route-deviations`; permissions are ROUTE_DEVIATION_VIEW,
 ROUTE_DEVIATION_MANAGE, ROUTE_DEVIATION_EVENT_VIEW and ROUTE_DEVIATION_APPROVE.
 

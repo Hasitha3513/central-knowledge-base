@@ -229,6 +229,9 @@ The literal `/api/v1/...` family and secured use-case boundary independently enf
 - Routing to Tracking adds `PlannedRouteGeometryLookup.find(tenantId,routeId,routeVersion)`, returning an
   optional provider-neutral immutable 2–2,000-point WGS84 `(longitude,latitude)` snapshot.
 
-Both extensions are `FROZEN_US52 / NOT_IMPLEMENTED`. Missing attribution or geometry is NOT_EVALUATED and
-never permits foreign-table access. The proposed human REST family is
+The Trip extension is `PREREQUISITE_COMPLETE / V85`: the client continues to provide only `routeId`, Routing's
+published `RouteAssignmentLookup` returns the current authoritative canonical revision, Trip snapshots it,
+and the source-time lookup returns only that persisted value. Historical null revisions remain explicitly
+absent. The geometry extension remains `FROZEN_US52 / CS01_PROVIDER_PENDING`. Missing attribution or geometry
+is NOT_EVALUATED and never permits foreign-table access. The proposed human REST family is
 `/api/v1/tracking/route-deviations`; no endpoint is implemented by the decision task.

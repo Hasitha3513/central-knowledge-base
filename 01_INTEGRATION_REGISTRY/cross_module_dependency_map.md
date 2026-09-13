@@ -134,11 +134,11 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 | Provider | Consumer | Contract | Status |
 | :--- | :--- | :--- | :--- |
 | Tracking US-48 | Tracking US-52 | TRUSTED, IN_ORDER, nonduplicate Vehicle position with WGS84, accuracy, source time and position ID | ACTIVE_TECHNICAL_CONTRACT; no US-48 acceptance inheritance |
-| Trip | Tracking US-52 | Existing source-time assignment lookup with canonical populated route revision | FROZEN_US52_EXTENSION / NOT_IMPLEMENTED |
+| Trip | Tracking US-52 | Existing source-time assignment lookup with canonical persisted route revision | PREREQUISITE_COMPLETE / V85; historical null remains absent, no latest fallback |
 | Routing | Tracking US-52 | Tenant-qualified immutable bounded route-revision geometry lookup | FROZEN_US52_NEW_CONTRACT / NOT_IMPLEMENTED |
 | Tracking US-52 | Notification | Minimized detected/escalated durable facts through shared P1-01 outbox | FROZEN_US52 / NOT_IMPLEMENTED |
 | Tracking US-52 | Operations US-78 | No automatic exception creation | NONE_PHASE1 |
 | Routing US-22 | Tracking US-52 | Authorized changes use a new route revision and Trip attribution; optional disruption UUID only | FROZEN_OWNERSHIP; no foreign persistence |
 
-Approval annotates Tracking evidence only; it does not mutate Routing, Trip or Driver state. V84 is reserved
-subject to implementation head recheck.
+Approval annotates Tracking evidence only; it does not mutate Routing, Trip or Driver state. V85 is occupied
+by the Trip route-revision prerequisite; later Tracking persistence expects V86 subject to head recheck.
