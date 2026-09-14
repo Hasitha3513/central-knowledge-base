@@ -316,7 +316,7 @@ coordinates, device/provider facts, credentials, raw telemetry and personal data
 journey proves WARNING and repeat-HIGH delivery, exact payload, same-Tenant recipient resolution, Tenant-B
 exclusion, non-flooding continued packets and producer/consumer replay idempotency.
 
-## VehicleRouteDeviationDetectedV1 and EscalatedV1 Frozen Not Implemented
+## VehicleRouteDeviationDetectedV1 and EscalatedV1 (US-52; Durable Tracking-to-Notification Contracts Active)
 
 - **Owner / producer:** Tracking; **consumer:** Notification only; Operations is NONE in Phase 1.
 - **Envelope/delivery:** shared P1-01 outbox, canonical Tenant envelope, at least once, no global ordering,
@@ -331,4 +331,14 @@ exclusion, non-flooding continued packets and producer/consumer replay idempoten
   Driver/Customer PII or review notes.
 
 Notification owns same-Tenant Dispatcher resolution, templates, channels, preferences, retry and history.
-Notification failure cannot invalidate deviation evidence. Both families are `FROZEN_US52 / NOT_IMPLEMENTED`.
+Notification failure cannot invalidate deviation evidence. Both families are `ACTIVE_US52_CS05`, delivered
+at least once through P1-01 and deduplicated by the existing Notification execution identity.
+
+Detection emits once at confirmation. WARNING maps to Notification WARNING and domain HIGH maps explicitly
+to Notification CRITICAL. Direct-HIGH confirmation emits detection only. The first later WARNING-to-HIGH
+transition emits `DISTANCE_HIGH`; the first rejected HIGH review emits `REVIEW_REJECTED`. Both escalation
+reasons map to Notification CRITICAL. Repeated HIGH packets, approval, closure, ordinary progress,
+non-evaluable telemetry and review correction are silent. V90 provisions the two exact IN_APP Dispatcher
+templates/rules without changing Notification severity values, roles, permissions or schema. Rendered
+messages round metres deterministically and render source time as UTC ISO-8601; they prohibit driver identity,
+coordinates, geometry, review notes, raw telemetry, provider/device details, credentials/signatures and PII.

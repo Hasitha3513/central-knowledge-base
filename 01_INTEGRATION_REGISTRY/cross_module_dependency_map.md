@@ -136,7 +136,7 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 | Tracking US-48 | Tracking US-52 | TRUSTED, IN_ORDER, nonduplicate Vehicle position with WGS84, accuracy, source time and position ID | ACTIVE_TECHNICAL_CONTRACT; no US-48 acceptance inheritance |
 | Trip | Tracking US-52 | Existing source-time assignment lookup with canonical persisted route revision | CS03_RUNTIME_CONSUMPTION_ACTIVE / V85; historical null remains absent, no latest fallback or foreign persistence |
 | Routing | Tracking US-52 | Tenant-qualified immutable bounded route-revision geometry lookup | CS03_RUNTIME_CONSUMPTION_ACTIVE / V88 exact revision or truthful absence; no latest fallback |
-| Tracking US-52 | Notification | Minimized detected/escalated durable facts through shared P1-01 outbox | FROZEN_US52 / NOT_IMPLEMENTED |
+| Tracking US-52 | Notification | Minimized detected/escalated durable facts through shared P1-01 outbox; V90 same-Tenant IN_APP Dispatcher catalogue | CS05_ACTIVE_DURABLE_AT_LEAST_ONCE / IDEMPOTENT_NOTIFICATION |
 | Tracking US-52 | Operations US-78 | No automatic exception creation | NONE_PHASE1 |
 | Routing US-22 | Tracking US-52 | Authorized changes use a new route revision and Trip attribution; optional disruption UUID only | FROZEN_OWNERSHIP; no foreign persistence |
 

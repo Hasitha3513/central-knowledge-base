@@ -66,7 +66,7 @@ violation, disciplinary, licence or payroll decision.
 
 ## Known limitations
 
-US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speed detection, management/query API, Dispatcher IN_APP Notification integration and the dedicated rule/state/episode operator frontend are implemented. Route-deviation detection and the management/query/review backend API are implemented, but route-deviation Notification integration and operator frontend remain later change sets. Idle detection, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 and final US-50 fidelity acceptance still require a physical GPS device and verified real provider speed payload.
+US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speed detection, management/query API, Dispatcher IN_APP Notification integration and the dedicated rule/state/episode operator frontend are implemented. Route-deviation detection, management/query/review backend API and Dispatcher IN_APP Notification integration are implemented; its operator frontend remains a later change set. Idle detection, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 and final US-50 fidelity acceptance still require a physical GPS device and verified real provider speed payload.
 
 ## Route-deviation API
 
@@ -80,11 +80,20 @@ update and lifecycle commands, the current `expectedVersion` for mutation, and a
 Rule/state lists cap at 100. Episode history requires a source-time window no greater than 31 days and caps
 each cursor page at 500. Cross-Tenant identifiers appear not found.
 
+Confirmed deviations create one same-Tenant IN_APP notification for active Dispatchers. WARNING episodes
+appear as WARNING; HIGH episodes appear as CRITICAL in the Notification platform. A directly confirmed HIGH
+episode does not also create a distance escalation. A later WARNING-to-HIGH transition creates one
+`DISTANCE_HIGH` escalation, and rejecting a HIGH episode creates one `REVIEW_REJECTED` escalation. Continued
+HIGH telemetry and duplicate durable delivery do not create repeated logical notifications. Notification
+content includes the Vehicle, route revision, rounded distance, source time and episode reference, but never
+coordinates, route geometry, review notes, provider/device details, credentials, driver identity or personal
+data. Email and SMS are not enabled for this workflow.
+
 Only HIGH episodes require review. An authorized reviewer may approve or reject using a governed reason;
 `UNKNOWN` requires a 10–500 character note. A correction appends evidence instead of replacing the prior
 decision, and a different authorized actor must perform a reversal. Reload after a stale-version conflict.
-Responses and audits omit coordinates, raw telemetry, provider/device credentials and personal data. CS04
-does not send route-deviation notifications or create Operations cases.
+Responses and audits omit coordinates, raw telemetry, provider/device credentials and personal data. No
+route-deviation workflow creates Operations cases.
 
 ## Monitor speed in the operator UI
 

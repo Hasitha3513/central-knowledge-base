@@ -1006,6 +1006,28 @@ Clean V1→V89 and V88→V89 pass. Focused CS04 evidence is 26/26, architecture/
 Maven 1,738/1,738 PASS. CS04 adds no event, Notification, Operations integration, frontend or physical-device
 acceptance. Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS05-NOTIFICATION-INTEGRATION-001`.
 
+## US-52 CS05 durable Notification integration
+
+US-52 is `IMPLEMENTATION_IN_PROGRESS / CS05_COMPLETE`; accounting remains 73/87 and Flyway advances to
+V90. Tracking now publishes minimized `VehicleRouteDeviationDetectedV1` and
+`VehicleRouteDeviationEscalatedV1` envelopes through the P1-01 transactional outbox. Notification resolves
+active same-Tenant Dispatcher members, delivers IN_APP only and deduplicates replay with its existing stable
+execution identity. Notification failure is isolated from committed Tracking evidence.
+
+Detection occurs once at episode confirmation. WARNING maps to Notification WARNING and domain HIGH maps to
+the platform's existing CRITICAL value. Direct HIGH confirmation produces detection only; the first later
+WARNING-to-HIGH transition produces one `DISTANCE_HIGH` escalation, and the first rejected HIGH review
+produces one `REVIEW_REJECTED` escalation. Continued HIGH observations, approval, closure, normal progress,
+non-evaluable input and review correction are silent. Rendered content uses deterministic whole-metre
+rounding and UTC ISO source time, and excludes driver identity, coordinates, geometry, review notes, raw
+telemetry, provider/device details, credentials/signatures and Driver/Customer PII.
+
+V90 is catalogue-only: it seeds exactly `TRACKING_ROUTE_DEVIATION_DETECTED_V1` and
+`TRACKING_ROUTE_DEVIATION_ESCALATED_V1`, with Tenant ROLE/DISPATCHER rules and required policy associations.
+It creates no role, permission, severity value or schema object. PostgreSQL outbox-to-Notification,
+same-Tenant/Tenant-B and replay evidence passes; architecture is 59/59 and complete Maven is 1,745/1,745.
+Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS06-FRONTEND-001`.
+
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
 TS02 is `COMPLETE`. The existing signed `/api/integration/v1/tracking/positions` boundary validates
