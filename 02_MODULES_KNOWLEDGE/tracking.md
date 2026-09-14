@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V91. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 is technically complete with physical speed-fidelity acceptance pending; US-52 is `IMPLEMENTATION_IN_PROGRESS / CS06_COMPLETE`. Accounting is 73/87 with 14 remaining and physical-device/real-provider US-48 final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V92. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 is technically complete with physical speed-fidelity acceptance pending; US-52 is `IMPLEMENTATION_IN_PROGRESS / CS07_COMPLETE`. Accounting is 73/87 with 14 remaining and physical-device/real-provider US-48 final acceptance is still required.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -25,7 +25,7 @@ Fleet owns Vehicle master; Trip owns assignment/execution; Routing owns planned 
 - Privacy: precise location requires same-Tenant `TRACKING_VIEW`; history also requires `TRACKING_HISTORY_VIEW`; no Customer exposure, Driver profile, raw payload or credential exposure.
 - P1-01: no per-packet event. `VehicleTrackingStateChangedV1` is inactive until a consumer is approved and is then coalesced/state-change-only through the shared durable outbox.
 
-## Implemented persistence (V73–V91)
+## Implemented persistence (V73–V92)
 
 The hybrid platform is `IMPLEMENTATION_IN_PROGRESS / TS04_COMPLETE`. V86 provides the real
 TimescaleDB extension and Tenant-qualified telemetry-history hypertable; local Compose provides
@@ -1070,8 +1070,40 @@ excluded because US-51 still lacks authoritative engine-state capability.
 V91 preserves legacy geofence/speed jobs and accepts geofence transition evidence from either same-Tenant
 legacy position or Timescale history. Claims use bounded `FOR UPDATE SKIP LOCKED`, leases and deterministic
 Tenant/Vehicle/source-time order. Replay is constrained by Tenant/history/evaluator and
-Tenant/dedupe/evaluator uniqueness. Next:
-`US-52-MONITOR-ROUTE-DEVIATIONS-CS07-POSTGRES-CONCURRENCY-PERFORMANCE-001`.
+Tenant/dedupe/evaluator uniqueness. CS07 is now complete; the current queue is recorded below.
+
+## US-52 V92 maintenance-window index hardening and CS07 closure
+
+V92 is a normal transactional maintenance-window migration. It creates only
+`idx_tracking_route_deviation_episode_keyset` on
+`(tenant_id, vehicle_id, start_source_timestamp DESC, id DESC)` and the Trip-owned
+`idx_trip_tenant_vehicle_source_assignment` on
+`(tenant_id, vehicle_id, actual_start_time DESC, id DESC)`, including
+`actual_end_time,status,driver_id,route_id,route_version`, for non-null starts whose status is not
+`CANCELLED` or `REJECTED`. Both indexes lead with Tenant scope, are ready/valid, and match their
+production queries. The Trip index changes only physical access; Trip retains ownership and Tracking
+continues to use its published source-time lookup contract.
+
+The migration intentionally uses ordinary `CREATE INDEX`, not `CONCURRENTLY`, and must run only after
+draining writers for `tracking_route_deviation_episode` and `trip`, checking long transactions and disk
+headroom, and retaining Kafka backlog. Operators validate Flyway V92 and both indexes before restoring
+traffic. Transaction rollback removes incomplete builds before commit; after successful deployment V92
+is immutable, and removal would require a separately reviewed forward migration. Local plan timings are
+acceptance evidence, not production guarantees.
+
+The route-deviation keyset plan changed from a 10,000-row sequential scan plus top-N sort to an
+index-only scan without a sort. The Trip lookup changed from examining 10,002 Vehicle-index entries and
+discarding 9,940 to an ordered index-only lookup. Deterministic PostgreSQL concurrency, durable dispatch,
+lease recovery, idempotency and Tenant isolation pass with no deadlocks.
+
+Retained Chromium initially timed out because the host-run E2E application did not enable hybrid storage
+and Compose exposed Kafka only inside its Docker network. The governed E2E environment now retains
+internal `kafka:9092`, exposes host-only acceptance access at `localhost:9094`, enables hybrid storage and
+topic management, and gives the US-49 telemetry scenario its own unique active geofence. No timeout was
+increased and no detector state was pre-seeded. US-49 scenario 4 and US-50 scenario 1 each passed three
+independent repetitions; final US-49/US-50/US-52 Chromium continuity passed 26/26. Final evidence is
+focused 250/250, architecture 59/59, Maven 1,754/1,754, and Vitest 319/319. Next:
+`US-52-MONITOR-ROUTE-DEVIATIONS-TECHNICAL-CLOSURE-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
