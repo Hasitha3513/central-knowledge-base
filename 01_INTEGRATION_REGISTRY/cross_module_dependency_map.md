@@ -140,6 +140,12 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 | Tracking US-52 | Operations US-78 | No automatic exception creation | NONE_PHASE1 |
 | Routing US-22 | Tracking US-52 | Authorized changes use a new route revision and Trip attribution; optional disruption UUID only | FROZEN_OWNERSHIP; no foreign persistence |
 
+V91 adds no cross-module dependency. Tracking's Kafka history consumer now atomically writes three
+Tracking-owned durable evaluation intents beside each retained Timescale fact. The asynchronous dispatcher
+reuses existing Tracking geofence, speed and route-deviation ports; Trip and Routing remain accessible only
+through their published source-time lookup contracts. Redis live projection remains independent. US-51 IDLE
+dispatch is prohibited until authoritative engine state exists.
+
 Approval annotates Tracking evidence only; it does not mutate Routing, Trip or Driver state. V85 is occupied
 by the Trip route-revision prerequisite; CS01 is complete and later Tracking/Routing persistence expects V86
 subject to head recheck. The subsequently approved hybrid telemetry platform uses V86 for its

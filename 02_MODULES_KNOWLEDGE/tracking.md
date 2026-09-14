@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V89 for US-52 route-deviation permissions. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 is technically complete with physical speed-fidelity acceptance pending; US-52 is `IMPLEMENTATION_IN_PROGRESS / CS04_COMPLETE`. Accounting is 73/87 with 14 remaining and physical-device/real-provider US-48 final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V91. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 is technically complete with physical speed-fidelity acceptance pending; US-52 is `IMPLEMENTATION_IN_PROGRESS / CS06_COMPLETE`. Accounting is 73/87 with 14 remaining and physical-device/real-provider US-48 final acceptance is still required.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -25,7 +25,7 @@ Fleet owns Vehicle master; Trip owns assignment/execution; Routing owns planned 
 - Privacy: precise location requires same-Tenant `TRACKING_VIEW`; history also requires `TRACKING_HISTORY_VIEW`; no Customer exposure, Driver profile, raw payload or credential exposure.
 - P1-01: no per-packet event. `VehicleTrackingStateChangedV1` is inactive until a consumer is approved and is then coalesced/state-change-only through the shared durable outbox.
 
-## Implemented persistence (V73–V87)
+## Implemented persistence (V73–V91)
 
 The hybrid platform is `IMPLEMENTATION_IN_PROGRESS / TS04_COMPLETE`. V86 provides the real
 TimescaleDB extension and Tenant-qualified telemetry-history hypertable; local Compose provides
@@ -35,6 +35,35 @@ dynamic Kafka ingress and the Redis projector are complete. V87 implements the t
 Timescale batch consumer/policies. Gateway UI and live Fleet map are complete; physical acceptance remains. US-52
 route-geometry/deviation persistence is V88 and its API permission seed is V89. Accounting remains 73/87 and US-48
 physical acceptance remains blocked independently.
+
+#### Table: `tracking_telemetry_evaluation_dispatch`
+
+- **Purpose:** Durable, history-backed scheduling for geofence, speed and route-deviation evaluation.
+- **Primary Key:** `dispatch_id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, leading in identity/query indexes)
+- **History relationship:** logical immutable identity (`tenant_id`, `source_timestamp`, `history_id`),
+  verified during the atomic history/dispatch insertion transaction because a normal-table foreign key
+  cannot target the current Timescale hypertable uniqueness without its partition key.
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `dispatch_id` | UUID | NO | `gen_random_uuid()` | PRIMARY KEY | Durable dispatch identity |
+| `tenant_id` | UUID | NO | - | Tenant-scoped unique/index component | Trusted Tenant scope |
+| `source_timestamp` | TIMESTAMPTZ | NO | - | History identity/index component | Immutable source time |
+| `history_id` | UUID | NO | - | Logical history identity | Exact Timescale fact |
+| `dedupe_identity` | CHAR(64) | NO | - | Tenant/source/evaluator unique | Canonical telemetry identity |
+| `vehicle_id` | UUID | NO | - | Logical Fleet Vehicle reference | Evaluation ordering scope |
+| `evaluator_type` | VARCHAR(24) | NO | - | CHECK GEOFENCE/SPEED/ROUTE_DEVIATION | Existing evaluator to invoke |
+| `status` | VARCHAR(16) | NO | `PENDING` | CHECK PENDING/PROCESSING/COMPLETED/FAILED | Durable lifecycle |
+| `attempt_count` | INTEGER | NO | `0` | CHECK 0–1000 | Claim attempts |
+| `next_attempt_at` | TIMESTAMPTZ | NO | - | Due index | Retry/recovery schedule |
+| `lease_owner` | VARCHAR(120) | YES | NULL | Required only while PROCESSING | Claim owner |
+| `lease_until` | TIMESTAMPTZ | YES | NULL | Required only while PROCESSING | Crash-recovery deadline |
+| `completed_at` | TIMESTAMPTZ | YES | NULL | Required only when COMPLETED | Completion evidence |
+| `last_error_code` | VARCHAR(120) | YES | NULL | Bounded safe classification | No raw exception detail |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | - | Creation time |
+| `updated_at` | TIMESTAMPTZ | NO | `now()` | - | Last lifecycle change |
+| `version` | BIGINT | NO | `0` | Non-negative | Optimistic change counter |
 
 #### Table: `tracking_position_history`
 
@@ -1027,6 +1056,22 @@ V90 is catalogue-only: it seeds exactly `TRACKING_ROUTE_DEVIATION_DETECTED_V1` a
 It creates no role, permission, severity value or schema object. PostgreSQL outbox-to-Notification,
 same-Tenant/Tenant-B and replay evidence passes; architecture is 59/59 and complete Maven is 1,745/1,745.
 Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS06-FRONTEND-001`.
+
+## US-52 CS06 frontend and V91 durable evaluation dispatch
+
+US-52 is `IMPLEMENTATION_IN_PROGRESS / CS06_COMPLETE`; accounting remains 73/87 and Flyway advances
+to V91. The permission-aware rule/state/episode/review frontend and real Chromium journey are complete.
+Every retained hybrid history fact atomically creates exactly one GEOFENCE, SPEED and ROUTE_DEVIATION
+dispatch. Kafka is acknowledged only after history and all intents commit. Evaluator failure retains
+accepted history and durable retry state; Redis remains an independent consumer. The worker reads the
+exact Tenant-qualified immutable fact and reuses the three existing application evaluators. IDLE is
+excluded because US-51 still lacks authoritative engine-state capability.
+
+V91 preserves legacy geofence/speed jobs and accepts geofence transition evidence from either same-Tenant
+legacy position or Timescale history. Claims use bounded `FOR UPDATE SKIP LOCKED`, leases and deterministic
+Tenant/Vehicle/source-time order. Replay is constrained by Tenant/history/evaluator and
+Tenant/dedupe/evaluator uniqueness. Next:
+`US-52-MONITOR-ROUTE-DEVIATIONS-CS07-POSTGRES-CONCURRENCY-PERFORMANCE-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 

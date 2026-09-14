@@ -154,3 +154,9 @@ history from Redis, delete backlog, copy records between Tenants or expose preci
 History uses seven-day chunks, compression after seven days and 180-day raw retention. The consumer
 can be disabled during recovery without deleting accepted history. Migration or policy correction
 requires a separately reviewed forward migration; V87 must not be edited or removed.
+
+At V91, accepting a retained history fact also records durable geofence, speed and route-deviation
+evaluation work before Kafka acknowledgement. Operators may disable the evaluation worker while rows remain
+durable, then restore it to drain due work. Monitor pending/failed counts, oldest due time and lease expiry;
+do not delete dispatch rows, manufacture legacy positions, copy work between Tenants or store raw exception
+text. Failed evaluation does not remove accepted history. Idle evaluation is not enabled by this mechanism.

@@ -39,3 +39,9 @@ Implementation status is `IMPLEMENTATION_IN_PROGRESS / TS04_COMPLETE`. V87 imple
 transactional `tracking-telemetry-persister-group` consumer, Tenant-scoped database idempotency,
 deterministic exact static reduction and the approved Timescale policies. US-48 physical acceptance
 remains independent; US-52 CS02 is next at V88.
+
+V91 closes durable detector fanout. Timescale history and the canonical Tracking evaluation-dispatch
+intents commit atomically before Kafka acknowledgement. GEOFENCE, SPEED and ROUTE_DEVIATION execute
+asynchronously from exact Tenant-qualified immutable history with bounded claims, leases, retry and safe
+failure classification. Evaluator failure never removes accepted history. Redis projection remains an
+independent consumer, legacy detector jobs remain compatible, and IDLE is not activated.
