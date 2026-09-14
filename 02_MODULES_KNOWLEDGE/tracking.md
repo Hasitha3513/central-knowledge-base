@@ -946,6 +946,41 @@ or frontend behavior is activated.
 
 Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS03-EVALUATION-EPISODES-001`.
 
+## US-52 CS03 Evaluation and Episode Lifecycle
+
+US-52 is `IMPLEMENTATION_IN_PROGRESS / CS03_COMPLETE`; accounting remains 73/87 and Flyway
+remains V88. Tracking now exposes `RouteDeviationEvaluationUseCase` as the narrow internal
+position-processing boundary. No Kafka consumer, scheduler, REST API, permission, external event,
+Notification integration, review command or frontend behavior is activated by CS03.
+
+For each eligible trusted position, Tracking resolves the source-time assignment only through
+Trip's published `VehicleTripAssignmentLookup` and retrieves only the exact assigned immutable
+revision through Routing's published `PlannedRouteGeometryLookup`. Cross-module reads complete
+before the Tracking transaction and expose no foreign persistence. Missing Trip, route, revision,
+geometry or rule and invalid, stale, duplicate, out-of-order, untrusted or unsuitable-accuracy
+positions remain explicitly non-evaluable rather than being treated as on-route.
+
+The evaluator uses the minimum clamped distance over the complete route polyline. The inclusive
+effective boundary is configured tolerance plus eligible accuracy. Two distinct consecutive
+outside positions confirm one episode; one eligible inside position resets a candidate or closes
+an open episode. Continued deviation advances the same episode and permits severity escalation but
+never downgrade. Trip, route or revision change closes the prior episode as `SUPERSEDED` before a
+fresh lifecycle begins. The first candidate's identity, source time, coordinates, accuracy,
+distance, severity and attribution are preserved verbatim at confirmation.
+
+Ordering is `(sourceTimestamp, positionId)`. A Tenant/Vehicle advisory lock serializes the
+Tracking-owned transaction, the existing optimistic lock version protects state writes, and the
+V88 partial unique index prevents multiple open episodes. State plus episode mutation is atomic;
+failure rolls back the complete transition. PostgreSQL concurrent confirmation converges on one
+episode. All lookups and writes are Tenant-qualified, and no provider secret, raw payload, Driver
+PII or Customer PII enters deviation evidence.
+
+Verification: focused evaluation 25/25, V88 PostgreSQL 9/9, affected regression 231/231,
+architecture/ownership 58/58 and complete clean Maven 1,726/1,726 PASS. Checkstyle, PMD, SpotBugs,
+dependency analysis, Compose validation and diff hygiene pass. No migration was added.
+
+Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS04-APIS-RBAC-AUDIT-001`.
+
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
 TS02 is `COMPLETE`. The existing signed `/api/integration/v1/tracking/positions` boundary validates

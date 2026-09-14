@@ -1118,3 +1118,11 @@ points). Both are Tenant-qualified; geometry is immutable after insertion and li
 Routing-owned `route_revision` aggregate. `PlannedRouteGeometryLookup` now resolves only the exact
 stored revision and otherwise returns empty. No Organization coordinate, endpoint chord, latest
 revision or timestamp fallback exists.
+
+CS03 activates the consumer side of both published contracts without changing them. Tracking calls
+`VehicleTripAssignmentLookup.findAt(tenantId,vehicleId,sourceTimestamp)` before its local
+transaction, requires the persisted canonical route revision, and then calls
+`PlannedRouteGeometryLookup.find(tenantId,routeId,routeVersion)` for that exact revision. Absence
+and provider failure remain distinct non-evaluable outcomes; no current-assignment, latest-revision,
+Organization-coordinate or endpoint-chord fallback is allowed. Tracking performs no Trip/Routing
+SQL, repository, entity or physical-foreign-key access. Flyway remains V88.
