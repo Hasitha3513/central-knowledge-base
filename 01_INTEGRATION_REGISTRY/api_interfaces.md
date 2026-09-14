@@ -250,5 +250,20 @@ absent. The geometry extension is `IMPLEMENTED_US52_CS01`: the root contract and
 Tenant, route and exact revision identity. Because current Routing revisions contain location IDs but no
 immutable coordinate snapshot, the provider truthfully returns empty without Organization access, endpoint
 chord synthesis or latest-revision fallback; CS02 owns the persistence gap. Missing attribution or geometry
-is NOT_EVALUATED and never permits foreign-table access. The proposed human REST family is
-`/api/v1/tracking/route-deviations`; no endpoint is implemented by the decision task.
+is NOT_EVALUATED and never permits foreign-table access.
+
+## US-52 Route-Deviation Interfaces (CS04 Implemented)
+
+The Tenant-scoped human family is `/api/v1/tracking/route-deviations`. It implements rule create/list/detail/
+update plus explicit activate/disable/retire commands; current-state list/detail; episode list/detail and
+immutable review history; and approve/reject/correct-review commands. Rule and state pages default to 20 and
+cap at 100. Episode history requires a source-time range no greater than 31 days, defaults to 100, caps at
+500, and uses descending `(startSourceTimestamp,id)` keyset ordering. Review history caps at 100.
+
+Create, update and lifecycle commands require `Idempotency-Key`; mutations require the positive current
+`expectedVersion`. Reviews require the current episode review version. Tenant, actor and correlation facts
+come only from trusted server context. Responses expose minimized attribution, lifecycle, severity, source
+time, distance/tolerance and review evidence; they never expose coordinates, raw telemetry, provider/device
+facts, credentials or PII. Exact permissions are `ROUTE_DEVIATION_VIEW`, `ROUTE_DEVIATION_MANAGE`,
+`ROUTE_DEVIATION_EVENT_VIEW` and `ROUTE_DEVIATION_APPROVE`, independently enforced on literal HTTP routes
+and secured use cases. CS04 publishes no external event and invokes no Notification or Operations workflow.

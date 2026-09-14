@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V80 for US-49 geofence index hardening. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence evaluation. US-49 is `COMPLETE / ACCEPTED`; CS01–CS07, CS07A, technical closure and independent final acceptance are complete. Accounting is 73/87 with 14 remaining and physical-device/real-provider US-48 final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V89 for US-52 route-deviation permissions. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 is technically complete with physical speed-fidelity acceptance pending; US-52 is `IMPLEMENTATION_IN_PROGRESS / CS04_COMPLETE`. Accounting is 73/87 with 14 remaining and physical-device/real-provider US-48 final acceptance is still required.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -32,8 +32,8 @@ TimescaleDB extension and Tenant-qualified telemetry-history hypertable; local C
 TimescaleDB PostgreSQL 16 plus Redis 7.4 AOF/noeviction, and production hybrid mode is explicit.
 Flespi, Traccar and Generic normalizers are implemented behind a fail-fast registry. Secure
 dynamic Kafka ingress and the Redis projector are complete. V87 implements the transactional
-Timescale batch consumer/policies. Gateway UI, live Fleet map and platform closure remain. US-52
-route-geometry persistence is sequenced to V88. Accounting remains 73/87 and US-48
+Timescale batch consumer/policies. Gateway UI and live Fleet map are complete; physical acceptance remains. US-52
+route-geometry/deviation persistence is V88 and its API permission seed is V89. Accounting remains 73/87 and US-48
 physical acceptance remains blocked independently.
 
 #### Table: `tracking_position_history`
@@ -980,6 +980,31 @@ architecture/ownership 58/58 and complete clean Maven 1,726/1,726 PASS. Checksty
 dependency analysis, Compose validation and diff hygiene pass. No migration was added.
 
 Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS04-APIS-RBAC-AUDIT-001`.
+
+## US-52 CS04 APIs, RBAC and Audit
+
+US-52 is `IMPLEMENTATION_IN_PROGRESS / CS04_COMPLETE`; accounting remains 73/87 and Flyway advances to
+V89 solely for the four approved route-deviation permissions. Tracking implements Tenant-scoped rule and
+state list/detail, rule create/update/activate/disable/retire, bounded episode list/detail and immutable review
+history, plus approve/reject/correct-review under `/api/v1/tracking/route-deviations`.
+
+Rule/state pages default to 20 and cap at 100. Episode searches require at most 31 days, default to 100, cap
+at 500 and use descending `(start_source_timestamp,id)` keyset pagination; review history caps at 100. DTOs
+exclude exact coordinates, provider/device facts, credentials, raw telemetry and PII. Tenant, actor and
+correlation facts are server-derived. The four V89 permissions are independently enforced at literal HTTP and
+secured use-case boundaries. Foreign-Tenant identifiers use safe absence behavior.
+
+Commands use idempotency claims and optimistic expected versions. Only HIGH episodes are reviewable.
+Approve/reject and a different authorized actor's correction append immutable review rows and update the
+episode review projection atomically; the current reviewer cannot reverse their own result. Every successful
+rule/review action writes one minimized typed `tracking_audit_event` record in the same transaction. Failed,
+denied or rolled-back commands create no success audit, and retries create no duplicate transition/audit.
+
+V89 inserts exactly `ROUTE_DEVIATION_VIEW`, `ROUTE_DEVIATION_MANAGE`, `ROUTE_DEVIATION_EVENT_VIEW` and
+`ROUTE_DEVIATION_APPROVE`, conditionally granting them only to existing `ADMIN` and `LOCAL_MVP_ADMIN` roles.
+Clean V1→V89 and V88→V89 pass. Focused CS04 evidence is 26/26, architecture/ownership 58/58 and complete
+Maven 1,738/1,738 PASS. CS04 adds no event, Notification, Operations integration, frontend or physical-device
+acceptance. Next: `US-52-MONITOR-ROUTE-DEVIATIONS-CS05-NOTIFICATION-INTEGRATION-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 

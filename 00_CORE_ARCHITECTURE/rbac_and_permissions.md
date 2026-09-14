@@ -172,3 +172,19 @@ not-found-shaped. V82 seeds exactly these three active definitions and grants th
 and `LOCAL_MVP_ADMIN` roles; it creates no role and performs no unrelated grant. The local bootstrap catalogue
 contains the same codes. CS04 enforces them independently on literal `/api/v1/tracking/speed-monitoring`
 routes and direct use-case calls. Manage does not imply view or episode access.
+
+## US-52 Route-Deviation Permissions (Seeded in V89; Runtime APIs Implemented)
+
+- `ROUTE_DEVIATION_VIEW`: view same-Tenant rules and current Vehicle deviation state.
+- `ROUTE_DEVIATION_MANAGE`: create/update rules and execute activate, disable and retire commands.
+- `ROUTE_DEVIATION_EVENT_VIEW`: view same-Tenant minimized episode and immutable review history.
+- `ROUTE_DEVIATION_APPROVE`: approve, reject or append a compensating review correction for an eligible
+  HIGH episode.
+
+These four permissions are independent. None grants precise Tracking history, raw telemetry, coordinates,
+provider/device/credential facts, Routing or Trip mutation, Notification management, Operations case authority,
+Driver discipline or cross-Tenant access. Tenant and actor derive only from trusted context; foreign-Tenant
+identifiers are not-found-shaped. Review history is append-only, expected versions prevent stale commands,
+and the current reviewer cannot reverse their own decision. V89 grants the four permissions only to existing
+`ADMIN` and `LOCAL_MVP_ADMIN` roles, creates no role and makes no operational-role grant. HTTP enforcement
+covers literal `/api/v1/tracking/route-deviations/**` paths and the secured use-case boundary.

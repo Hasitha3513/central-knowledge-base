@@ -66,7 +66,25 @@ violation, disciplinary, licence or payroll decision.
 
 ## Known limitations
 
-US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speed detection, management/query API, Dispatcher IN_APP Notification integration and the dedicated rule/state/episode operator frontend are implemented. Idle detection, route deviation, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 and final US-50 fidelity acceptance still require a physical GPS device and verified real provider speed payload.
+US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speed detection, management/query API, Dispatcher IN_APP Notification integration and the dedicated rule/state/episode operator frontend are implemented. Route-deviation detection and the management/query/review backend API are implemented, but route-deviation Notification integration and operator frontend remain later change sets. Idle detection, journey replay, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 and final US-50 fidelity acceptance still require a physical GPS device and verified real provider speed payload.
+
+## Route-deviation API
+
+The backend operator API is available under `/api/v1/tracking/route-deviations`; there is no CS04 frontend
+page. `ROUTE_DEVIATION_VIEW` reads rules and current Vehicle state, `ROUTE_DEVIATION_MANAGE` creates/updates
+rules and runs explicit lifecycle commands, `ROUTE_DEVIATION_EVENT_VIEW` reads minimized episode/review
+history, and `ROUTE_DEVIATION_APPROVE` performs eligible review decisions. These permissions are independent.
+
+Rules accept a 10–5,000 metre inclusive tolerance. New rules are DRAFT. Supply `Idempotency-Key` for create,
+update and lifecycle commands, the current `expectedVersion` for mutation, and a reason for disable/retire.
+Rule/state lists cap at 100. Episode history requires a source-time window no greater than 31 days and caps
+each cursor page at 500. Cross-Tenant identifiers appear not found.
+
+Only HIGH episodes require review. An authorized reviewer may approve or reject using a governed reason;
+`UNKNOWN` requires a 10–500 character note. A correction appends evidence instead of replacing the prior
+decision, and a different authorized actor must perform a reversal. Reload after a stale-version conflict.
+Responses and audits omit coordinates, raw telemetry, provider/device credentials and personal data. CS04
+does not send route-deviation notifications or create Operations cases.
 
 ## Monitor speed in the operator UI
 
