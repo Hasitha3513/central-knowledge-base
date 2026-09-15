@@ -270,6 +270,13 @@ and secured use cases. CS04 publishes no external event and invokes no Notificat
 
 ## US-53 Journey Replay Interfaces (Frozen; CS01 Internal Contracts Complete)
 
+Trip now publishes `TripReplayQuery.findReplayScope(tenantId,tripId)` and
+`findAssignmentsOverlapping(tenantId,vehicleId,rangeStart,rangeEnd)`. The minimized immutable results expose
+only actual Trip bounds/status and exact stored route identity/version. Assignment ranges are half-open,
+limited to seven days, ordered by actual start then Trip ID, and execute one `LIMIT 2001` query. More than
+2,000 intervals fails with `TRIP_ASSIGNMENT_RESULT_LIMIT_EXCEEDED` and no partial or per-point fallback.
+Tracking owns ambiguity classification and never accesses Trip persistence.
+
 The Phase-1 family is `/api/v1/tracking/journey-replays` with semantically read-only
 `POST /points/query`, `POST /stops/query` and `POST /incidents/query`. Request bodies contain exactly one
 Vehicle or Trip selector, an optional bounded `[from,to)` UTC range, opaque cursor and bounded limit; incident

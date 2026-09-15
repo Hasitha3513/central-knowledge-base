@@ -140,7 +140,7 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 | Tracking US-52 | Operations US-78 | No automatic exception creation | NONE_PHASE1 |
 | Routing US-22 | Tracking US-52 | Authorized changes use a new route revision and Trip attribution; optional disruption UUID only | FROZEN_OWNERSHIP; no foreign persistence |
 | Tracking history | Tracking US-53 | Tenant-qualified immutable source-time positions from `tracking_position_history`; Redis and legacy history prohibited | CS01_PORT_COMPLETE / CS02_ADAPTER_PENDING |
-| Trip | Tracking US-53 | Published source-time Vehicle assignment and exact Trip/route-revision attribution | CS01_PORT_COMPLETE / ADAPTER_PENDING; no Trip persistence access |
+| Trip | Tracking US-53 | Published replay-scope plus one-call, seven-day/2,000-interval bounded Vehicle assignment range with exact Trip/route-revision attribution | TRIP_PREREQUISITE_COMPLETE / CS02_CONSUMER_PENDING; `LIMIT 2001`, no partial/N+1 fallback or Trip persistence access |
 | Routing | Tracking US-53 | Published exact immutable route-revision geometry lookup | CS01_PORT_COMPLETE / ADAPTER_PENDING; no latest fallback |
 | Tracking US-49/50/52 | Tracking US-53 | Tracking-owned query ports for labelled geofence, speed and route-deviation overlays | CS01_OVERLAY_CONTRACT_COMPLETE / ADAPTER_PENDING; producer acceptance status retained |
 | Tracking US-51 | Tracking US-53 | Engine/idle comparison | NONE_PHASE1; authoritative engine-state capability unresolved |

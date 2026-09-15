@@ -1124,7 +1124,8 @@ work follows the frozen controlled change-set decomposition without inheriting p
 
 ## US-53 Replay Journeys frozen product decisions
 
-US-53 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE`; accounting remains 73/87 and Flyway
+US-53 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE`; its required Trip published-query prerequisite is
+complete, accounting remains 73/87 and Flyway
 remains V92. Tracking-owned `tracking_position_history` is the sole movement source. Replay is Tenant-first,
 source-time ordered by `(source_timestamp,id)`, limited to seven days and 20,000 browser-session points, and
 uses no Redis or legacy-history reconstruction. Phase 1 includes Vehicle/Trip replay, exact route-revision
@@ -1145,7 +1146,9 @@ CS01 adds immutable Tenant-explicit Vehicle/Trip selection, requested/effective 
 stop-analysis inputs/results and producer-labelled privacy-safe overlays. Narrow Tracking ports expose read-only
 history, stop, overlay, Trip-attribution, immutable route-revision and cursor boundaries without another
 module's persistence or framework types. No adapter, API, permission, migration or frontend behavior is active
-yet. The exact next queue is `US-53-REPLAY-JOURNEYS-CS02-TIMESCALE-QUERY-ADAPTERS-001`.
+yet. Trip now provides one replay-scope lookup and one half-open, seven-day, 2,000-interval bounded assignment
+range query using `LIMIT 2001`; overflow is a stable failure with no partial or N+1 fallback. The exact next
+queue is `US-53-REPLAY-JOURNEYS-CS02-TIMESCALE-QUERY-ADAPTERS-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 

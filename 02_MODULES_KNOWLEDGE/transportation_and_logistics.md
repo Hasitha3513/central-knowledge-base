@@ -1112,6 +1112,17 @@ because existing revisions have ordered location IDs rather than immutable coord
 Organization, synthesizes a chord or falls back to latest. CS02 owns the Routing geometry persistence gap.
 Tracking has no foreign repository, SQL, entity or physical FK access.
 
+### US-53 Trip replay published queries
+
+Trip publishes `TripReplayQuery` for Tenant-qualified replay-scope resolution and bounded Vehicle assignment
+range retrieval. Scope returns only Trip/Vehicle identity, authoritative actual bounds/status and exact stored
+route identity/version. The range is `[start,end)`, no longer than seven days, preserves all overlaps, excludes
+the existing CANCELLED/REJECTED lifecycle states, and orders by actual start ASC then Trip ID ASC. One JDBC
+query uses the existing V92 Tenant/Vehicle/source-time partial covering index and `LIMIT 2001`. Zero through
+2,000 rows are accepted; overflow fails with `TRIP_ASSIGNMENT_RESULT_LIMIT_EXCEEDED` without partial results,
+pagination or point-by-point fallback. No schema, migration, API, permission or reverse Tracking dependency was
+introduced.
+
 CS02 closes the Routing persistence gap at V88. Routing owns `route_revision_geometry` (one
 Tenant/route/revision header) and `route_revision_geometry_point` (2–2,000 uniquely ordered WGS84
 points). Both are Tenant-qualified; geometry is immutable after insertion and linked only to the
