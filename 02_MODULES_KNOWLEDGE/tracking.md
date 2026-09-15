@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V92. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 is technically complete with physical speed-fidelity acceptance pending; US-52 is `TECHNICALLY_COMPLETE / ACCEPTANCE_PENDING`. Accounting is 73/87 with 14 remaining and physical-device/real-provider US-48 final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V92. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. Core US-53 product decisions may proceed against stable immutable Tracking history while those external holds remain.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1107,6 +1107,20 @@ prerequisite and CS01–CS07 technical closure is `PASS`; US-52 is `TECHNICALLY_
 ACCEPTANCE_PENDING`. Its independent physical coordinate/accuracy, safe-route and operational journey
 must not inherit evidence from US-48 or US-50. Next:
 `US-52-MONITOR-ROUTE-DEVIATIONS-FINAL-ACCEPTANCE-001`.
+
+## US-52 independent final-acceptance hold
+
+The final-acceptance prerequisite gate stopped before field execution. No physical supported device,
+genuine provider-origin telemetry, authenticated provider channel/device, safe controlled route, real
+same-Tenant Dispatcher delivery witness, complete acceptance-role actor set or authorized operator sign-off
+was available or verifiable. Automated and simulated evidence, and evidence owned by US-48 or US-50, was
+not inherited. No production defect was observed because no physical session ran.
+
+US-52 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; Flyway remains V92 and accounting
+remains 73/87. Rerun `US-52-MONITOR-ROUTE-DEVIATIONS-FINAL-ACCEPTANCE-001` only when all external facts are
+available together. Approved Wave C sequencing permits core US-53 product decisions to proceed; optional
+route-deviation overlays must consume accepted producer evidence and cannot imply US-52 acceptance. Neither
+authoritative roadmap currently defines a more specific US-53 task identifier.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 

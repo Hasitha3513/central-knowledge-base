@@ -135,7 +135,7 @@ Confirmed deviations notify active same-Tenant Dispatchers in-app. WARNING maps 
 the Notification platform's existing CRITICAL severity. Repeated HIGH telemetry, approval, closure and normal
 progress do not create notification floods.
 
-US-52 is technically complete at V92 but remains acceptance pending. Final acceptance requires a separate
+US-52 is technically complete at V92 but is externally blocked for acceptance. Final acceptance requires a separate
 physical provider/device journey proving real coordinate and accuracy fidelity on a safe controlled route,
 recovery and clearance, Tenant/limited-role denial, privacy, recipient behavior and operator sign-off. Do not
 treat US-48 or US-50 physical evidence as US-52 acceptance.
