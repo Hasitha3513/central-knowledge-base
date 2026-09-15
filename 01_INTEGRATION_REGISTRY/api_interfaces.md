@@ -268,7 +268,7 @@ facts, credentials or PII. Exact permissions are `ROUTE_DEVIATION_VIEW`, `ROUTE_
 `ROUTE_DEVIATION_EVENT_VIEW` and `ROUTE_DEVIATION_APPROVE`, independently enforced on literal HTTP routes
 and secured use cases. CS04 publishes no external event and invokes no Notification or Operations workflow.
 
-## US-53 Journey Replay Interfaces (Frozen; CS02 Query Adapters Complete)
+## US-53 Journey Replay Interfaces (CS04 API/RBAC/Audit Complete)
 
 Trip now publishes `TripReplayQuery.findReplayScope(tenantId,tripId)` and
 `findAssignmentsOverlapping(tenantId,vehicleId,rangeStart,rangeEnd)`. The minimized immutable results expose
@@ -285,15 +285,17 @@ identifiers and time ranges from entering browser history. Responses are `no-sto
 source-time points, deterministic stops, producer-status-labelled incidents, coverage, missing intervals,
 snapshot time and an authenticated 15-minute cursor. They never mutate or export history.
 
-Point/stop access requires proposed `JOURNEY_REPLAY_VIEW`; incidents require it plus proposed
+Point/stop access requires `JOURNEY_REPLAY_VIEW`; incidents require it plus
 `JOURNEY_REPLAY_INCIDENT_VIEW`. Tenant/actor authority is server-derived, foreign identifiers are safe absent,
 and raw payloads, message/device references, credentials, signatures and Driver/Customer PII are prohibited.
 CS02 implements the internal point-query path against `tracking_position_history`: Tenant/Vehicle and
 half-open source-time predicates, stable `(source_timestamp,id)` keyset ordering, a fixed `received_at`
 snapshot, `limit + 1`, explicit 180-day retention coverage and an HMAC-SHA256 cursor bound to the Tenant,
 selector, requested range and snapshot. Trip selection uses the published scope plus one bounded assignment
-range query; Routing is queried only for exact immutable route/revision context. Stops, incidents, HTTP,
-permissions and frontend remain later change sets. V93 may seed only the two permissions.
+range query; Routing is queried only for exact immutable route/revision context. Stops and the three HTTP
+query endpoints are implemented. V93 seeds only the two replay permissions. Incident adapters and frontend
+remain later change sets; incident queries fail truthfully with `REQUIRED_CAPABILITY_UNAVAILABLE` until CS06
+supplies the governed producer adapters.
 
 The internal stop path now exposes immutable snapshot and lower/upper boundary evidence, a dedicated
 `StopReplayQuery` (100 default, 500 maximum), `StopPage`, and a purpose-separated authenticated stop cursor
