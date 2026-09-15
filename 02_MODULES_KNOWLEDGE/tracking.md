@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V93. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 is `IMPLEMENTATION_IN_PROGRESS / CS06_COMPLETE`; framework-neutral contracts, Timescale/Trip/Routing point-query adapters, deterministic bounded stop analysis, the Tenant/RBAC/audited query API, accessible operator replay and producer-labelled incident overlays are verified while those external holds remain independent.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V93. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 is `IMPLEMENTATION_IN_PROGRESS / CS07_COMPLETE`; framework-neutral contracts, Timescale/Trip/Routing point-query adapters, deterministic bounded stop analysis, the Tenant/RBAC/audited query API, accessible operator replay, producer-labelled incident overlays, operational admission and the frozen PostgreSQL performance profile are verified while those external holds remain independent.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1124,7 +1124,7 @@ work follows the frozen controlled change-set decomposition without inheriting p
 
 ## US-53 Replay Journeys frozen product decisions
 
-US-53 is `IMPLEMENTATION_IN_PROGRESS / CS06_COMPLETE`; its required Trip published-query prerequisite is
+US-53 is `IMPLEMENTATION_IN_PROGRESS / CS07_COMPLETE`; its required Trip published-query prerequisite is
 complete, accounting remains 73/87 and Flyway
 is V93. Tracking-owned `tracking_position_history` is the sole movement source. Replay is Tenant-first,
 source-time ordered by `(source_timestamp,id)`, limited to seven days and 20,000 browser-session points, and
@@ -1171,7 +1171,12 @@ evidence, five-minute dwell, two-minute maximum gaps, and a 50-metre all-point r
 floor. Adjacent candidates merge only after combined-radius revalidation. Boundary evidence preserves
 truncation, SHA-256 identities bind Tenant/Vehicle/snapshot/evidence bounds, and dedicated authenticated stop
 cursors paginate by `(startSourceTimestamp,stopId)`. The 20,001st point and non-advancing cursors fail without
-partial output. The exact next queue is `US-53-REPLAY-JOURNEYS-CS07-POSTGRES-PERFORMANCE-OPERATIONS-001`.
+partial output. CS07 adds privacy-safe operation/coverage/rejection/size/latency/overlay metrics,
+process-local fixed-window admission of 30 requests per actor/minute and 120 per Tenant/minute,
+standard HTTP 429 with `Retry-After: 60`, deterministic producer-query limits and coordinated backend/frontend
+rollback flags. The 20-session, 40,000-point PostgreSQL acceptance workload passed with initial p95 158 ms
+and continuation p95 119 ms; these are environment evidence, not production SLO guarantees. The exact next
+queue is `US-53-REPLAY-JOURNEYS-TECHNICAL-CLOSURE-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 

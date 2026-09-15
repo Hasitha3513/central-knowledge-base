@@ -16,12 +16,18 @@ An ACTIVE Device can be disabled without deleting historical Tracking data and r
 
 ## Journey Replay availability
 
-Journey Replay is an approved upcoming Tracking workflow but is not yet available in the application. Its
-frozen Phase-1 scope will provide bounded Vehicle/Trip history, deterministic stop analysis, client-side
-playback and explicitly labelled eligible incident overlays. It will not provide export or infer engine/idle
-state. Until its implementation and acceptance gates pass, continue using the existing bounded Vehicle
-position history and producer-specific Geofence, Speed Monitoring and Route Deviation pages. Do not treat an
-overlay shown by a future replay page as upgrading that producer's acceptance status.
+Journey Replay is available to users with `JOURNEY_REPLAY_VIEW`. Select exactly one Vehicle or Trip and a UTC
+range no longer than seven days. Results are chronological, cursor-paged and capped at 1,000 points per page
+and 20,000 points per browser session. Playback starts paused and supports keyboard-operable seek and speed
+controls. Stop analysis is deterministic and bounded; partial retention, data gaps and quality limitations
+remain explicit. Export and engine/idle inference are not available.
+
+Users with `JOURNEY_REPLAY_INCIDENT_VIEW` additionally receive accepted geofence evidence by default and may
+opt into producer-labelled Speed or Route Deviation technical evidence. These labels do not upgrade the
+producer story's acceptance status. The service permits 30 replay requests per user/minute and 120 per
+Tenant/minute on each application instance. A rate-limited request returns a retry instruction; wait at least
+60 seconds before trying again. Operations may disable the backend endpoints and matching frontend navigation
+with the coordinated journey-replay feature flags without deleting historical telemetry or audit evidence.
 
 ## Provider connections
 

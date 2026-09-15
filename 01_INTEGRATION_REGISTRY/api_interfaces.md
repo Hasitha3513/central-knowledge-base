@@ -268,7 +268,7 @@ facts, credentials or PII. Exact permissions are `ROUTE_DEVIATION_VIEW`, `ROUTE_
 `ROUTE_DEVIATION_EVENT_VIEW` and `ROUTE_DEVIATION_APPROVE`, independently enforced on literal HTTP routes
 and secured use cases. CS04 publishes no external event and invokes no Notification or Operations workflow.
 
-## US-53 Journey Replay Interfaces (CS06 Incident Overlays Complete)
+## US-53 Journey Replay Interfaces (CS07 Performance and Operations Complete)
 
 Trip now publishes `TripReplayQuery.findReplayScope(tenantId,tripId)` and
 `findAssignmentsOverlapping(tenantId,vehicleId,rangeStart,rangeEnd)`. The minimized immutable results expose
@@ -284,6 +284,12 @@ queries additionally select `GEOFENCE`, `SPEED` or `ROUTE_DEVIATION`. Body queri
 identifiers and time ranges from entering browser history. Responses are `no-store` and contain bounded
 source-time points, deterministic stops, producer-status-labelled incidents, coverage, missing intervals,
 snapshot time and an authenticated 15-minute cursor. They never mutate or export history.
+
+The endpoint family permits 30 requests per actor/minute and 120 per Tenant/minute per application instance.
+Rejection uses HTTP 429, code `JOURNEY_REPLAY_RATE_LIMITED`, and `Retry-After: 60` in the standard API error.
+`app.tracking.journey-replay.enabled=false` removes the endpoints for rollback. Metrics contain only operation,
+coverage, safe rejection reason, result size, latency and overlay type; identifiers and location facts are not
+metric tags.
 
 Point/stop access requires `JOURNEY_REPLAY_VIEW`; incidents require it plus
 `JOURNEY_REPLAY_INCIDENT_VIEW`. Tenant/actor authority is server-derived, foreign identifiers are safe absent,
