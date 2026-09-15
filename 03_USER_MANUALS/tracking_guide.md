@@ -35,6 +35,13 @@ genuine provider/device journey retained through the production telemetry path, 
 and overlay evidence where available, and authorized operator sign-off. Automated or simulated evidence does
 not replace that field phase. This hold does not remove or reduce the available technically verified workflow.
 
+The consolidated **Tracking Dashboard** remains unavailable while implementation proceeds. Its frozen Phase 1
+design will add a permission-gated read-only summary under **Tracking → Dashboard** with truthful live/recent/
+stale/offline labels, observed-speed motion, permission-filtered Tracking incidents, active Trip context and a
+table-first fallback when the map is unavailable. It will not add engine/idle inference or change the field-
+acceptance status of Live Tracking, Speed Monitoring, Route Deviations or Journey Replay. This section is a
+readiness notice, not a claim that the dashboard can currently be used.
+
 ## Provider connections
 
 Operators with `TRACKING_DEVICE_MANAGE` can open **Tracking → Provider Connections**. The page lists same-Tenant connections with provider type and alias, lifecycle, safe test status, credential-configured state, poll interval and safe health timestamps. Open **Details** for endpoint, safe configuration and backend-reported capability tags. Provider credentials and their stored references are never displayed.
