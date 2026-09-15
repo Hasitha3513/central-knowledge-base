@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V92. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 is technically complete with physical speed-fidelity acceptance pending; US-52 is `IMPLEMENTATION_IN_PROGRESS / CS07_COMPLETE`. Accounting is 73/87 with 14 remaining and physical-device/real-provider US-48 final acceptance is still required.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V92. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 is technically complete with physical speed-fidelity acceptance pending; US-52 is `TECHNICALLY_COMPLETE / ACCEPTANCE_PENDING`. Accounting is 73/87 with 14 remaining and physical-device/real-provider US-48 final acceptance is still required.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1102,8 +1102,11 @@ internal `kafka:9092`, exposes host-only acceptance access at `localhost:9094`, 
 topic management, and gives the US-49 telemetry scenario its own unique active geofence. No timeout was
 increased and no detector state was pre-seeded. US-49 scenario 4 and US-50 scenario 1 each passed three
 independent repetitions; final US-49/US-50/US-52 Chromium continuity passed 26/26. Final evidence is
-focused 250/250, architecture 59/59, Maven 1,754/1,754, and Vitest 319/319. Next:
-`US-52-MONITOR-ROUTE-DEVIATIONS-TECHNICAL-CLOSURE-001`.
+focused 488/488, architecture 59/59, Maven 1,754/1,754, and Vitest 319/319. The consolidated
+prerequisite and CS01–CS07 technical closure is `PASS`; US-52 is `TECHNICALLY_COMPLETE /
+ACCEPTANCE_PENDING`. Its independent physical coordinate/accuracy, safe-route and operational journey
+must not inherit evidence from US-48 or US-50. Next:
+`US-52-MONITOR-ROUTE-DEVIATIONS-FINAL-ACCEPTANCE-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 

@@ -115,6 +115,31 @@ Unknown Driver, Trip or route attribution stays explicitly unknown. No coordinat
 device credential, Customer identity, inferred Driver identity, discipline action, map or tracking dashboard is
 exposed by this workflow.
 
+## Monitor route deviations in the operator UI
+
+Users with `ROUTE_DEVIATION_VIEW` can open **Tracking → Route Deviations** to inspect same-Tenant
+rules and current Vehicle state. Users with `ROUTE_DEVIATION_MANAGE` can create or update rules and
+use the explicit activate, disable and retire actions. A rule tolerance must be from 10 to 5,000 metres;
+retired rules cannot be reactivated. UNKNOWN and non-evaluable states remain explicit rather than being
+shown as on-route.
+
+Users with `ROUTE_DEVIATION_EVENT_VIEW` can query bounded UTC episode history and open minimized episode
+and immutable review detail. The UI shows the assigned route and immutable revision, WARNING/HIGH severity,
+rounded deviation distance, effective tolerance and source timestamps. It does not expose coordinates,
+route geometry, raw telemetry, provider/device details, credentials, signatures or Driver/Customer PII.
+
+Only HIGH episodes require a review. Users with `ROUTE_DEVIATION_APPROVE` may approve or reject an eligible
+episode with the governed reason and expected version. A later correction appends evidence; it never edits
+the earlier review, and the reviewer cannot reverse their own decision. Reload after a stale-version conflict.
+Confirmed deviations notify active same-Tenant Dispatchers in-app. WARNING maps to WARNING and HIGH maps to
+the Notification platform's existing CRITICAL severity. Repeated HIGH telemetry, approval, closure and normal
+progress do not create notification floods.
+
+US-52 is technically complete at V92 but remains acceptance pending. Final acceptance requires a separate
+physical provider/device journey proving real coordinate and accuracy fidelity on a safe controlled route,
+recovery and clearance, Tenant/limited-role denial, privacy, recipient behavior and operator sign-off. Do not
+treat US-48 or US-50 physical evidence as US-52 acceptance.
+
 ## Provider telemetry delivery
 
 Active provider integrations continue to send signed telemetry to
