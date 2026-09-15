@@ -29,6 +29,12 @@ Tenant/minute on each application instance. A rate-limited request returns a ret
 60 seconds before trying again. Operations may disable the backend endpoints and matching frontend navigation
 with the coordinated journey-replay feature flags without deleting historical telemetry or audit evidence.
 
+Journey Replay is technically complete, but final physical acceptance is on an external-prerequisite hold.
+No field cases have passed or failed because the field phase has not started. Final acceptance requires a
+genuine provider/device journey retained through the production telemetry path, privacy-safe real stop/gap
+and overlay evidence where available, and authorized operator sign-off. Automated or simulated evidence does
+not replace that field phase. This hold does not remove or reduce the available technically verified workflow.
+
 ## Provider connections
 
 Operators with `TRACKING_DEVICE_MANAGE` can open **Tracking → Provider Connections**. The page lists same-Tenant connections with provider type and alias, lifecycle, safe test status, credential-configured state, poll interval and safe health timestamps. Open **Details** for endpoint, safe configuration and backend-reported capability tags. Provider credentials and their stored references are never displayed.
