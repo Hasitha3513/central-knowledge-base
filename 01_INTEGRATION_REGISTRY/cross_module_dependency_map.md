@@ -139,7 +139,7 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 | Tracking US-52 | Notification | Minimized detected/escalated durable facts through shared P1-01 outbox; V90 same-Tenant IN_APP Dispatcher catalogue | CS05_ACTIVE_DURABLE_AT_LEAST_ONCE / IDEMPOTENT_NOTIFICATION |
 | Tracking US-52 | Operations US-78 | No automatic exception creation | NONE_PHASE1 |
 | Routing US-22 | Tracking US-52 | Authorized changes use a new route revision and Trip attribution; optional disruption UUID only | FROZEN_OWNERSHIP; no foreign persistence |
-| Tracking history | Tracking US-53 | Tenant-qualified immutable source-time positions from `tracking_position_history`; Redis and legacy history prohibited | CS02_ADAPTER_COMPLETE; snapshot-bound keyset query, explicit retention coverage and bounded predecessor continuity |
+| Tracking history | Tracking US-53 | Tenant-qualified immutable source-time positions from `tracking_position_history`; Redis and legacy history prohibited | CS03_ACTIVE; snapshot-bound keyset streaming, explicit boundary/retention evidence and deterministic bounded stop analysis |
 | Trip | Tracking US-53 | Published replay-scope plus one-call, seven-day/2,000-interval bounded Vehicle assignment range with exact Trip/route-revision attribution | CS02_CONSUMER_ACTIVE; `LIMIT 2001`, no partial/N+1 fallback or Trip persistence access |
 | Routing | Tracking US-53 | Published exact immutable route-revision geometry lookup | CS02_CONSUMER_ACTIVE; exact revision only, per-request context cache, no latest fallback |
 | Tracking US-49/50/52 | Tracking US-53 | Tracking-owned query ports for labelled geofence, speed and route-deviation overlays | CS01_OVERLAY_CONTRACT_COMPLETE / ADAPTER_PENDING; producer acceptance status retained |

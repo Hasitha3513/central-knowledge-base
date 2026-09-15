@@ -294,3 +294,10 @@ snapshot, `limit + 1`, explicit 180-day retention coverage and an HMAC-SHA256 cu
 selector, requested range and snapshot. Trip selection uses the published scope plus one bounded assignment
 range query; Routing is queried only for exact immutable route/revision context. Stops, incidents, HTTP,
 permissions and frontend remain later change sets. V93 may seed only the two permissions.
+
+The internal stop path now exposes immutable snapshot and lower/upper boundary evidence, a dedicated
+`StopReplayQuery` (100 default, 500 maximum), `StopPage`, and a purpose-separated authenticated stop cursor
+bound to Tenant, selector, ranges, snapshot, derived `(startSourceTimestamp,stopId)` position and
+`US53_STOP_V1`. Point and stop cursors are mutually rejected. Stop analysis streams no more than ten
+2,000-point history pages under one snapshot and fails without partial results on a 20,001st point or any
+non-advancing cursor.
