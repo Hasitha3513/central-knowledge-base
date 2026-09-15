@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V93. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 is `IMPLEMENTATION_IN_PROGRESS / CS05_COMPLETE`; framework-neutral contracts, Timescale/Trip/Routing point-query adapters, deterministic bounded stop analysis, the Tenant/RBAC/audited query API and accessible operator replay are verified while those external holds remain independent.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V93. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 is `IMPLEMENTATION_IN_PROGRESS / CS06_COMPLETE`; framework-neutral contracts, Timescale/Trip/Routing point-query adapters, deterministic bounded stop analysis, the Tenant/RBAC/audited query API, accessible operator replay and producer-labelled incident overlays are verified while those external holds remain independent.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1124,7 +1124,7 @@ work follows the frozen controlled change-set decomposition without inheriting p
 
 ## US-53 Replay Journeys frozen product decisions
 
-US-53 is `IMPLEMENTATION_IN_PROGRESS / CS05_COMPLETE`; its required Trip published-query prerequisite is
+US-53 is `IMPLEMENTATION_IN_PROGRESS / CS06_COMPLETE`; its required Trip published-query prerequisite is
 complete, accounting remains 73/87 and Flyway
 is V93. Tracking-owned `tracking_position_history` is the sole movement source. Replay is Tenant-first,
 source-time ordered by `(source_timestamp,id)`, limited to seven days and 20,000 browser-session points, and
@@ -1149,16 +1149,20 @@ module's persistence or framework types. CS02 now reads points directly from the
 Tenant/Vehicle half-open source-time query, stable `(source_timestamp,id)` keyset, fixed receipt snapshot,
 explicit 180-day retention coverage, one bounded predecessor query and an HMAC-SHA256 Tenant/query-bound
 cursor. Trip replay scope and one bounded range lookup enrich points without N+1 queries; Routing supplies only
-exact immutable route/revision context with per-request caching. Incident adapters remain unavailable until
-their governed change set. CS04 exposes all three endpoints with server-derived Tenant/actor context,
+exact immutable route/revision context with per-request caching. CS06 queries same-Tenant geofence transitions,
+speed episodes and route-deviation episodes/reviews through Tracking-owned JDBC adapters, preserves the frozen
+producer acceptance labels, and returns chronological limit-plus-one pages using the existing authenticated
+Tenant/query-bound cursor. CS04 exposes all three endpoints with server-derived Tenant/actor context,
 safe-absence behavior, `no-store`/`no-referrer` responses, secured-use-case enforcement and minimized
-initial-query audit evidence. Incident queries require both replay permissions and report capability unavailable
-until CS06. CS05 provides permission-gated `Tracking → Journey Replay` navigation, Vehicle/Trip and seven-day
+initial-query audit evidence. Incident queries require both replay permissions. CS05 provides permission-gated
+`Tracking → Journey Replay` navigation, Vehicle/Trip and seven-day
 range validation, source-time map/timeline playback at the five frozen speeds, accessible seek/stop evidence,
 explicit quality/gap/retention warnings, responsive phone/tablet behavior and explicit coordinate expansion.
 Cursors remain in query memory and never enter URLs or persistent browser storage. Trip provides one
 replay-scope lookup and one half-open, seven-day, 2,000-interval bounded assignment
-range query using `LIMIT 2001`; overflow is a stable failure with no partial or N+1 fallback.
+range query using `LIMIT 2001`; overflow is a stable failure with no partial or N+1 fallback. CS06 adds
+permission-aware geofence-default and speed/route-deviation opt-in controls, independent incident retry, and
+persistent technical-evidence warnings without upgrading physical producer acceptance.
 
 CS03 streams those pages under one immutable snapshot and derives stops without persistence. It uses trusted
 points, known accuracy at most 100 metres, known speed at most 3 km/h or explicit missing-speed spatial
@@ -1167,7 +1171,7 @@ evidence, five-minute dwell, two-minute maximum gaps, and a 50-metre all-point r
 floor. Adjacent candidates merge only after combined-radius revalidation. Boundary evidence preserves
 truncation, SHA-256 identities bind Tenant/Vehicle/snapshot/evidence bounds, and dedicated authenticated stop
 cursors paginate by `(startSourceTimestamp,stopId)`. The 20,001st point and non-advancing cursors fail without
-partial output. The exact next queue is `US-53-REPLAY-JOURNEYS-CS06-INCIDENT-OVERLAYS-001`.
+partial output. The exact next queue is `US-53-REPLAY-JOURNEYS-CS07-POSTGRES-PERFORMANCE-OPERATIONS-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 

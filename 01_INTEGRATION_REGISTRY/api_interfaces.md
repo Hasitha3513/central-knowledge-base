@@ -268,7 +268,7 @@ facts, credentials or PII. Exact permissions are `ROUTE_DEVIATION_VIEW`, `ROUTE_
 `ROUTE_DEVIATION_EVENT_VIEW` and `ROUTE_DEVIATION_APPROVE`, independently enforced on literal HTTP routes
 and secured use cases. CS04 publishes no external event and invokes no Notification or Operations workflow.
 
-## US-53 Journey Replay Interfaces (CS04 API/RBAC/Audit Complete)
+## US-53 Journey Replay Interfaces (CS06 Incident Overlays Complete)
 
 Trip now publishes `TripReplayQuery.findReplayScope(tenantId,tripId)` and
 `findAssignmentsOverlapping(tenantId,vehicleId,rangeStart,rangeEnd)`. The minimized immutable results expose
@@ -293,9 +293,11 @@ half-open source-time predicates, stable `(source_timestamp,id)` keyset ordering
 snapshot, `limit + 1`, explicit 180-day retention coverage and an HMAC-SHA256 cursor bound to the Tenant,
 selector, requested range and snapshot. Trip selection uses the published scope plus one bounded assignment
 range query; Routing is queried only for exact immutable route/revision context. Stops and the three HTTP
-query endpoints are implemented. V93 seeds only the two replay permissions. Incident adapters and frontend
-remain later change sets; incident queries fail truthfully with `REQUIRED_CAPABILITY_UNAVAILABLE` until CS06
-supplies the governed producer adapters.
+query endpoints are implemented. V93 seeds only the two replay permissions. CS06 implements same-Tenant
+geofence-transition, speed-episode and route-deviation episode/review adapters. Incident results retain the
+frozen producer-acceptance labels, use chronological limit-plus-one paging and the existing authenticated
+Tenant/query-bound cursor, and expose no coordinates, geometry, raw telemetry, review notes, provider/device
+facts, credentials, signatures or PII.
 
 The internal stop path now exposes immutable snapshot and lower/upper boundary evidence, a dedicated
 `StopReplayQuery` (100 default, 500 maximum), `StopPage`, and a purpose-separated authenticated stop cursor
