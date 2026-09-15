@@ -268,7 +268,7 @@ facts, credentials or PII. Exact permissions are `ROUTE_DEVIATION_VIEW`, `ROUTE_
 `ROUTE_DEVIATION_EVENT_VIEW` and `ROUTE_DEVIATION_APPROVE`, independently enforced on literal HTTP routes
 and secured use cases. CS04 publishes no external event and invokes no Notification or Operations workflow.
 
-## US-53 Journey Replay Interfaces (Frozen; Not Yet Implemented)
+## US-53 Journey Replay Interfaces (Frozen; CS01 Internal Contracts Complete)
 
 The Phase-1 family is `/api/v1/tracking/journey-replays` with semantically read-only
 `POST /points/query`, `POST /stops/query` and `POST /incidents/query`. Request bodies contain exactly one
