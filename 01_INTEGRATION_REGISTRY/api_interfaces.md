@@ -268,7 +268,7 @@ facts, credentials or PII. Exact permissions are `ROUTE_DEVIATION_VIEW`, `ROUTE_
 `ROUTE_DEVIATION_EVENT_VIEW` and `ROUTE_DEVIATION_APPROVE`, independently enforced on literal HTTP routes
 and secured use cases. CS04 publishes no external event and invokes no Notification or Operations workflow.
 
-## US-53 Journey Replay Interfaces (CS07 Performance and Operations Complete)
+## US-53 Journey Replay Interfaces (Technically Complete / Acceptance Pending)
 
 Trip now publishes `TripReplayQuery.findReplayScope(tenantId,tripId)` and
 `findAssignmentsOverlapping(tenantId,vehicleId,rangeStart,rangeEnd)`. The minimized immutable results expose
