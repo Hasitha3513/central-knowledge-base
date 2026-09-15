@@ -1122,6 +1122,26 @@ available together. Approved Wave C sequencing permits core US-53 product decisi
 route-deviation overlays must consume accepted producer evidence and cannot imply US-52 acceptance. Neither
 authoritative roadmap currently defines a more specific US-53 task identifier.
 
+## US-53 Replay Journeys frozen product decisions
+
+US-53 is `PRODUCT_DECISIONS_COMPLETE / READY_FOR_IMPLEMENTATION`; accounting remains 73/87 and Flyway
+remains V92. Tracking-owned `tracking_position_history` is the sole movement source. Replay is Tenant-first,
+source-time ordered by `(source_timestamp,id)`, limited to seven days and 20,000 browser-session points, and
+uses no Redis or legacy-history reconstruction. Phase 1 includes Vehicle/Trip replay, exact route-revision
+context, deterministic stop analysis, client-side playback and eligible incident overlays. Export and
+engine-on comparison are excluded.
+
+A stop requires trusted points with known accuracy no worse than 100 m, a known speed no greater than
+3 km/h or spatial-only evidence when speed is absent, five minutes of visible dwell, a 50 m centroid radius
+and no internal source-time gap over two minutes. Gaps and range truncation remain explicit. US-49 overlays
+are accepted; US-50 and US-52 overlays are opt-in and labelled technical/field-acceptance-pending; US-51 is
+unavailable and engine state is never inferred.
+
+The frozen API uses privacy-preserving read-only POST bodies under `/api/v1/tracking/journey-replays` for
+points, stops and incidents. V93 is reserved only for `JOURNEY_REPLAY_VIEW` and
+`JOURNEY_REPLAY_INCIDENT_VIEW`; no replay table/projection, retention change or extra index is authorized.
+The exact next queue is `US-53-REPLAY-JOURNEYS-CS01-DOMAIN-QUERY-CONTRACTS-001`.
+
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
 TS02 is `COMPLETE`. The existing signed `/api/integration/v1/tracking/positions` boundary validates

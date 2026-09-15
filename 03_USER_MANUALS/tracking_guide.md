@@ -14,6 +14,15 @@ Authorized device managers can register a provider-neutral external device refer
 
 An ACTIVE Device can be disabled without deleting historical Tracking data and reactivated when its readiness facts remain valid. **Rebind Provider** reloads current backend detail and uses the current binding version; a concurrent change is rejected and the latest detail is shown instead of overwriting it. **Retire Device** is permanent and removes all mutation actions without hard deletion. One Device and one Vehicle may each have only one active association. View-only users see masked reference values and never receive provider credentials or binding mutation versions. Supported installed adapters allow these connection and Device changes at runtime without application restart or deployment; adding an unsupported provider protocol still requires a reviewed adapter release.
 
+## Journey Replay availability
+
+Journey Replay is an approved upcoming Tracking workflow but is not yet available in the application. Its
+frozen Phase-1 scope will provide bounded Vehicle/Trip history, deterministic stop analysis, client-side
+playback and explicitly labelled eligible incident overlays. It will not provide export or infer engine/idle
+state. Until its implementation and acceptance gates pass, continue using the existing bounded Vehicle
+position history and producer-specific Geofence, Speed Monitoring and Route Deviation pages. Do not treat an
+overlay shown by a future replay page as upgrading that producer's acceptance status.
+
 ## Provider connections
 
 Operators with `TRACKING_DEVICE_MANAGE` can open **Tracking → Provider Connections**. The page lists same-Tenant connections with provider type and alias, lifecycle, safe test status, credential-configured state, poll interval and safe health timestamps. Open **Details** for endpoint, safe configuration and backend-reported capability tags. Provider credentials and their stored references are never displayed.

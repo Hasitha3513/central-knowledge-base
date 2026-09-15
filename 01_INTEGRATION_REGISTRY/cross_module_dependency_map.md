@@ -139,6 +139,11 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 | Tracking US-52 | Notification | Minimized detected/escalated durable facts through shared P1-01 outbox; V90 same-Tenant IN_APP Dispatcher catalogue | CS05_ACTIVE_DURABLE_AT_LEAST_ONCE / IDEMPOTENT_NOTIFICATION |
 | Tracking US-52 | Operations US-78 | No automatic exception creation | NONE_PHASE1 |
 | Routing US-22 | Tracking US-52 | Authorized changes use a new route revision and Trip attribution; optional disruption UUID only | FROZEN_OWNERSHIP; no foreign persistence |
+| Tracking history | Tracking US-53 | Tenant-qualified immutable source-time positions from `tracking_position_history`; Redis and legacy history prohibited | FROZEN_US53_SOURCE / IMPLEMENTATION_PENDING |
+| Trip | Tracking US-53 | Published source-time Vehicle assignment and exact Trip/route-revision attribution | FROZEN_REUSE / IMPLEMENTATION_PENDING; no Trip persistence access |
+| Routing | Tracking US-53 | Published exact immutable route-revision geometry lookup | FROZEN_REUSE / IMPLEMENTATION_PENDING; no latest fallback |
+| Tracking US-49/50/52 | Tracking US-53 | Tracking-owned query ports for labelled geofence, speed and route-deviation overlays | FROZEN_US53_OVERLAYS / IMPLEMENTATION_PENDING; producer acceptance status retained |
+| Tracking US-51 | Tracking US-53 | Engine/idle comparison | NONE_PHASE1; authoritative engine-state capability unresolved |
 
 V91 adds no cross-module dependency. Tracking's Kafka history consumer now atomically writes three
 Tracking-owned durable evaluation intents beside each retained Timescale fact. The asynchronous dispatcher

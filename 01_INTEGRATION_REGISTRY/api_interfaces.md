@@ -267,3 +267,18 @@ time, distance/tolerance and review evidence; they never expose coordinates, raw
 facts, credentials or PII. Exact permissions are `ROUTE_DEVIATION_VIEW`, `ROUTE_DEVIATION_MANAGE`,
 `ROUTE_DEVIATION_EVENT_VIEW` and `ROUTE_DEVIATION_APPROVE`, independently enforced on literal HTTP routes
 and secured use cases. CS04 publishes no external event and invokes no Notification or Operations workflow.
+
+## US-53 Journey Replay Interfaces (Frozen; Not Yet Implemented)
+
+The Phase-1 family is `/api/v1/tracking/journey-replays` with semantically read-only
+`POST /points/query`, `POST /stops/query` and `POST /incidents/query`. Request bodies contain exactly one
+Vehicle or Trip selector, an optional bounded `[from,to)` UTC range, opaque cursor and bounded limit; incident
+queries additionally select `GEOFENCE`, `SPEED` or `ROUTE_DEVIATION`. Body queries prevent sensitive
+identifiers and time ranges from entering browser history. Responses are `no-store` and contain bounded
+source-time points, deterministic stops, producer-status-labelled incidents, coverage, missing intervals,
+snapshot time and an authenticated 15-minute cursor. They never mutate or export history.
+
+Point/stop access requires proposed `JOURNEY_REPLAY_VIEW`; incidents require it plus proposed
+`JOURNEY_REPLAY_INCIDENT_VIEW`. Tenant/actor authority is server-derived, foreign identifiers are safe absent,
+and raw payloads, message/device references, credentials, signatures and Driver/Customer PII are prohibited.
+This contract is `FROZEN_US53_PRODUCT_DECISION / NOT_IMPLEMENTED`; V93 may seed only the two permissions.

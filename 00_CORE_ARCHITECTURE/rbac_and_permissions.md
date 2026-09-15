@@ -188,3 +188,15 @@ identifiers are not-found-shaped. Review history is append-only, expected versio
 and the current reviewer cannot reverse their own decision. V89 grants the four permissions only to existing
 `ADMIN` and `LOCAL_MVP_ADMIN` roles, creates no role and makes no operational-role grant. HTTP enforcement
 covers literal `/api/v1/tracking/route-deviations/**` paths and the secured use-case boundary.
+
+## US-53 Journey Replay Permissions (Frozen; V93 Proposed)
+
+- `JOURNEY_REPLAY_VIEW`: view same-Tenant bounded journey movement, deterministic stops and exact route context.
+- `JOURNEY_REPLAY_INCIDENT_VIEW`: view eligible same-Tenant incident overlays; it does not imply replay view.
+
+V93 may seed exactly these two permissions and conditionally grant them only to existing `ADMIN`,
+`LOCAL_MVP_ADMIN` and `DISPATCHER` roles. It creates no role. Incident access requires both permissions because
+the surrounding location timeline remains sensitive. Existing `TRACKING_VIEW` and `TRACKING_HISTORY_VIEW` do
+not imply either permission. Neither capability grants export, history mutation, raw telemetry, provider/device
+facts, credentials, Driver/Customer PII, cross-Tenant access or producer acceptance. Runtime enforcement is
+`NOT_IMPLEMENTED`; the contract is frozen for US-53 CS04.
