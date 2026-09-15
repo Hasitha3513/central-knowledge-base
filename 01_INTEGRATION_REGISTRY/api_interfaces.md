@@ -268,7 +268,7 @@ facts, credentials or PII. Exact permissions are `ROUTE_DEVIATION_VIEW`, `ROUTE_
 `ROUTE_DEVIATION_EVENT_VIEW` and `ROUTE_DEVIATION_APPROVE`, independently enforced on literal HTTP routes
 and secured use cases. CS04 publishes no external event and invokes no Notification or Operations workflow.
 
-## US-53 Journey Replay Interfaces (Frozen; CS01 Internal Contracts Complete)
+## US-53 Journey Replay Interfaces (Frozen; CS02 Query Adapters Complete)
 
 Trip now publishes `TripReplayQuery.findReplayScope(tenantId,tripId)` and
 `findAssignmentsOverlapping(tenantId,vehicleId,rangeStart,rangeEnd)`. The minimized immutable results expose
@@ -288,4 +288,9 @@ snapshot time and an authenticated 15-minute cursor. They never mutate or export
 Point/stop access requires proposed `JOURNEY_REPLAY_VIEW`; incidents require it plus proposed
 `JOURNEY_REPLAY_INCIDENT_VIEW`. Tenant/actor authority is server-derived, foreign identifiers are safe absent,
 and raw payloads, message/device references, credentials, signatures and Driver/Customer PII are prohibited.
-This contract is `FROZEN_US53_PRODUCT_DECISION / NOT_IMPLEMENTED`; V93 may seed only the two permissions.
+CS02 implements the internal point-query path against `tracking_position_history`: Tenant/Vehicle and
+half-open source-time predicates, stable `(source_timestamp,id)` keyset ordering, a fixed `received_at`
+snapshot, `limit + 1`, explicit 180-day retention coverage and an HMAC-SHA256 cursor bound to the Tenant,
+selector, requested range and snapshot. Trip selection uses the published scope plus one bounded assignment
+range query; Routing is queried only for exact immutable route/revision context. Stops, incidents, HTTP,
+permissions and frontend remain later change sets. V93 may seed only the two permissions.

@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V92. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE`; framework-neutral replay/query contracts may proceed against stable immutable Tracking history while those external holds remain.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V92. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 is `IMPLEMENTATION_IN_PROGRESS / CS02_COMPLETE`; framework-neutral contracts and Timescale/Trip/Routing point-query adapters are verified while those external holds remain independent.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1124,7 +1124,7 @@ work follows the frozen controlled change-set decomposition without inheriting p
 
 ## US-53 Replay Journeys frozen product decisions
 
-US-53 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE`; its required Trip published-query prerequisite is
+US-53 is `IMPLEMENTATION_IN_PROGRESS / CS02_COMPLETE`; its required Trip published-query prerequisite is
 complete, accounting remains 73/87 and Flyway
 remains V92. Tracking-owned `tracking_position_history` is the sole movement source. Replay is Tenant-first,
 source-time ordered by `(source_timestamp,id)`, limited to seven days and 20,000 browser-session points, and
@@ -1145,10 +1145,15 @@ CS01 adds immutable Tenant-explicit Vehicle/Trip selection, requested/effective 
 `sourceTimestamp ASC, historyId ASC` ordering, Tenant/query-bound opaque-cursor state, explicit coverage/gaps,
 stop-analysis inputs/results and producer-labelled privacy-safe overlays. Narrow Tracking ports expose read-only
 history, stop, overlay, Trip-attribution, immutable route-revision and cursor boundaries without another
-module's persistence or framework types. No adapter, API, permission, migration or frontend behavior is active
-yet. Trip now provides one replay-scope lookup and one half-open, seven-day, 2,000-interval bounded assignment
+module's persistence or framework types. CS02 now reads points directly from the Timescale history using a
+Tenant/Vehicle half-open source-time query, stable `(source_timestamp,id)` keyset, fixed receipt snapshot,
+explicit 180-day retention coverage, one bounded predecessor query and an HMAC-SHA256 Tenant/query-bound
+cursor. Trip replay scope and one bounded range lookup enrich points without N+1 queries; Routing supplies only
+exact immutable route/revision context with per-request caching. Stops and incidents remain unavailable until
+their governed change sets; no API, permission, migration or frontend behavior is active yet. Trip provides one
+replay-scope lookup and one half-open, seven-day, 2,000-interval bounded assignment
 range query using `LIMIT 2001`; overflow is a stable failure with no partial or N+1 fallback. The exact next
-queue is `US-53-REPLAY-JOURNEYS-CS02-TIMESCALE-QUERY-ADAPTERS-001`.
+queue is `US-53-REPLAY-JOURNEYS-CS03-STOP-ANALYSIS-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
