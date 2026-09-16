@@ -128,6 +128,32 @@ state; equal source timestamps are resolved by the lexicographically greatest im
 an exact replay refreshes TTL. Tenant listing is index-based, lazily pruned and capped at 500
 results; Redis keyspace scans are prohibited.
 
+### `TRACKING_TELEMETRY_INGESTED_V1` envelope version 2
+
+Status: `IMPLEMENTED_US55_CS02`. V1 remains immutable and consumable. The additive V2 contract is
+published on `tracking.telemetry.ingested.v2`; its poison-record destination is
+`tracking.telemetry.ingested.v2.dlt`. The event type remains `TRACKING_TELEMETRY_INGESTED_V1` and
+the envelope `eventVersion` is exactly `2`. Topic and envelope version must agree. Each normalized
+input publishes exactly one canonical version; dual V1/V2 publication is prohibited.
+
+V2 preserves every V1 field and adds these optional observations: `tamperState` (`DETECTED`,
+`CLEAR`, `UNKNOWN`), `batteryLevelPercent` (0..100, scale <= 3), `batteryVoltageVolts` (0..1000,
+scale <= 6), `externalPowerState` (`CONNECTED`, `DISCONNECTED`, `UNKNOWN`) and
+`batteryChargingState` (`CHARGING`, `NOT_CHARGING`, `UNKNOWN`). Absence means
+`NOT_REPORTED_IN_THIS_EVENT`; it never means zero, clear, disconnected, unsupported or failed.
+
+Flespi and Traccar adapters populate only approved explicit mappings. Generic ingress does not
+pass arbitrary signal claims. Raw provider values, payloads, credentials, signatures, device
+identifiers, arbitrary attributes and person/customer data remain prohibited. Both logical
+consumer groups retain separate V1 and V2 deserializers, share the same Tenant/Vehicle key and
+canonical dedupe identity, and acknowledge only after their atomic side effects. `eventVersion`
+is not part of dedupe identity; a V1/V2 replay of one logical observation creates neither duplicate
+history nor duplicate detector dispatch and cannot regress Redis live state.
+
+The rollout is consumer-first, followed by one-version producer cutover. Rollback moves producers
+back to V1 while leaving dual consumers deployed. V1 retirement requires a separately governed
+decision after active-producer, backlog, retention and rollback-window checks.
+
 ## P1-01 Consumer Inventory and Durability Decision
 
 Production-source inspection identified 32 event classes or persisted event records: 22 `NO_CONSUMER`, zero `LOCAL_EPHEMERAL`, nine `LOCAL_AFTER_COMMIT`, one `DURABLE_INTERNAL_REQUIRED`, and zero approved `EXTERNAL_INTEGRATION_CANDIDATE`. The complete publisher/consumer/classification matrix is maintained in the application architecture record `docs/architecture/P1-01-EVENT-CONTRACT-DURABILITY-AND-ENVELOPE-HARDENING.md`.

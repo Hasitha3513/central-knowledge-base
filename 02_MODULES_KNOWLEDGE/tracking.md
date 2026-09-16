@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V95. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE`; its framework-neutral trust, quality, reliability, recovery, exception-episode and Tenant-explicit port contracts are verified. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-CS02-CANONICAL-SIGNAL-CONTRACT-001`.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V95. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `IMPLEMENTATION_IN_PROGRESS / CS02_COMPLETE`; canonical telemetry V2 signals, retained dual-version consumers, approved provider mappings and cross-version idempotency are verified. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-CS03-PERSISTENCE-AUTHORIZATION-001`.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1316,7 +1316,7 @@ Accounting remains 73/87. Deferred acceptance is
 
 ## US-55 Handle GPS Edge Cases frozen product decisions
 
-US-55 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE`; accounting remains 73/87 and Flyway remains
+US-55 is `IMPLEMENTATION_IN_PROGRESS / CS02_COMPLETE`; accounting remains 73/87 and Flyway remains
 V95. Tracking owns reliability classification and immutable GPS-exception evidence. Exact Phase 1 boundaries are
 60 seconds LIVE, five minutes STALE/OFFLINE, 24 hours LATE, 120 seconds future tolerance, good accuracy through
 100 metres, low accuracy through 1,000 metres, and an impossible jump of at least 2 km within 10 minutes with
@@ -1339,8 +1339,19 @@ updates one episode, severity cannot downgrade, resolved evidence is immutable a
 require confirmed correction. Tenant identity is mandatory on observations, episodes, inbound evaluation/review
 operations and outbound repository operations. CS01 adds no adapter, persistence, API, permission, event, Kafka,
 Redis or frontend behavior. Focused tests pass 12/12, architecture passes 71/71 and the isolated complete backend
-passes 1,850/1,850. Exact next queue:
-`US-55-HANDLE-GPS-EDGE-CASES-CS02-CANONICAL-SIGNAL-CONTRACT-001`.
+passes 1,850/1,850.
+
+CS02 keeps the V1 topic and payload immutable, adds canonical `tracking.telemetry.ingested.v2` and
+its `.v2.dlt`, retains V1/V2 deserializers for Timescale and Redis, and moves normalized ingress to
+exactly one V2 publication. Optional tamper, battery-level, battery-voltage, external-power and
+charging observations preserve absence as not reported. Flespi and Traccar use approved explicit
+mappings; Generic ingress rejects arbitrary signal claims. A Tenant-qualified source-time
+`TelemetryCapabilityLookupPort` defines `SUPPORTED`, `UNSUPPORTED` and conservative `UNKNOWN`;
+capability persistence is not part of CS02. Cross-version uniqueness uses the existing canonical
+dedupe identity and never includes event version. Focused CS02/architecture passes 76/76, real Kafka
+passes 2/2, Timescale passes 11/11, Redis passes 4/4 and the clean backend passes 1,861/1,861.
+Exact next queue:
+`US-55-HANDLE-GPS-EDGE-CASES-CS03-PERSISTENCE-AUTHORIZATION-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
