@@ -1184,8 +1184,8 @@ provider/device journey evidence and operator sign-off. The active queue is
 
 ## US-54 View Tracking Dashboard frozen product decisions
 
-US-54 is `IMPLEMENTATION_IN_PROGRESS / PRODUCT_DECISIONS_COMPLETE`; accounting remains 73/87 and Flyway
-remains V93. The Phase 1 dashboard is a read-only, same-Tenant operational summary for authorized
+US-54 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE`; accounting remains 73/87 and Flyway remains
+V93. The Phase 1 dashboard is a read-only, same-Tenant operational summary for authorized
 Dispatchers and administrators. It consumes bounded Tracking live state and Tracking-owned US-49/50/52
 evidence, one published bulk Trip context query and Notification's own unread-count API. It contains no
 detector, producer mutation, cross-module persistence access, persisted dashboard projection or new event.
@@ -1207,8 +1207,17 @@ Frontend polling is every 15 seconds only while visible/online, with 30/60-secon
 manual recovery and table-first map-failure behavior. Admission is 10 requests per actor/minute and 40 per
 Tenant/minute per instance. The coordinated backend/frontend feature flags provide rollback. Producer labels
 remain `FIELD_ACCEPTANCE_PENDING` for US-48/52/53, `FIELD_FIDELITY_PENDING` for US-50, `ACCEPTED` for US-49
-and `UNAVAILABLE` for US-51; US-54 never upgrades them. The exact active queue is
-`US-54-VIEW-TRACKING-DASHBOARD-CS01-DOMAIN-QUERY-CONTRACTS-001`.
+and `UNAVAILABLE` for US-51; US-54 never upgrades them.
+
+CS01 adds framework-neutral domain and port contracts only. `TrackingDashboardModels` defines the
+Tenant-scoped request, disclosure, live-state, Trip-context, producer-labelled incident, summary,
+heat-cell and page vocabulary. `TrackingDashboardPolicy` enforces the 100-Vehicle/100-row bounds,
+derives motion only from trusted observed speed and produces deterministic 0.01-degree density cells
+only from eligible trusted LIVE/RECENT positions. `TrackingDashboardQueryUseCase` is the inbound port;
+the narrow outbound ports are `TrackingDashboardLiveStatePort`, `TrackingDashboardIncidentPort`,
+`TrackingDashboardTripContextPort` and `TrackingDashboardCursorPort`. CS01 adds no adapter, API,
+permission, migration, persistence query, event or frontend behavior. The exact active queue is
+`US-54-VIEW-TRACKING-DASHBOARD-CS02-BOUNDED-SOURCE-AGGREGATION-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
