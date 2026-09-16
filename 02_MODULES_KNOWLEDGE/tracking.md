@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V94. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 is `TECHNICALLY_COMPLETE / IMPLEMENTATION_COMPLETE_ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; framework-neutral contracts, Timescale/Trip/Routing point-query adapters, deterministic bounded stop analysis, the Tenant/RBAC/audited query API, accessible operator replay, producer-labelled incident overlays, operational admission and the frozen PostgreSQL performance profile pass consolidated technical closure while its genuine provider/device journey and operator sign-off remain on an independent external hold. US-54 is `IMPLEMENTATION_IN_PROGRESS / CS04_COMPLETE`; its secured dashboard API and responsive operator frontend are implemented. The active queue is `US-54-VIEW-TRACKING-DASHBOARD-CS05-POSTGRES-REDIS-PERFORMANCE-OPERATIONS-001`; deferred US-53 acceptance resumes under `US-53-REPLAY-JOURNEYS-FINAL-ACCEPTANCE-001` only when its external prerequisites exist.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V95. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE`; its framework-neutral trust, quality, reliability, recovery, exception-episode and Tenant-explicit port contracts are verified. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-CS02-CANONICAL-SIGNAL-CONTRACT-001`.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1316,7 +1316,7 @@ Accounting remains 73/87. Deferred acceptance is
 
 ## US-55 Handle GPS Edge Cases frozen product decisions
 
-US-55 is `PRODUCT_DECISIONS_COMPLETE / READY_FOR_IMPLEMENTATION`; accounting remains 73/87 and Flyway remains
+US-55 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE`; accounting remains 73/87 and Flyway remains
 V95. Tracking owns reliability classification and immutable GPS-exception evidence. Exact Phase 1 boundaries are
 60 seconds LIVE, five minutes STALE/OFFLINE, 24 hours LATE, 120 seconds future tolerance, good accuracy through
 100 metres, low accuracy through 1,000 metres, and an impossible jump of at least 2 km within 10 minutes with
@@ -1330,8 +1330,17 @@ evidence with warnings; Dashboard map/motion uses latest trusted only.
 
 Tracking will own a bounded exception workflow; minimized HIGH facts may integrate with accepted US-78 and IN_APP
 Notification through P1-01. Proposed permissions are `GPS_EXCEPTION_VIEW` and `GPS_EXCEPTION_REVIEW`. Expected
-schema and canonical V2 work require later separate authorization; no migration is reserved. Exact next queue:
-`US-55-HANDLE-GPS-EDGE-CASES-CS01-DOMAIN-TRUST-QUALITY-CONTRACTS-001`.
+schema and canonical V2 work require later separate authorization; no migration is reserved.
+
+CS01 implements framework-neutral `GpsCoordinate`, reliability observation/context/assessment types,
+`GpsReliabilityPolicy` and `GpsExceptionEpisode`. It freezes coordinate/accuracy/time/order/connectivity,
+impossible-movement, battery and two-point recovery behavior in pure Tracking domain code. Repeated evidence
+updates one episode, severity cannot downgrade, resolved evidence is immutable and binding/processing failures
+require confirmed correction. Tenant identity is mandatory on observations, episodes, inbound evaluation/review
+operations and outbound repository operations. CS01 adds no adapter, persistence, API, permission, event, Kafka,
+Redis or frontend behavior. Focused tests pass 12/12, architecture passes 71/71 and the isolated complete backend
+passes 1,850/1,850. Exact next queue:
+`US-55-HANDLE-GPS-EDGE-CASES-CS02-CANONICAL-SIGNAL-CONTRACT-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
