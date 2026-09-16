@@ -3,7 +3,7 @@
 Status: `US78_COMPLETE / FINAL_ACCEPTANCE_PASS`
 Owner: Operations
 Decision: `ADR-US78-OPERATIONAL-EXCEPTION-BOUNDARY.md`
-Migration: V62; repository head V62
+Migration: V62; repository head V98
 
 ## Phase 1: Current MVP Scope
 
@@ -190,4 +190,4 @@ Independent final acceptance passes: focused Operations/Routing/Delivery/durable
 
 ## Phase 2: Post-MVP / Future Roadmap
 
-US-38 Fuel producer semantics are implemented and awaiting independent acceptance: only an authorized operational handoff publishes a minimized `OperationalExceptionFactV1` with stable handoff identity through P1-01. US-55 Tracking, Trip, Cargo, Driver/Fleet, Compliance, and Integration may publish only after exact producer semantics are accepted. US-86 owns coordinated disruption constraints/replanning separately. Merge/parent-child graphs, configurable calendars, person load-balancing, customer visibility, analytics, generic manual incidents, and automated retention remain deferred.
+US-38 Fuel producer semantics are implemented and accepted: only an authorized operational handoff publishes a minimized `OperationalExceptionFactV1` with stable handoff identity through P1-01. US-55 Tracking is active for HIGH GPS-exception facts only. V98 permits source module `TRACKING`, the ten frozen canonical GPS exception source types, summary code `TRACKING_GPS_EXCEPTION_HIGH`, and categories `TRACKING_CONNECTIVITY`, `TRACKING_DEVICE_HEALTH`, `TRACKING_DEVICE_SECURITY`, and `TRACKING_DATA_QUALITY`. Metadata is restricted to `episodeId`, `exceptionType`, `severity`, `deviceId`, `vehicleId`, `openedAt`, and `lastObservedAt`; `PROCESSING_FAILURE` maps to `TRACKING_DATA_QUALITY`. Trip, Cargo, Driver/Fleet, Compliance, and Integration may publish only after exact producer semantics are accepted. US-86 owns coordinated disruption constraints/replanning separately. Merge/parent-child graphs, configurable calendars, person load-balancing, customer visibility, analytics, generic manual incidents, and automated retention remain deferred.

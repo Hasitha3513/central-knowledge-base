@@ -360,6 +360,28 @@ Notification owns same-Tenant Dispatcher resolution, templates, channels, prefer
 Notification failure cannot invalidate deviation evidence. Both families are `ACTIVE_US52_CS05`, delivered
 at least once through P1-01 and deduplicated by the existing Notification execution identity.
 
+## TrackingGpsExceptionOpenedV1 and TrackingGpsExceptionHighV1 (US-55 CS05; Active)
+
+- **Owner / producer:** Tracking.
+- **Consumers:** Notification consumes `TrackingGpsExceptionOpenedV1`; the system bridge converts
+  `TrackingGpsExceptionHighV1` into the existing Operations-owned `OperationalExceptionFactV1` contract.
+- **Delivery:** shared P1-01 durable outbox, at least once, Tenant-qualified consumer idempotency.
+- **Opened emission:** exactly once when an episode first opens at WARNING or HIGH. A later WARNING-to-HIGH
+  transition does not emit another opened event.
+- **HIGH emission:** exactly once per episode lifecycle when severity first becomes HIGH, including direct-HIGH
+  opening. Duplicate evidence, recovery and repeated HIGH observations are silent.
+- **Notification:** IN_APP to active same-Tenant Dispatcher users through
+  `TRACKING_GPS_EXCEPTION_ALERT_V1`; no recovery, repeat or escalation notification.
+- **Operations:** summary `TRACKING_GPS_EXCEPTION_HIGH`; exact canonical exception type; category mapping to
+  `TRACKING_CONNECTIVITY`, `TRACKING_DEVICE_HEALTH`, `TRACKING_DEVICE_SECURITY`, or
+  `TRACKING_DATA_QUALITY`. `PROCESSING_FAILURE` maps to `TRACKING_DATA_QUALITY`.
+- **Permitted Operations metadata:** `episodeId`, `exceptionType`, `severity`, `deviceId`, `vehicleId`,
+  `openedAt`, `lastObservedAt` only.
+- **Privacy:** excludes exception/error text, stack traces, coordinates, raw/provider payloads, credentials,
+  signatures, retry/infrastructure detail, Driver PII and Customer PII.
+- **Provisioning:** V98 seeds the catalogue and existing-Tenant Dispatcher rules. Automatic future-Tenant
+  defaults are `DEFERRED_PENDING_GOVERNED_TENANT_CREATION_WORKFLOW`.
+
 Detection emits once at confirmation. WARNING maps to Notification WARNING and domain HIGH maps explicitly
 to Notification CRITICAL. Direct-HIGH confirmation emits detection only. The first later WARNING-to-HIGH
 transition emits `DISTANCE_HIGH`; the first rejected HIGH review emits `REVIEW_REJECTED`. Both escalation

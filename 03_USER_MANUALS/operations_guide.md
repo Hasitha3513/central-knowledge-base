@@ -4,7 +4,7 @@ Status: US-78 complete; independent final acceptance passed
 
 ## Purpose and prerequisites
 
-The Operations queue lets authorized internal operators triage and close operational exceptions detected by Routing and Delivery. It does not create source exceptions or change Route/Delivery source records. A case appears only after an authoritative Routing disruption or Delivery exception has committed and its durable fact has been processed.
+The Operations queue lets authorized internal operators triage and close operational exceptions detected by Routing, Delivery, accepted Fuel producers, and HIGH Tracking GPS-exception episodes. It does not create source exceptions or change source records. A case appears only after an authoritative source fact has committed and its durable fact has been processed. Tracking WARNING episodes remain Notification-only; a HIGH episode appears once with minimized metadata, and no processing-error text, coordinates, provider payload, credentials or personal data.
 
 Sign in to an active Tenant account and open **Operations → Operational Exceptions** (`/operations/exceptions`). The menu and actions are permission-gated; backend authorization remains authoritative.
 

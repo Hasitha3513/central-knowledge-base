@@ -222,3 +222,12 @@ evaluation work before Kafka acknowledgement. Operators may disable the evaluati
 durable, then restore it to drain due work. Monitor pending/failed counts, oldest due time and lease expiry;
 do not delete dispatch rows, manufacture legacy positions, copy work between Tenants or store raw exception
 text. Failed evaluation does not remove accepted history. Idle evaluation is not enabled by this mechanism.
+
+## GPS exception alerts
+
+When Tracking confirms a governed GPS exception episode, active same-Tenant Dispatchers receive one IN_APP
+alert at WARNING or HIGH. The alert identifies the Vehicle safely, labels the exception, and shows its
+observation time; it does not expose coordinates, provider payloads, credentials, internal errors or personal
+data. Repeated evidence and recovery do not create further alerts. A WARNING episode that later becomes HIGH
+is escalated once to the Operations queue without sending a second notification. Automatic defaults for a
+Tenant created after V98 are not yet available and remain pending the governed Tenant-creation workflow.
