@@ -1314,6 +1314,25 @@ Accounting remains 73/87. Deferred acceptance is
 `US-54-VIEW-TRACKING-DASHBOARD-FINAL-ACCEPTANCE-001`; active queue is
 `US-55-HANDLE-GPS-EDGE-CASES-PRODUCT-DECISIONS-001`.
 
+## US-55 Handle GPS Edge Cases frozen product decisions
+
+US-55 is `PRODUCT_DECISIONS_COMPLETE / READY_FOR_IMPLEMENTATION`; accounting remains 73/87 and Flyway remains
+V95. Tracking owns reliability classification and immutable GPS-exception evidence. Exact Phase 1 boundaries are
+60 seconds LIVE, five minutes STALE/OFFLINE, 24 hours LATE, 120 seconds future tolerance, good accuracy through
+100 metres, low accuracy through 1,000 metres, and an impossible jump of at least 2 km within 10 minutes with
+implied speed above 250 km/h. Recovery from suspect movement requires two consecutive eligible points.
+
+Invalid coordinates never become `(0,0)`; actual `(0,0)` is retained only as untrusted Null Island evidence.
+Missing tamper/battery capabilities remain UNKNOWN and are never inferred as healthy or faulty. History remains
+append-only, Redis cannot regress or promote ineligible facts, and geofence/speed/route-deviation consume only
+trusted, in-order, good-accuracy evidence at most five minutes old. Journey Replay may show retained uncertain
+evidence with warnings; Dashboard map/motion uses latest trusted only.
+
+Tracking will own a bounded exception workflow; minimized HIGH facts may integrate with accepted US-78 and IN_APP
+Notification through P1-01. Proposed permissions are `GPS_EXCEPTION_VIEW` and `GPS_EXCEPTION_REVIEW`. Expected
+schema and canonical V2 work require later separate authorization; no migration is reserved. Exact next queue:
+`US-55-HANDLE-GPS-EDGE-CASES-CS01-DOMAIN-TRUST-QUALITY-CONTRACTS-001`.
+
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
 TS02 is `COMPLETE`. The existing signed `/api/integration/v1/tracking/positions` boundary validates
