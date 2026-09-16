@@ -1269,6 +1269,27 @@ Chromium acceptance passed 6/6 scenarios. CS04 does not inherit or replace any p
 acceptance gate. Next queue:
 `US-54-VIEW-TRACKING-DASHBOARD-CS05-POSTGRES-REDIS-PERFORMANCE-OPERATIONS-001`.
 
+## US-54 Tracking Dashboard PostgreSQL/Redis performance and operations (CS05 complete)
+
+US-54 is `IMPLEMENTATION_IN_PROGRESS / CS05_COMPLETE`; accounting remains 73/87 and Flyway head is V95.
+V95 adds only `idx_tracking_speed_episode_dashboard_recent`, a B-tree over
+`tracking_speed_episode (tenant_id, confirmation_source_timestamp DESC, id DESC)`. The index matches the
+Tenant-scoped 24-hour recent-speed query and deterministic ordering. It adds no table, column, constraint,
+permission, event, API or frontend contract.
+
+Representative PostgreSQL acceptance used 12,000 speed episodes for plan comparison and proved identical
+results with an index scan replacing the full scan and top-N sort. The dashboard load gate used 100 Vehicles,
+200 incidents and 20 coordinated sessions. Redis failure returns truthful `DEGRADED` source status with the
+governed PostgreSQL fallback and returns to `AVAILABLE` after recovery. Operational metrics use only bounded
+outcome, source-status, included-category and fixed degradation-reason tags; Tenant, actor, Vehicle, cursor,
+coordinate and personal values are prohibited as tags.
+
+V95 uses ordinary transactional `CREATE INDEX` and requires a maintenance window that drains affected speed
+episode writers while retaining Kafka backlog, checks locks and disk headroom, validates Flyway plus index
+readiness/validity, then restores traffic. A pre-commit failure rolls back atomically; after success V95 is
+immutable and removal requires a reviewed forward migration. Exact next queue:
+`US-54-VIEW-TRACKING-DASHBOARD-TECHNICAL-CLOSURE-001`.
+
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
 TS02 is `COMPLETE`. The existing signed `/api/integration/v1/tracking/positions` boundary validates
