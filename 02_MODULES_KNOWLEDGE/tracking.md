@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V95. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `IMPLEMENTATION_IN_PROGRESS / CS02_COMPLETE`; canonical telemetry V2 signals, retained dual-version consumers, approved provider mappings and cross-version idempotency are verified. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-CS03-PERSISTENCE-AUTHORIZATION-001`.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V96. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `IMPLEMENTATION_IN_PROGRESS / CS03_COMPLETE`; canonical telemetry V2 evidence and effective-dated device capabilities are durable while retained provider/device/binding/watermark and cross-version dedupe authority is reused. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-CS04-EVALUATION-REDIS-DETECTOR-GUARDS-001`.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -91,7 +91,7 @@ no new permission, public API or migration is introduced by this architecture de
 | `tenant_id` | UUID | NO | - | PRIMARY KEY component | Trusted Tenant scope |
 | `source_timestamp` | TIMESTAMPTZ | NO | - | PRIMARY KEY/partition component | Device source time |
 | `id` | UUID | NO | - | PRIMARY KEY component | Immutable position identity |
-| `event_version` | INTEGER | NO | `1` | CHECK = 1 | Canonical telemetry schema version |
+| `event_version` | INTEGER | NO | `1` | CHECK IN (1,2) | Canonical telemetry schema version |
 | `device_id` | UUID | NO | - | Logical Tracking device reference | Source device |
 | `vehicle_id` | UUID | NO | - | Logical Fleet Vehicle reference | Source-time Vehicle |
 | `provider_alias` | VARCHAR(80) | NO | - | - | Trusted provider alias |
@@ -115,6 +115,33 @@ no new permission, public API or migration is introduced by this architecture de
 | `retention_policy_version` | VARCHAR(40) | NO | - | - | Applied policy version |
 | `retain_until` | TIMESTAMPTZ | YES | NULL | Tenant-leading partial index | Optional retention boundary |
 | `safe_metadata` | JSONB | NO | `{}` | - | Bounded non-secret metadata |
+| `tamper_state` | VARCHAR(16) | YES | NULL | CHECK DETECTED/CLEAR/UNKNOWN; V2 only | Provider tamper evidence |
+| `battery_level_percent` | NUMERIC | YES | NULL | CHECK 0–100 and scale ≤ 3; V2 only | Provider battery percentage |
+| `battery_voltage_volts` | NUMERIC | YES | NULL | CHECK 0–1000 and scale ≤ 6; V2 only | Provider battery voltage |
+| `external_power_state` | VARCHAR(16) | YES | NULL | CHECK CONNECTED/DISCONNECTED/UNKNOWN; V2 only | Provider external-power evidence |
+| `battery_charging_state` | VARCHAR(20) | YES | NULL | CHECK CHARGING/NOT_CHARGING/UNKNOWN; V2 only | Provider charging evidence |
+
+V96 enforces append-only `tracking_position_history` at the database boundary. V1 rows must keep all V2-only evidence null. Missing V2 evidence remains null while an explicit provider-reported `UNKNOWN` remains a distinct stored value.
+
+#### Table: `tracking_device_telemetry_capability`
+
+- **Purpose:** Effective-dated, immutable device capability evidence used by source-time telemetry interpretation.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, leading in uniqueness and lookup indexes)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY; UNIQUE with `tenant_id` | Capability-history identity |
+| `tenant_id` | UUID | NO | - | Same-Tenant FK component; index leader | Trusted Tenant scope |
+| `tracking_device_id` | UUID | NO | - | Same-Tenant FK → `tracking_device(tenant_id,id)` | Tracking-owned device |
+| `capability` | VARCHAR(32) | NO | - | CHECK approved position/speed/accuracy/heading/ignition/tamper/battery/power vocabulary | Capability name |
+| `capability_state` | VARCHAR(16) | NO | - | CHECK SUPPORTED/UNSUPPORTED/UNKNOWN | Explicit effective state |
+| `effective_from` | TIMESTAMPTZ | NO | - | Half-open interval; effective lookup index | Inclusive source-time boundary |
+| `effective_to` | TIMESTAMPTZ | YES | NULL | Must be greater than `effective_from` | Exclusive source-time boundary |
+| `recorded_at` | TIMESTAMPTZ | NO | - | Immutable | Evidence recording time |
+| `recorded_by` | UUID | NO | - | Immutable actor identity | Recording actor |
+
+Only a one-time close of an open interval is mutable. Deletes, fact rewriting, overlapping intervals and more than one active Tenant/device/capability row are rejected. The JDBC lookup requires Tenant, device, capability and source time and returns conservative `UNKNOWN` when no row applies. No credential value is stored.
 
 Tracking owns `tracking_device`, `tracking_vehicle_device_assignment`, `tracking_position`, `tracking_vehicle_latest`, `tracking_ingest_nonce`, and `tracking_audit_event`. Every table is Tenant-owned. Device/association/latest same-module relationships are Tenant-consistent; `vehicle_id` is a logical Fleet reference without a physical cross-module FK. Tenant-leading indexes cover Vehicle/source time, device/source time, latest lookup, active associations, provider-message/dedupe identity, nonce expiry and audit time. `tracking_position` is trigger-enforced append-only and association history allows only its one-time close operation.
 
@@ -1327,8 +1354,8 @@ Accounting remains 73/87. Deferred acceptance is
 
 ## US-55 Handle GPS Edge Cases frozen product decisions
 
-US-55 is `IMPLEMENTATION_IN_PROGRESS / CS02_COMPLETE`; accounting remains 73/87 and Flyway remains
-V95. Tracking owns reliability classification and immutable GPS-exception evidence. Exact Phase 1 boundaries are
+US-55 is `IMPLEMENTATION_IN_PROGRESS / CS03_COMPLETE`; accounting remains 73/87 and Flyway is
+V96. Tracking owns reliability classification and immutable GPS-exception evidence. Exact Phase 1 boundaries are
 60 seconds LIVE, five minutes STALE/OFFLINE, 24 hours LATE, 120 seconds future tolerance, good accuracy through
 100 metres, low accuracy through 1,000 metres, and an impossible jump of at least 2 km within 10 minutes with
 implied speed above 250 km/h. Recovery from suspect movement requires two consecutive eligible points.
@@ -1361,8 +1388,13 @@ mappings; Generic ingress rejects arbitrary signal claims. A Tenant-qualified so
 capability persistence is not part of CS02. Cross-version uniqueness uses the existing canonical
 dedupe identity and never includes event version. Focused CS02/architecture passes 76/76, real Kafka
 passes 2/2, Timescale passes 11/11, Redis passes 4/4 and the clean backend passes 1,861/1,861.
+CS03 reuses the V75 provider registry/opaque credential reference, V76 device/provider binding and polling
+watermark, V73 source-time Vehicle assignment, and V86/V87 canonical dedupe identity. V96 adds nullable V2
+history evidence, database-enforced append-only history and the effective-dated capability registry described
+above. Clean V1→V96, V95→V96, transactional failure/retry, compressed Timescale upgrade, Tenant isolation,
+architecture 59/59 and complete Maven 1,867/1,867 pass. No API, permission, event or frontend contract changes.
 Exact next queue:
-`US-55-HANDLE-GPS-EDGE-CASES-CS03-PERSISTENCE-AUTHORIZATION-001`.
+`US-55-HANDLE-GPS-EDGE-CASES-CS04-EVALUATION-REDIS-DETECTOR-GUARDS-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 

@@ -92,5 +92,8 @@ Operational behavior includes provider clock validation, stale/accuracy/trust cl
 bounded DLT replay, safe adapter disablement and observability without secrets or precise location.
 
 US-48 technical status and its external physical-evidence hold remain unchanged. US-55 is
-`IMPLEMENTATION_IN_PROGRESS / CS02_COMPLETE`; accounting remains 73/87, Flyway remains V95 and the
-next queue is `US-55-HANDLE-GPS-EDGE-CASES-CS03-PERSISTENCE-AUTHORIZATION-001`.
+`IMPLEMENTATION_IN_PROGRESS / CS03_COMPLETE`; accounting remains 73/87, Flyway is V96 and the
+next queue is `US-55-HANDLE-GPS-EDGE-CASES-CS04-EVALUATION-REDIS-DETECTOR-GUARDS-001`. V96 retains
+the provider-neutral authority model while adding only nullable canonical V2 history evidence,
+append-only database enforcement and effective-dated Tenant/device capability history. Redis remains
+disposable live state and no provider secret is persisted.
