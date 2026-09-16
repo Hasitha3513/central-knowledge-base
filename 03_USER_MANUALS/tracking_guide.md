@@ -50,6 +50,13 @@ Operators with `TRACKING_DEVICE_MANAGE` can open **Tracking → Provider Connect
 
 Choose **Add Provider Connection**, select one of the installed provider types loaded from the backend, and enter the display name, alias, opaque provider key ID, approved HTTPS endpoint, opaque credential reference, polling interval, page size and bounded safe configuration. Connections are saved as DRAFT; creation never starts polling automatically. Safe configuration accepts an object of string values up to 8 KiB and rejects secret-like keys. The backend remains authoritative for provider-specific fields and SSRF protection; current Flespi endpoints must use HTTPS/443 in the `flespi.io` hostname zone.
 
+Current production paths are Flespi HTTPS polling and Generic signed-HMAC delivery. Traccar HTTPS
+polling is approved for a later implementation change set but is not yet an available production
+connection merely because its canonical mapping exists. When delivered, it will use an opaque
+bearer-token reference and verified HTTPS; username/password, Basic authentication, plaintext secrets,
+disabled certificate checks and direct unsigned callbacks are not supported. The installed provider
+types returned by the backend remain the truthful source of what an operator can configure now.
+
 Use **Test Connection** to validate configuration and provider access. It reports Connection successful, Authentication failed, Provider unreachable or Configuration invalid without showing raw provider errors. Testing does not activate polling, create a device or ingest telemetry. **Activate** makes an eligible DRAFT/DISABLED connection available to the polling coordinator. **Disable** stops polling until reactivation while preserving historical Tracking data. **Retire** is permanent, stops future polling and cannot be reversed; it is not data deletion. To update safe settings, choose **Edit** and submit the optimistic current version. Leave the replacement credential field blank to preserve the configured credential; the existing reference is never prefilled. Discovery appears only for adapters that advertise `DISCOVERY` and returns a bounded masked preview. FLESPI does not advertise discovery, so its Device workflow requires manual external-reference entry.
 
 Privileged changes and denied management attempts are recorded with safe audit facts. Cross-Tenant identifiers remain not-found-shaped, and view/history-only roles cannot access provider-management APIs or controls.

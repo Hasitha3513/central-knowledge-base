@@ -36,6 +36,17 @@ Timescale batch consumer/policies. Gateway UI and live Fleet map are complete; p
 route-geometry/deviation persistence is V88 and its API permission seed is V89. Accounting remains 73/87 and US-48
 physical acceptance remains blocked independently.
 
+The governed provider boundary is plug-and-play for supported adapters, not universal protocol
+compatibility. Flespi production HTTPS polling and Generic signed-HMAC ingress remain supported.
+Traccar production HTTPS polling is approved but implementation-pending, using a separate adapter,
+verified TLS, an opaque bearer-token reference, bounded `/api/positions` paging and a restart-safe
+watermark. Flespi and Traccar are peers; neither is the other's fallback. Adapters normalize into the
+canonical V1/V2 boundary and never write Redis, TimescaleDB or another module's persistence directly.
+Onboarding remains DRAFT-first through connectivity test, discovery/manual identity, same-Tenant
+Vehicle binding, normalized-sample validation and explicit activation. Disablement, rebinding and
+credential rotation preserve effective-dated audit evidence. `TRACKING_DEVICE_MANAGE` is sufficient;
+no new permission, public API or migration is introduced by this architecture decision.
+
 #### Table: `tracking_telemetry_evaluation_dispatch`
 
 - **Purpose:** Durable, history-backed scheduling for geofence, speed and route-deviation evaluation.

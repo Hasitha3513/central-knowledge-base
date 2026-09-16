@@ -201,6 +201,15 @@ The implemented CS06 pluggable-onboarding extension adds provider-neutral manage
 
 Existing position/history and signed ingress routes remain unchanged. After controlled V75/SPI cutover, internal polling adapters call a private non-web provider-ingestion port; it reloads the ACTIVE connection, Tenant and device binding before invoking the identical normalized ingestion service. External push providers continue using the signed HMAC/timestamp/nonce endpoint. The management extension is `IMPLEMENTED_CS06`; CS07 remains the dedicated RBAC/audit/security closure change set.
 
+The provider-neutral management routes above remain the sole administration contract for supported adapters.
+Flespi production HTTPS polling and Generic signed-HMAC ingress are retained. A separate Traccar
+production adapter is approved but not yet implemented: it will poll bounded `/api/positions` pages over
+verified HTTPS using a bearer token resolved from the existing opaque credential reference, with a
+restart-safe watermark, bounded retry/backoff, rate-limit/circuit-breaker handling and sanitized health.
+No Traccar username/password, Basic authentication, plaintext secret, disabled TLS verification or direct
+unsigned callback is approved. This decision adds no endpoint today; any additive provider-specific safe
+configuration remains subject to its implementation change set and the existing response-secrecy rules.
+
 ## US-49 Geofence Interfaces (CS04 Implemented)
 
 US-49 implements its Tenant-scoped management/query family under `/api/v1/tracking/geofences`: `POST|GET /`; `GET|PUT /{geofenceId}`; explicit `POST /{geofenceId}/activate|disable|retire`; `GET /memberships`; `GET /transitions`; and `GET /unauthorized-transitions`. There is no DELETE or arbitrary status mutation. Lists use page/size with a maximum of 100; transition queries use a deterministic cursor and maximum limit 100. Create, activate, disable and retire require `Idempotency-Key`; update and lifecycle commands use optimistic `expectedVersion`, and disable/retire require a bounded nonblank reason.

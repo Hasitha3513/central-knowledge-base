@@ -4,6 +4,31 @@
 **Date:** 2026-09-13  
 **Scope:** US-48 and Wave C Tracking platform enabler
 
+## Supported provider decision
+
+Plug-and-play means supported devices are onboarded through registered adapters without changing
+Tracking domain or the Kafka/Redis/Timescale pipeline. It is not universal proprietary-protocol
+support. Phase 1 retains Flespi production polling with an environment-backed token, authorizes a
+separate Traccar production HTTPS polling adapter with an environment-backed opaque bearer token,
+and retains Generic signed-HMAC callback ingestion. Future protocols require a reviewed adapter or
+an authorized signing gateway. Flespi and Traccar are first-class peers, not fallbacks.
+
+```text
+GPS devices -> Flespi | Traccar | custom signing gateway
+            -> registered inbound provider adapter
+            -> canonical V1/V2 boundary -> Kafka
+            -> Timescale immutable history + Redis disposable live state
+            -> US-48 and Tracking evaluators
+```
+
+```text
+UNTRUSTED provider/device -> TLS credential or HMAC -> server Tenant and source-time binding
+TRUSTED Tracking boundary -> normalization -> Kafka durable boundary
+```
+
+Adapters never write Redis, TimescaleDB, legacy Tracking tables or another module's persistence.
+Frontend/payload Tenant values are never authority.
+
 ## Decision
 
 The current MVP promotes a provider-neutral multi-gateway normalization pipeline, Kafka durable
@@ -45,3 +70,27 @@ intents commit atomically before Kafka acknowledgement. GEOFENCE, SPEED and ROUT
 asynchronously from exact Tenant-qualified immutable history with bounded claims, leases, retry and safe
 failure classification. Evaluator failure never removes accepted history. Redis projection remains an
 independent consumer, legacy detector jobs remain compatible, and IDLE is not activated.
+
+Traccar Phase 1 is HTTPS-only bounded `/api/positions` polling with timeout, pagination,
+restart-safe watermark, retry/backoff, rate-limit/circuit-breaker and sanitized health behavior.
+Username/password, Basic authentication, plaintext secrets, disabled TLS verification and direct
+unsigned callbacks are prohibited. An external signing proxy may submit Traccar-origin facts only
+through the existing Generic HMAC contract.
+
+Onboarding is DRAFT-first: choose provider, configure endpoint and opaque credential reference,
+test connectivity, discover or manually identify and validate the device, bind it to authenticated
+Tenant and one authorized Vehicle for the effective interval, validate a normalized sample, then
+activate. Disablement, rebinding and credential rotation preserve effective-dated audit evidence.
+One physical device has at most one authoritative active provider binding per source-time interval;
+active-active Flespi/Traccar ingestion is not authorized. Existing `TRACKING_DEVICE_MANAGE` governs
+the workflow; no new permission is approved.
+
+Canonical V1 remains immutable. V2 uses `tracking.telemetry.ingested.v2` and `.v2.dlt`, separate
+serialization, consumer-first rollout and common cross-version/cross-provider dedupe. Capabilities
+are effective-dated registry data. Missing signal evidence remains absent and is never inferred.
+Operational behavior includes provider clock validation, stale/accuracy/trust classification,
+bounded DLT replay, safe adapter disablement and observability without secrets or precise location.
+
+US-48 technical status and its external physical-evidence hold remain unchanged. US-55 is
+`IMPLEMENTATION_IN_PROGRESS / CS02_COMPLETE`; accounting remains 73/87, Flyway remains V95 and the
+next queue is `US-55-HANDLE-GPS-EDGE-CASES-CS03-PERSISTENCE-AUTHORIZATION-001`.
