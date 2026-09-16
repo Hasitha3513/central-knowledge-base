@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V93. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 is `TECHNICALLY_COMPLETE / IMPLEMENTATION_COMPLETE_ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; framework-neutral contracts, Timescale/Trip/Routing point-query adapters, deterministic bounded stop analysis, the Tenant/RBAC/audited query API, accessible operator replay, producer-labelled incident overlays, operational admission and the frozen PostgreSQL performance profile pass consolidated technical closure while its genuine provider/device journey and operator sign-off remain on an independent external hold. The active queue is `US-54-VIEW-TRACKING-DASHBOARD-PRODUCT-DECISIONS-001`; deferred US-53 acceptance resumes under `US-53-REPLAY-JOURNEYS-FINAL-ACCEPTANCE-001` only when its external prerequisites exist.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V94. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 is `TECHNICALLY_COMPLETE / IMPLEMENTATION_COMPLETE_ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; framework-neutral contracts, Timescale/Trip/Routing point-query adapters, deterministic bounded stop analysis, the Tenant/RBAC/audited query API, accessible operator replay, producer-labelled incident overlays, operational admission and the frozen PostgreSQL performance profile pass consolidated technical closure while its genuine provider/device journey and operator sign-off remain on an independent external hold. US-54 is `IMPLEMENTATION_IN_PROGRESS / CS04_COMPLETE`; its secured dashboard API and responsive operator frontend are implemented. The active queue is `US-54-VIEW-TRACKING-DASHBOARD-CS05-POSTGRES-REDIS-PERFORMANCE-OPERATIONS-001`; deferred US-53 acceptance resumes under `US-53-REPLAY-JOURNEYS-FINAL-ACCEPTANCE-001` only when its external prerequisites exist.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1248,6 +1248,26 @@ metrics prohibit selectors, domain IDs, coordinates, cursors, raw telemetry, pro
 credentials, signatures and personal data. `app.tracking.dashboard.enabled` controls the endpoint without
 altering producer evidence. CS03 adds no frontend behavior; the exact queue is
 `US-54-VIEW-TRACKING-DASHBOARD-CS04-FRONTEND-001`.
+
+## US-54 Tracking Dashboard frontend (CS04 complete)
+
+US-54 is `IMPLEMENTATION_IN_PROGRESS / CS04_COMPLETE`; accounting remains 73/87 and Flyway head remains
+V94. Authorized operators can open `/tracking/dashboard` when the frontend feature flag is enabled and
+their authenticated permission set includes `TRACKING_DASHBOARD_VIEW`. Navigation visibility is only a UX
+guard; backend authorization remains authoritative.
+
+The screen submits filters exclusively in the secured POST body, keeps selectors out of URLs and browser
+storage, polls every 15 seconds only while visible and online, and uses bounded 30/60-second retry delays.
+Its responsive operational table remains authoritative when the internal SVG map or heat-density layer is
+unavailable. Live/recent/stale/degraded/offline truth, observed motion, producer acceptance labels, incident
+availability and replay availability remain explicit. Notification unread counts are queried only when the
+same user also has `NOTIFICATION_VIEW`.
+
+No provider credentials, signatures, device details, Driver PII or Customer PII are stored or rendered.
+Coordinate display continues to depend on backend conjunctive disclosure. Real isolated PostgreSQL-backed
+Chromium acceptance passed 6/6 scenarios. CS04 does not inherit or replace any physical telemetry/operator
+acceptance gate. Next queue:
+`US-54-VIEW-TRACKING-DASHBOARD-CS05-POSTGRES-REDIS-PERFORMANCE-OPERATIONS-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
