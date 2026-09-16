@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V96. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `IMPLEMENTATION_IN_PROGRESS / CS03_COMPLETE`; canonical telemetry V2 evidence and effective-dated device capabilities are durable while retained provider/device/binding/watermark and cross-version dedupe authority is reused. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-CS04-EVALUATION-REDIS-DETECTOR-GUARDS-001`.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V97. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `IMPLEMENTATION_IN_PROGRESS / CS04_COMPLETE`; canonical V2 evidence and effective-dated capabilities are durable, V97 owns authoritative GPS-exception episodes/evidence, and trusted projection/detector guards are wired. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-CS05-OPERATIONS-NOTIFICATION-INTEGRATION-001`.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1395,6 +1395,87 @@ above. Clean V1→V96, V95→V96, transactional failure/retry, compressed Timesc
 architecture 59/59 and complete Maven 1,867/1,867 pass. No API, permission, event or frontend contract changes.
 Exact next queue:
 `US-55-HANDLE-GPS-EDGE-CASES-CS04-EVALUATION-REDIS-DETECTOR-GUARDS-001`.
+
+## US-55 CS04 evaluation, authoritative episodes and detector guards
+
+US-55 is `IMPLEMENTATION_IN_PROGRESS / CS04_COMPLETE`; accounting remains 73/87 and Flyway head is
+V97. V97 creates exactly two Tracking-owned tables. `tracking_gps_exception_episode` is the authoritative
+Tenant/device/type lifecycle record with optimistic versioning and one active episode per logical key.
+`tracking_gps_exception_evidence` stores deterministic, minimized assessment evidence and rejects update or
+delete at the database boundary. Composite Tenant keys prevent cross-Tenant device, episode and evidence
+relationships. Neither table stores coordinates, raw payload, credentials, signatures or PII.
+
+The evaluator reconstructs decisions from PostgreSQL plus immutable telemetry and effective-dated capability
+history. Unsupported optional V2 signals remain UNKNOWN; two eligible recovery observations are required;
+stale or reversed observations cannot regress durable state. Signal loss can be recorded without fabricating a
+telemetry-history row. Episode transition and evidence append share one transaction.
+
+The Kafka live projector evaluates reliability before the existing atomic Tenant-qualified Redis
+compare-and-apply. Only trusted, in-order eligible observations advance live state. Geofence, speed and route
+deviation dispatch additionally require an accurate, non-null-island, recent observation. Redis remains a
+disposable projection and is never episode authority.
+
+Verification passed: V97 migration/rollback 3/3, focused evaluator/projector/dispatch 16/16, architecture
+59/59 and complete Maven 1,872/1,872. Checkstyle, PMD, SpotBugs, dependency analysis, Compose validation and
+diff hygiene passed. CS04 changes no public API, permission, event contract, notification or frontend.
+
+Exact next queue:
+`US-55-HANDLE-GPS-EDGE-CASES-CS05-OPERATIONS-NOTIFICATION-INTEGRATION-001`.
+
+#### Table: `tracking_gps_exception_episode`
+
+- **Purpose:** Authoritative lifecycle state for a governed GPS reliability exception.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, composite references and Tenant-leading indexes)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :---: | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY; unique with `tenant_id` | Episode identity |
+| `tenant_id` | UUID | NO | - | Composite FK scope | Trusted Tenant |
+| `tracking_device_id` | UUID | NO | - | Composite FK → `tracking_device(tenant_id,id)` | Tracking-owned device |
+| `vehicle_id` | UUID | YES | NULL | Logical same-Tenant Vehicle reference | Source-time associated Vehicle when known |
+| `exception_type` | VARCHAR(32) | NO | - | Governed type CHECK | Frozen GPS exception type |
+| `severity` | VARCHAR(8) | NO | - | `WARNING` or `HIGH` | Non-downgrading severity |
+| `status` | VARCHAR(16) | NO | - | `OPEN`, `ACKNOWLEDGED`, `RECOVERING`, `RESOLVED` | Lifecycle state |
+| `opened_at` | TIMESTAMPTZ | NO | - | `opened_at <= last_observed_at` | First source/assessment time |
+| `last_observed_at` | TIMESTAMPTZ | NO | - | Time-order CHECK | Latest accepted lifecycle evidence time |
+| `resolved_at` | TIMESTAMPTZ | YES | NULL | Required only for `RESOLVED` | Resolution time |
+| `evidence_count` | BIGINT | NO | - | >= 1 | Accepted observation count |
+| `consecutive_recovery_points` | INTEGER | NO | 0 | >= 0 | Durable recovery progress |
+| `version` | BIGINT | NO | 0 | >= 0 | Optimistic version |
+| `acknowledgement_reason` | VARCHAR(500) | YES | NULL | Trimmed length 1..500 when present | Minimized review reason |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | - | Creation time |
+| `updated_at` | TIMESTAMPTZ | NO | `now()` | - | Latest mutation time |
+
+The partial unique index `uq_tracking_gps_exception_active` covers `(tenant_id,
+tracking_device_id, exception_type)` for `OPEN`, `ACKNOWLEDGED` and `RECOVERING`. Tenant list access uses
+`idx_tracking_gps_exception_tenant_list(tenant_id,last_observed_at DESC,id DESC)`.
+
+#### Table: `tracking_gps_exception_evidence`
+
+- **Purpose:** Immutable, minimized evidence supporting one GPS-exception lifecycle assessment.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, composite FK and Tenant-leading index)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :---: | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY | Evidence identity |
+| `tenant_id` | UUID | NO | - | Composite FK scope | Trusted Tenant |
+| `episode_id` | UUID | NO | - | Composite FK → `tracking_gps_exception_episode(tenant_id,id)` | Owning episode |
+| `evidence_identity` | CHAR(64) | NO | - | Unique with Tenant and episode | Deterministic SHA-256 retry identity |
+| `telemetry_history_id` | UUID | YES | NULL | Paired with source timestamp; logical history reference | Canonical telemetry identity when applicable |
+| `telemetry_source_timestamp` | TIMESTAMPTZ | YES | NULL | Both history fields present or absent | Immutable telemetry source time |
+| `assessed_at` | TIMESTAMPTZ | NO | - | - | Assessment time |
+| `trust` | VARCHAR(12) | NO | - | Governed trust CHECK | Trust classification |
+| `ordering_classification` | VARCHAR(20) | NO | - | Governed ordering CHECK | In-order/out-of-order/equal-time classification |
+| `reliability_state` | VARCHAR(16) | NO | - | Governed reliability CHECK | Resulting reliability state |
+| `quality_codes` | VARCHAR(400) | NO | - | Length 1..400 | Sorted minimized quality facts |
+| `transition` | VARCHAR(20) | NO | - | Governed transition CHECK | `OPENED`, `OBSERVED`, `RECOVERING` or `RESOLVED` |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | - | Evidence creation time |
+
+The index `idx_tracking_gps_exception_evidence_tenant_episode(tenant_id,episode_id,assessed_at DESC,id
+DESC)` supports Tenant-qualified episode history. Trigger
+`trg_tracking_gps_exception_evidence_immutable` rejects every update or delete.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
