@@ -1302,6 +1302,18 @@ Technical closure does not supply or inherit genuine provider/device telemetry, 
 session, operator confirmation, privacy review or field sign-off. Exact next queue:
 `US-54-VIEW-TRACKING-DASHBOARD-FINAL-ACCEPTANCE-001`.
 
+## US-54 final-acceptance external hold
+
+US-54 is `TECHNICALLY_COMPLETE / IMPLEMENTATION_COMPLETE_ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`.
+Technical closure remains valid at V95, but final acceptance requires genuine provider/device telemetry,
+same-Tenant field context, live-to-stale/offline recovery observation, privacy review and authorized operator
+sign-off. No synthetic Kafka record, seeded database fact, Testcontainer, Playwright fixture, mock provider or
+simulated track substitutes for those facts. No physical case was executed, so none is PASS or FAIL.
+
+Accounting remains 73/87. Deferred acceptance is
+`US-54-VIEW-TRACKING-DASHBOARD-FINAL-ACCEPTANCE-001`; active queue is
+`US-55-HANDLE-GPS-EDGE-CASES-PRODUCT-DECISIONS-001`.
+
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
 TS02 is `COMPLETE`. The existing signed `/api/integration/v1/tracking/positions` boundary validates
