@@ -35,12 +35,14 @@ genuine provider/device journey retained through the production telemetry path, 
 and overlay evidence where available, and authorized operator sign-off. Automated or simulated evidence does
 not replace that field phase. This hold does not remove or reduce the available technically verified workflow.
 
-The consolidated **Tracking Dashboard** remains unavailable while implementation proceeds. Its frozen Phase 1
-design will add a permission-gated read-only summary under **Tracking → Dashboard** with truthful live/recent/
-stale/offline labels, observed-speed motion, permission-filtered Tracking incidents, active Trip context and a
-table-first fallback when the map is unavailable. It will not add engine/idle inference or change the field-
-acceptance status of Live Tracking, Speed Monitoring, Route Deviations or Journey Replay. This section is a
-readiness notice, not a claim that the dashboard can currently be used.
+The consolidated **Tracking Dashboard** backend query is available to users with
+`TRACKING_DASHBOARD_VIEW`, but the dedicated navigation and screen remain scheduled for the next change set.
+The API provides a permission-gated read-only summary with truthful live/recent/stale/offline labels,
+observed-speed motion, permission-filtered Tracking incidents and active Trip context. Precise coordinates and
+heat cells additionally require `TRACKING_VIEW`; each producer section requires its own event-view permission.
+It does not add engine/idle inference or change the field-acceptance status of Live Tracking, Speed Monitoring,
+Route Deviations or Journey Replay. Until the dashboard screen is delivered, operators continue using the
+existing feature pages; this is not a claim that the consolidated browser workflow is complete.
 
 ## Provider connections
 
@@ -94,7 +96,7 @@ violation, disciplinary, licence or payroll decision.
 
 ## Known limitations
 
-US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speed detection, management/query API, Dispatcher IN_APP Notification integration and the dedicated rule/state/episode operator frontend are implemented. Route-deviation detection, management/query/review API, Notification integration and operator frontend are implemented. Journey Replay is available under Tracking to users with `JOURNEY_REPLAY_VIEW`: select one Vehicle or Trip, choose an ordered range up to seven days, load the replay, then use play/pause, seek and the `0.5x`, `1x`, `2x`, `4x` or `8x` speed. Playback starts paused. Gaps, partial retention and quality limitations remain visible, stops have a details list, and coordinates appear only after explicit expansion. Users who also hold `JOURNEY_REPLAY_INCIDENT_VIEW` see accepted geofence transitions by default and may opt into speed or route-deviation technical evidence. Those opt-in sources remain visibly labelled as field-fidelity or field-acceptance pending; replay does not upgrade their acceptance. Incident failures can be retried without losing the movement timeline. Idle detection, the full tracking dashboard, GPS exception workflows and customer location exposure are not available. The dashboard's internal contracts and bounded source aggregation now exist, but no dashboard API, navigation or screen is available until the remaining US-54 change sets pass. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 and final US-50/US-52 field acceptance still require physical evidence.
+US-49 geofence management, Notification integration and operator UI are available and independently accepted. Speed detection, management/query API, Dispatcher IN_APP Notification integration and the dedicated rule/state/episode operator frontend are implemented. Route-deviation detection, management/query/review API, Notification integration and operator frontend are implemented. Journey Replay is available under Tracking to users with `JOURNEY_REPLAY_VIEW`: select one Vehicle or Trip, choose an ordered range up to seven days, load the replay, then use play/pause, seek and the `0.5x`, `1x`, `2x`, `4x` or `8x` speed. Playback starts paused. Gaps, partial retention and quality limitations remain visible, stops have a details list, and coordinates appear only after explicit expansion. Users who also hold `JOURNEY_REPLAY_INCIDENT_VIEW` see accepted geofence transitions by default and may opt into speed or route-deviation technical evidence. Those opt-in sources remain visibly labelled as field-fidelity or field-acceptance pending; replay does not upgrade their acceptance. Incident failures can be retried without losing the movement timeline. Idle detection, the full Tracking Dashboard screen, GPS exception workflows and customer location exposure are not available. The dashboard backend API, internal contracts and bounded source aggregation exist, but no dashboard navigation or screen is available until CS04 passes. Automatic retention purge is disabled; configuring a retention policy enables too-old rejection/metadata but does not schedule purge. US-48 and final US-50/US-52 field acceptance still require physical evidence.
 
 ## Route-deviation API
 

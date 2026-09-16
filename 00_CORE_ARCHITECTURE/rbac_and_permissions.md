@@ -201,3 +201,14 @@ not imply either permission. Neither capability grants export, history mutation,
 facts, credentials, Driver/Customer PII, cross-Tenant access or producer acceptance. Literal
 `/api/v1/tracking/journey-replays/**` routes and the secured use-case boundary enforce the permissions;
 incident queries require both permissions.
+
+## US-54 Tracking Dashboard Permission (Implemented in V94)
+
+- `TRACKING_DASHBOARD_VIEW`: query the same-Tenant bounded operational Tracking dashboard.
+
+V94 seeds exactly this permission and conditionally grants it only to existing `ADMIN`, `LOCAL_MVP_ADMIN`
+and `DISPATCHER` roles. It creates no role. `TRACKING_DASHBOARD_VIEW` does not imply precise coordinates,
+heat cells, producer incidents or Journey Replay navigation: those sections additionally require
+`TRACKING_VIEW`, the corresponding producer event-view permission, or `JOURNEY_REPLAY_VIEW`. Conversely,
+broad Tracking view/history/management or producer permissions do not imply dashboard access. The literal
+`/api/v1/tracking/dashboard/**` route and secured use-case boundary both enforce the dashboard permission.

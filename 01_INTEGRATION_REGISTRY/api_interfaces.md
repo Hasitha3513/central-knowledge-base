@@ -323,3 +323,21 @@ query; Tracking must not replace it with per-Vehicle calls or access Trip persis
 Tracking's CS02 application query composes one bounded live-state page, the one bulk Trip query and bounded
 incident summaries. This is an internal application contract only: CS02 adds no REST endpoint, permission,
 public JSON schema or frontend route. The public dashboard API remains owned by CS03.
+
+## US-54 Tracking Dashboard Query API (CS03)
+
+`POST /api/v1/tracking/dashboard/query` is the read-only same-Tenant dashboard surface. It requires
+`TRACKING_DASHBOARD_VIEW`, accepts body-only bounded Vehicle/freshness/connectivity/motion/incident selectors,
+optional heat-map/incident flags, a page size from 1 through 100 and an optional opaque continuation cursor.
+The cursor is HMAC-authenticated, five-minute expiring and bound to Tenant, filters, page size and snapshot.
+
+Precise coordinates and heat cells additionally require `TRACKING_VIEW`. Geofence, speed and route-deviation
+sections require their existing event-view permissions; Journey Replay availability requires
+`JOURNEY_REPLAY_VIEW`. Unauthorized optional sections are omitted without leaking their counts. The response
+sets `Cache-Control: no-store` and `Referrer-Policy: no-referrer`. Malformed bounds/enums/cursors return 400,
+missing dashboard authority returns 403, admission rejection returns 429 with `Retry-After: 60`, truthful
+partial degradation returns 200 with source labels, and total live-source unavailability returns 503.
+
+The endpoint is controlled by `app.tracking.dashboard.enabled`. It creates no producer mutation, event,
+topic or dashboard projection and exposes no Driver/Customer PII, provider/device facts, credentials,
+signatures, nonces, raw telemetry or review notes.

@@ -1228,6 +1228,27 @@ lifecycle and route identity/version in one Tenant-qualified bulk operation. No 
 public API, permission, migration, event or frontend behavior is introduced. The exact active queue is
 `US-54-VIEW-TRACKING-DASHBOARD-CS03-V94-API-RBAC-AUDIT-001`.
 
+## US-54 Tracking Dashboard API, RBAC and Audit (CS03 complete)
+
+US-54 is `IMPLEMENTATION_IN_PROGRESS / CS03_COMPLETE`; accounting remains 73/87 and Flyway head is V94.
+V94 seeds only `TRACKING_DASHBOARD_VIEW` and its idempotent grants to existing `ADMIN`, `LOCAL_MVP_ADMIN`
+and `DISPATCHER` roles. It creates no role, table, index or unrelated permission.
+
+`POST /api/v1/tracking/dashboard/query` now exposes the bounded CS02 query behind both literal-path and
+secured-use-case enforcement. Broad Tracking permissions do not imply dashboard access. Coordinates/heat
+cells and each incident/replay section remain conjunctively protected by their existing permissions and are
+omitted without count leakage. The purpose-separated HMAC cursor expires after five minutes and is bound to
+Tenant, filters, page size and snapshot. Responses are no-store/no-referrer; invalid filters or cursors return
+400, admission rejection returns 429 with a 60-second retry instruction, total live-source unavailability
+returns 503, and truthful partial degradation remains 200.
+
+Initial queries, authenticated denials and rate-limit rejections retain only privacy-safe audit categories,
+bounded counts/statuses and correlation context. Cursor continuations are not audited per page. Audit and
+metrics prohibit selectors, domain IDs, coordinates, cursors, raw telemetry, provider/device details,
+credentials, signatures and personal data. `app.tracking.dashboard.enabled` controls the endpoint without
+altering producer evidence. CS03 adds no frontend behavior; the exact queue is
+`US-54-VIEW-TRACKING-DASHBOARD-CS04-FRONTEND-001`.
+
 ## Hybrid Telemetry TS02 secure Kafka ingress
 
 TS02 is `COMPLETE`. The existing signed `/api/integration/v1/tracking/positions` boundary validates
