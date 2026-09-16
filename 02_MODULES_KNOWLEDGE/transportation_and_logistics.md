@@ -1128,6 +1128,15 @@ Trip scope and one bounded assignment range per replay request, classifies unatt
 in memory, and requests only exact immutable Routing route/revision context. It never queries Trip or Routing
 persistence and does not perform a point-by-point attribution lookup.
 
+### US-54 Dashboard Trip context contract
+
+Trip owns active assignment facts and publishes
+`TripDashboardQuery.findActiveContexts(tenantId,vehicleIds,evaluatedAt)`. The query accepts at most 100
+Vehicles, executes once for the dashboard page, enforces the explicit Tenant and source-time lifecycle, and
+returns only Vehicle, Trip, lifecycle and exact route/version identifiers. Tracking consumes this
+contract through its own adapter and does not query Trip tables, repositories or entities. CS02 introduces no
+Trip schema, migration, HTTP API, permission or lifecycle change.
+
 CS02 closes the Routing persistence gap at V88. Routing owns `route_revision_geometry` (one
 Tenant/route/revision header) and `route_revision_geometry_point` (2–2,000 uniquely ordered WGS84
 points). Both are Tenant-qualified; geometry is immutable after insertion and linked only to the

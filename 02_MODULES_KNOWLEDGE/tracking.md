@@ -1184,7 +1184,7 @@ provider/device journey evidence and operator sign-off. The active queue is
 
 ## US-54 View Tracking Dashboard frozen product decisions
 
-US-54 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE`; accounting remains 73/87 and Flyway remains
+US-54 is `IMPLEMENTATION_IN_PROGRESS / CS02_COMPLETE`; accounting remains 73/87 and Flyway remains
 V93. The Phase 1 dashboard is a read-only, same-Tenant operational summary for authorized
 Dispatchers and administrators. It consumes bounded Tracking live state and Tracking-owned US-49/50/52
 evidence, one published bulk Trip context query and Notification's own unread-count API. It contains no
@@ -1216,8 +1216,17 @@ derives motion only from trusted observed speed and produces deterministic 0.01-
 only from eligible trusted LIVE/RECENT positions. `TrackingDashboardQueryUseCase` is the inbound port;
 the narrow outbound ports are `TrackingDashboardLiveStatePort`, `TrackingDashboardIncidentPort`,
 `TrackingDashboardTripContextPort` and `TrackingDashboardCursorPort`. CS01 adds no adapter, API,
-permission, migration, persistence query, event or frontend behavior. The exact active queue is
-`US-54-VIEW-TRACKING-DASHBOARD-CS02-BOUNDED-SOURCE-AGGREGATION-001`.
+permission, migration, persistence query, event or frontend behavior.
+
+CS02 implements `TrackingDashboardQueryService`, bounded Tracking-owned incident queries and the hybrid
+live-state adapter. Redis supplies newest live candidates; one Tenant-scoped PostgreSQL batch query supplies
+authoritative latest-trusted enrichment and the explicit `DEGRADED` fallback. Untrusted latest-received
+evidence cannot replace trusted map truth. Incident access is limited to the prior 24 hours, 20 rows per
+authorized producer and 50 total. Tracking consumes the published `TripDashboardQuery` only through
+`TripTrackingDashboardAdapter`; the contract accepts at most 100 Vehicle IDs and returns only Trip ID,
+lifecycle and route identity/version in one Tenant-qualified bulk operation. No Driver identity, foreign persistence access,
+public API, permission, migration, event or frontend behavior is introduced. The exact active queue is
+`US-54-VIEW-TRACKING-DASHBOARD-CS03-V94-API-RBAC-AUDIT-001`.
 
 ## Hybrid Telemetry TS02 secure Kafka ingress
 

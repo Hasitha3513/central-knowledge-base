@@ -144,6 +144,7 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 | Routing | Tracking US-53 | Published exact immutable route-revision geometry lookup | CS02_CONSUMER_ACTIVE; exact revision only, per-request context cache, no latest fallback |
 | Tracking US-49/50/52 | Tracking US-53 | Tracking-owned query ports for labelled geofence, speed and route-deviation overlays | CS06_ACTIVE; same-Tenant bounded cursor-paged adapters retain producer acceptance status |
 | Tracking US-51 | Tracking US-53 | Engine/idle comparison | NONE_PHASE1; authoritative engine-state capability unresolved |
+| Trip | Tracking US-54 | `TripDashboardQuery.findActiveContexts(tenantId,vehicleIds,evaluatedAt)` returns minimized active Trip/Driver/route context for at most 100 Vehicles in one bulk query | CS02_ACTIVE_MVP; Tenant-qualified, no N+1 calls, no Tracking access to Trip persistence |
 
 V91 adds no cross-module dependency. Tracking's Kafka history consumer now atomically writes three
 Tracking-owned durable evaluation intents beside each retained Timescale fact. The asynchronous dispatcher

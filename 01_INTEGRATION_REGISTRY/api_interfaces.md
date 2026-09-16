@@ -311,3 +311,15 @@ bound to Tenant, selector, ranges, snapshot, derived `(startSourceTimestamp,stop
 `US53_STOP_V1`. Point and stop cursors are mutually rejected. Stop analysis streams no more than ten
 2,000-point history pages under one snapshot and fails without partial results on a 20,001st point or any
 non-advancing cursor.
+
+## US-54 Tracking Dashboard Internal Query Contracts (CS02)
+
+Trip publishes `TripDashboardQuery.findActiveContexts(tenantId, vehicleIds, evaluatedAt)` for Tracking's
+dashboard composition. The contract requires an explicit Tenant, accepts at most 100 Vehicle IDs, and returns
+one minimized immutable active-assignment fact per Vehicle: `vehicleId`, `tripId`, lifecycle, nullable
+`routeId` and nullable `routeVersion`. The provider executes one bulk Tenant-qualified source-time
+query; Tracking must not replace it with per-Vehicle calls or access Trip persistence.
+
+Tracking's CS02 application query composes one bounded live-state page, the one bulk Trip query and bounded
+incident summaries. This is an internal application contract only: CS02 adds no REST endpoint, permission,
+public JSON schema or frontend route. The public dashboard API remains owned by CS03.
