@@ -364,3 +364,9 @@ All responses use `Cache-Control: no-store`; Tenant and actor come only from aut
 Acknowledgement replay preserves the original response body and success semantics after later detector changes.
 Same-key different content/actor, stale version, acknowledged/resolved lifecycle and foreign Tenant requests fail
 closed. There is no create, delete, raw-evidence or arbitrary status endpoint.
+
+The CS07 operator client consumes these contracts at `/tracking/gps-exceptions`. It does not query until an
+explicit valid range is supplied, keeps server filters out of URLs and persistent browser storage, follows only
+opaque server cursors, cancels obsolete requests and partitions cached data by authenticated session. An
+uncertain acknowledgement retry reuses the identical idempotency key, expected version and reason; conflict
+responses refresh authoritative detail and never auto-resubmit.

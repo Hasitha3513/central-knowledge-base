@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V98. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `IMPLEMENTATION_IN_PROGRESS / CS05_COMPLETE`; canonical V2 evidence and effective-dated capabilities are durable, V97 owns authoritative GPS-exception episodes/evidence, detector guards are wired, and V98 activates minimized Notification and HIGH-only Operations integration for existing Tenants. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-CS06-APIS-RBAC-AUDIT-001`.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V100. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `IMPLEMENTATION_IN_PROGRESS / CS07_COMPLETE`; canonical V2 evidence and effective-dated capabilities are durable, V97 owns authoritative GPS-exception episodes/evidence, V98 activates minimized Notification and HIGH-only Operations integration for existing Tenants, V99 seeds independent VIEW/REVIEW permissions and V100 owns acknowledgement idempotency. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-CS08-POSTGRES-KAFKA-REDIS-CONCURRENCY-PERFORMANCE-001`.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1460,7 +1460,23 @@ allow-listed snapshot; reason is never returned or audited. There is no expiry u
 Verification includes concurrent retries, conflict/replay/lifecycle cases, forced audit rollback, V1/V98/V99
 upgrade paths, literal API security, architecture 59/59 and complete backend 1,890/1,890.
 
-Next queue: `US-55-HANDLE-GPS-EDGE-CASES-CS07-FRONTEND-001`.
+## US-55 CS07 operator frontend
+
+CS07 is `COMPLETE`; US-55 remains `IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87, and Flyway head is
+V100. The permission-gated `/tracking/gps-exceptions` workflow requires an explicit UTC range of at most seven
+days before it queries. It provides bounded filters, opaque cursor paging, same-Tenant episode detail and
+immutable evidence, privacy-safe exception labels, and responsive table/card presentation without exposing
+coordinates, provider/device secrets, raw telemetry, internal errors or personal data.
+
+`GPS_EXCEPTION_VIEW` and `GPS_EXCEPTION_REVIEW` remain independent: VIEW is required for every read, while
+REVIEW adds acknowledgement only. Acknowledgement validates a trimmed 1–500 character reason, sends the
+visible version and one cryptographically generated idempotency key, disables duplicate submission and
+preserves that exact request across an uncertain retry. Version/lifecycle conflicts refresh authoritative
+state without automatic resubmission. Session-qualified query keys, cancellation and cache clearing prevent
+cross-session leakage. Real PostgreSQL-backed Chromium acceptance passed 6/6 and the complete frontend and
+backend regressions passed without an API, permission, event, schema or dependency change.
+
+Next queue: `US-55-HANDLE-GPS-EDGE-CASES-CS08-POSTGRES-KAFKA-REDIS-CONCURRENCY-PERFORMANCE-001`.
 
 #### Table: `tracking_gps_exception_episode`
 
