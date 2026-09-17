@@ -1478,6 +1478,24 @@ backend regressions passed without an API, permission, event, schema or dependen
 
 Next queue: `US-55-HANDLE-GPS-EDGE-CASES-CS08-POSTGRES-KAFKA-REDIS-CONCURRENCY-PERFORMANCE-001`.
 
+## US-55 CS08 PostgreSQL, Kafka and Redis concurrency/performance
+
+CS08 is `COMPLETE`; US-55 remains `IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87, and Flyway
+head remains V100. Concurrent first evidence is serialized by a Tenant/device-qualified PostgreSQL
+transaction advisory lock before the active-episode lookup, closing the absent-row race without changing
+the V97 uniqueness contract. Different Tenants retain independent lock identities.
+
+Signed telemetry batches retain per-item normalization, device authority and Tenant validation, then publish
+to Kafka as one bounded asynchronous batch and wait for all durable acknowledgements. Kafka delivery remains
+at-least-once; dedupe identities keep business effects idempotent. The existing live-state REST contract reads
+the legacy PostgreSQL state first and falls back to the governed Redis projection when hybrid ingress has no
+legacy live row. No public API, permission, event payload or migration changed.
+
+Isolated acceptance evidence passed PostgreSQL/Kafka/Redis/security 39/39, architecture 59/59 and complete
+backend 1,892/1,892. Real Chromium measured 882.2 msg/s sustained, 3,884.2 msg/s burst, latest p95 21.9 ms and
+history p95 19.1 ms. These are controlled-environment results, not production SLO certification or physical
+device acceptance. Next queue: `US-55-HANDLE-GPS-EDGE-CASES-TECHNICAL-CLOSURE-001`.
+
 #### Table: `tracking_gps_exception_episode`
 
 - **Purpose:** Authoritative lifecycle state for a governed GPS reliability exception.
