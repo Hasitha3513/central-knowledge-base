@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V100. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `IMPLEMENTATION_IN_PROGRESS / CS07_COMPLETE`; canonical V2 evidence and effective-dated capabilities are durable, V97 owns authoritative GPS-exception episodes/evidence, V98 activates minimized Notification and HIGH-only Operations integration for existing Tenants, V99 seeds independent VIEW/REVIEW permissions and V100 owns acknowledgement idempotency. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-CS08-POSTGRES-KAFKA-REDIS-CONCURRENCY-PERFORMANCE-001`.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V100. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `TECHNICALLY_COMPLETE / ACCEPTANCE_PENDING`; canonical V2 evidence and effective-dated capabilities are durable, V97 owns authoritative GPS-exception episodes/evidence, V98 activates minimized Notification and HIGH-only Operations integration for existing Tenants, V99 seeds independent VIEW/REVIEW permissions and V100 owns acknowledgement idempotency. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001`.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1495,6 +1495,27 @@ Isolated acceptance evidence passed PostgreSQL/Kafka/Redis/security 39/39, archi
 backend 1,892/1,892. Real Chromium measured 882.2 msg/s sustained, 3,884.2 msg/s burst, latest p95 21.9 ms and
 history p95 19.1 ms. These are controlled-environment results, not production SLO certification or physical
 device acceptance. Next queue: `US-55-HANDLE-GPS-EDGE-CASES-TECHNICAL-CLOSURE-001`.
+
+## US-55 consolidated technical closure
+
+US-55 is `TECHNICALLY_COMPLETE / ACCEPTANCE_PENDING`; accounting remains 73/87 and Flyway remains
+V100. Closure reconciled CS01–CS08 against the frozen decisions, API/event/RBAC registries and both
+roadmaps. The hybrid latest query now compares the Tenant-qualified PostgreSQL latest-trusted state
+with the eligible Redis live projection and returns the newer source timestamp. An older Redis value
+cannot regress durable state, uncertain telemetry cannot be promoted as trusted, and Redis dependency
+failure is not rewritten as absence.
+
+Closure verification passes focused US-55 infrastructure/security 62/62, complete Maven 1,895/1,895,
+architecture/Modulith 59/59, frontend Vitest 336/336, real PostgreSQL-backed GPS-exception Chromium
+6/6 and hybrid performance Chromium 1/1. The controlled acceptance environment measured 576.6
+messages/second sustained, 4,693.7 messages/second burst, 16.6 ms latest-query p95 and 19.2 ms
+history-query p95; these are technical environment observations, not production capacity guarantees.
+
+Flespi polling and Generic signed ingress have production adapters and controlled fixtures, but neither
+has real-provider physical evidence. Traccar has canonical normalization fixtures only; its production
+adapter/onboarding remains governed by the US-48 provider roadmap. Future-Tenant Notification catalogue
+provisioning remains explicitly deferred. These limitations do not invalidate technical closure and are
+not physical acceptance. Next queue: `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001`.
 
 #### Table: `tracking_gps_exception_episode`
 
