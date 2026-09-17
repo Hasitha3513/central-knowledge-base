@@ -57,6 +57,13 @@ bearer-token reference and verified HTTPS; username/password, Basic authenticati
 disabled certificate checks and direct unsigned callbacks are not supported. The installed provider
 types returned by the backend remain the truthful source of what an operator can configure now.
 
+Active Flespi polling now enters the same canonical Kafka pipeline as signed ingress. A polling cycle
+records progress only after all of its normalized observations are durably acknowledged for publication;
+broker timeout or partial publication leaves the previous progress marker intact for bounded retry. This
+does not claim that downstream history/live/detector processing is already complete. Optional reported
+tamper, battery, voltage, external-power and charging observations are preserved without inventing values
+for unsupported signals. Provider payloads and credentials remain hidden.
+
 Use **Test Connection** to validate configuration and provider access. It reports Connection successful, Authentication failed, Provider unreachable or Configuration invalid without showing raw provider errors. Testing does not activate polling, create a device or ingest telemetry. **Activate** makes an eligible DRAFT/DISABLED connection available to the polling coordinator. **Disable** stops polling until reactivation while preserving historical Tracking data. **Retire** is permanent, stops future polling and cannot be reversed; it is not data deletion. To update safe settings, choose **Edit** and submit the optimistic current version. Leave the replacement credential field blank to preserve the configured credential; the existing reference is never prefilled. Discovery appears only for adapters that advertise `DISCOVERY` and returns a bounded masked preview. FLESPI does not advertise discovery, so its Device workflow requires manual external-reference entry.
 
 Privileged changes and denied management attempts are recorded with safe audit facts. Cross-Tenant identifiers remain not-found-shaped, and view/history-only roles cannot access provider-management APIs or controls.

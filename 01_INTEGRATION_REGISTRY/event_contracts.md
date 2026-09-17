@@ -150,6 +150,14 @@ canonical dedupe identity, and acknowledge only after their atomic side effects.
 is not part of dedupe identity; a V1/V2 replay of one logical observation creates neither duplicate
 history nor duplicate detector dispatch and cannot regress Redis live state.
 
+Production provider polling uses this same V2 topic and envelope after server-authoritative
+same-Tenant Device and source-time Vehicle resolution. The partition key is `tenantId:vehicleId`.
+Event and deduplication identities are deterministic across polling retries. The coordinator records
+successful progress only after every required publication acknowledgement; partial acknowledgement,
+timeout and broker failure retain the prior watermark for bounded retry. Publication acknowledgement
+does not mean the independently retryable Timescale, Redis or detector consumers have completed.
+Polling adapters must not create parallel legacy, Redis or Timescale writes.
+
 The rollout is consumer-first, followed by one-version producer cutover. Rollback moves producers
 back to V1 while leaving dual consumers deployed. V1 retirement requires a separately governed
 decision after active-producer, backlog, retention and rollback-window checks.
