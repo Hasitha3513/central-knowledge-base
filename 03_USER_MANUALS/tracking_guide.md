@@ -50,12 +50,14 @@ Operators with `TRACKING_DEVICE_MANAGE` can open **Tracking → Provider Connect
 
 Choose **Add Provider Connection**, select one of the installed provider types loaded from the backend, and enter the display name, alias, opaque provider key ID, approved HTTPS endpoint, opaque credential reference, polling interval, page size and bounded safe configuration. Connections are saved as DRAFT; creation never starts polling automatically. Safe configuration accepts an object of string values up to 8 KiB and rejects secret-like keys. The backend remains authoritative for provider-specific fields and SSRF protection; current Flespi endpoints must use HTTPS/443 in the `flespi.io` hostname zone.
 
-Current production paths are Flespi HTTPS polling and Generic signed-HMAC delivery. Traccar HTTPS
-polling is approved for a later implementation change set but is not yet an available production
-connection merely because its canonical mapping exists. When delivered, it will use an opaque
-bearer-token reference and verified HTTPS; username/password, Basic authentication, plaintext secrets,
-disabled certificate checks and direct unsigned callbacks are not supported. The installed provider
-types returned by the backend remain the truthful source of what an operator can configure now.
+Current production paths are Flespi HTTPS polling, bounded Traccar 6.15.3 HTTPS polling and Generic
+signed-HMAC delivery. Traccar uses its numeric provider Device ID as the external device reference,
+an opaque bearer-token credential reference and verified HTTPS. Username/password, Basic authentication,
+plaintext secrets, disabled certificate checks and direct unsigned callbacks are not supported. Public
+HTTPS/443 endpoints are allowed by default. A private/self-hosted endpoint must first be added by a
+deployment administrator to `TRACKING_TRACCAR_PRIVATE_ENDPOINT_ALLOWLIST` as an exact `host:port`; Tenant
+operators cannot expand this trust boundary. The installed provider types returned by the backend remain
+the truthful source of what an operator can configure now.
 
 Active Flespi polling now enters the same canonical Kafka pipeline as signed ingress. A polling cycle
 records progress only after all of its normalized observations are durably acknowledged for publication;

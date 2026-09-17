@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V100. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `TECHNICALLY_COMPLETE / IMPLEMENTATION_COMPLETE_ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; its field matrix is 0 PASS, 0 FAIL and 9 externally blocked requirements. The open acceptance queue remains `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001`. Canonical provider polling remediation is complete; the independent queue is the approved `US-55-TRACCAR-ADAPTER`.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V100. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `TECHNICALLY_COMPLETE / IMPLEMENTATION_COMPLETE_ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; its field matrix is 0 PASS, 0 FAIL and 9 externally blocked requirements. The open acceptance queue remains `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001`. Canonical polling and the bounded Traccar 6.15.3 production adapter are complete; guided onboarding evidence remains queued at `US-55-PROVIDER-UI`.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1526,9 +1526,9 @@ supported tamper, supported battery/power, provider burst, Dispatcher/Operations
 sign-off—are all `BLOCKED_EXTERNAL_PREREQUISITE`; none passed, failed or qualified as not applicable.
 
 Flespi production polling and Generic signed ingress remain implemented but without genuine field evidence.
-Traccar remains normalization-fixture-only until the separately approved `US-55-TRACCAR-ADAPTER` delivers
-bounded HTTPS bearer-token polling and truthful onboarding metadata. The final-acceptance queue remains open
-and independent while that technical task proceeds. Flyway and accounting remain V100 and 73/87.
+Traccar now has a bounded production HTTPS bearer-token polling adapter qualified against the official 6.15.3
+OpenAPI contract. Real Traccar provider/device evidence and the guided onboarding workflow remain pending; the
+adapter does not change the open physical final-acceptance queue. Flyway and accounting remain V100 and 73/87.
 
 ## Provider-polling canonical Kafka prerequisite
 
@@ -1546,6 +1546,22 @@ watermark advancement, and never claims latest-only retrieval as complete journe
 default. Private/self-hosted HTTPS requires a deployment-admin-managed destination-and-port allowlist, connection-
 time DNS validation and an explicitly trusted CA where required. Redirect bypass, Basic fallback, disabled TLS
 verification, URL credentials and Tenant-controlled allowlist expansion are prohibited. Flyway remains V100.
+
+## Traccar production polling adapter
+
+The `TRACCAR` provider SPI is implemented for the qualified Traccar 6.15.3 OpenAPI contract. It uses opaque
+bearer credentials, bounded per-device `GET /api/positions?deviceId&from&to` history retrieval, complete-response
+validation and deterministic source ordering. Record/byte overflow rejects the whole poll; the common coordinator
+retains the prior watermark and applies bounded backoff. Latest-only retrieval is never represented as journey
+history. The normalizer preserves approved V2 optional signals and publishes only through the canonical Kafka
+boundary established above.
+
+Public HTTPS/443 is allowed by default. Private/self-hosted HTTPS requires an exact deployment-admin-owned
+`host:port` entry in `TRACKING_TRACCAR_PRIVATE_ENDPOINT_ALLOWLIST`; Tenant configuration cannot expand it.
+Destination DNS is revalidated before every request. Loopback, link-local, multicast, metadata and unapproved
+private/ULA addresses are blocked, redirects are not followed and TLS verification remains mandatory. A governed
+private CA is installed through the JVM trust store, never by disabling verification. The next independent queue
+is `US-55-PROVIDER-UI`; real-provider acceptance remains open.
 
 #### Table: `tracking_gps_exception_episode`
 
