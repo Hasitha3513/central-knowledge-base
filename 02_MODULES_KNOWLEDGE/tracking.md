@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V100. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `TECHNICALLY_COMPLETE / IMPLEMENTATION_COMPLETE_ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; its field matrix is 0 PASS, 0 FAIL and 9 externally blocked requirements. The open acceptance queue remains `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001`; the independent implementation queue is the approved `US-55-TRACCAR-ADAPTER`.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V100. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `TECHNICALLY_COMPLETE / IMPLEMENTATION_COMPLETE_ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; its field matrix is 0 PASS, 0 FAIL and 9 externally blocked requirements. The open acceptance queue remains `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001`; the independent queue is `US-55-PROVIDER-POLLING-CANONICAL-KAFKA-REMEDIATION-001`, followed by the approved `US-55-TRACCAR-ADAPTER`.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1529,6 +1529,20 @@ Flespi production polling and Generic signed ingress remain implemented but with
 Traccar remains normalization-fixture-only until the separately approved `US-55-TRACCAR-ADAPTER` delivers
 bounded HTTPS bearer-token polling and truthful onboarding metadata. The final-acceptance queue remains open
 and independent while that technical task proceeds. Flyway and accounting remain V100 and 73/87.
+
+## Provider-polling canonical Kafka prerequisite
+
+Repository inspection found that Generic signed ingress correctly publishes canonical V2 telemetry to Kafka,
+but the internal polling ingestion adapter still converts provider candidates to the legacy Tracking command and
+writes PostgreSQL state directly. That path bypasses the promoted Kafka → TimescaleDB/Redis boundary and cannot
+carry the approved tamper/battery/power fields. Traccar must not be added to this legacy path.
+
+`US-55-PROVIDER-POLLING-CANONICAL-KAFKA-REMEDIATION-001` is therefore the bounded non-story prerequisite:
+make all polling adapters publish server-authorized canonical V2 facts durably to Kafka, advancing persisted
+watermarks only after acknowledgement. It adds no migration, public API or permission. Official Traccar API
+evidence confirms bearer auth and time-ranged `/api/positions`, but no pagination parameter. The consolidated
+authorization decision must select bounded time-window/overflow behavior and public-only versus governed private
+endpoint trust before `US-55-TRACCAR-ADAPTER` proceeds.
 
 #### Table: `tracking_gps_exception_episode`
 
