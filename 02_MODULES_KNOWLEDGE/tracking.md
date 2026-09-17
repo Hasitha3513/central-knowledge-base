@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V100. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `TECHNICALLY_COMPLETE / ACCEPTANCE_PENDING`; canonical V2 evidence and effective-dated capabilities are durable, V97 owns authoritative GPS-exception episodes/evidence, V98 activates minimized Notification and HIGH-only Operations integration for existing Tenants, V99 seeds independent VIEW/REVIEW permissions and V100 owns acknowledgement idempotency. The active queue is `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001`.
+US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; pluggable-onboarding CS01–CS10 is technically complete and independently verified through V76. The current repository Flyway head is V100. Tracking is a dedicated top-level bounded context for provider-neutral live Vehicle position facts and Tracking-owned geofence, speed and route-deviation evaluation. US-49 is `COMPLETE / ACCEPTED`; US-50 and US-52 are technically complete but independently blocked on their physical external-acceptance evidence. Accounting is 73/87 with 14 remaining. US-53 and US-54 are technically complete with independent external field-acceptance holds. US-55 is `TECHNICALLY_COMPLETE / IMPLEMENTATION_COMPLETE_ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; its field matrix is 0 PASS, 0 FAIL and 9 externally blocked requirements. The open acceptance queue remains `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001`; the independent implementation queue is the approved `US-55-TRACCAR-ADAPTER`.
 
 US-49 CS06 adds the operator frontend using the existing React Router, Ant Design, TanStack Query, React Hook Form/Zod, Axios and AuthContext architecture. It provides Tracking > Geofences list/new/detail/edit routes, server filters and pagination, exact permission/lifecycle affordances, accessible open-ring editing, local SVG preview, optimistic concurrency, idempotent lifecycle commands, stable memberships, and privacy-minimized transition history. No backend contract, dependency, map provider, dashboard or Operations workflow changed. Real PostgreSQL-backed Chromium evidence includes signed trusted telemetry and a confirmed HIGH `UNAUTHORIZED_ZONE_ENTERED` transition. CS07 and CS07A concurrency, performance and V80 physical-design hardening are complete; independent final acceptance passed.
 
@@ -1516,6 +1516,19 @@ has real-provider physical evidence. Traccar has canonical normalization fixture
 adapter/onboarding remains governed by the US-48 provider roadmap. Future-Tenant Notification catalogue
 provisioning remains explicitly deferred. These limitations do not invalidate technical closure and are
 not physical acceptance. Next queue: `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001`.
+
+## US-55 independent final-acceptance hold
+
+Final acceptance is `IMPLEMENTATION_COMPLETE_ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`. No physical GPS device,
+real provider account/channel/device identity, genuine provider-origin telemetry or authorized field operator
+is available. The nine required field areas—provider identity, real binding, loss/recovery, reassignment,
+supported tamper, supported battery/power, provider burst, Dispatcher/Operations handling, and privacy/operator
+sign-off—are all `BLOCKED_EXTERNAL_PREREQUISITE`; none passed, failed or qualified as not applicable.
+
+Flespi production polling and Generic signed ingress remain implemented but without genuine field evidence.
+Traccar remains normalization-fixture-only until the separately approved `US-55-TRACCAR-ADAPTER` delivers
+bounded HTTPS bearer-token polling and truthful onboarding metadata. The final-acceptance queue remains open
+and independent while that technical task proceeds. Flyway and accounting remain V100 and 73/87.
 
 #### Table: `tracking_gps_exception_episode`
 
