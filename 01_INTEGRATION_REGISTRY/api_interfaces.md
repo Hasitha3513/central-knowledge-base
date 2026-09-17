@@ -350,3 +350,17 @@ partial degradation returns 200 with source labels, and total live-source unavai
 The endpoint is controlled by `app.tracking.dashboard.enabled`. It creates no producer mutation, event,
 topic or dashboard projection and exposes no Driver/Customer PII, provider/device facts, credentials,
 signatures, nonces, raw telemetry or review notes.
+## Tracking — US-55 GPS exceptions
+
+All responses use `Cache-Control: no-store`; Tenant and actor come only from authenticated context.
+
+| Method | Path | Permission | Contract |
+| --- | --- | --- | --- |
+| GET | `/api/v1/tracking/gps-exceptions` | `GPS_EXCEPTION_VIEW` | Required UTC `[from,to)` ≤ 7 days; optional status/type/severity/Vehicle/device filters; signed Tenant/filter-bound cursor; default 100, max 500; order `last_observed_at DESC,id DESC` |
+| GET | `/api/v1/tracking/gps-exceptions/{episodeId}` | `GPS_EXCEPTION_VIEW` | Same-Tenant safe detail or non-disclosing not-found |
+| GET | `/api/v1/tracking/gps-exceptions/{episodeId}/evidence` | `GPS_EXCEPTION_VIEW` | Immutable minimized evidence ordered `assessed_at DESC,id DESC`; default 100, max 500 |
+| POST | `/api/v1/tracking/gps-exceptions/{episodeId}/acknowledge` | `GPS_EXCEPTION_REVIEW` | Requires `Idempotency-Key` (16–160), expected version and trimmed safe reason (1–500); returns allow-listed stored response snapshot |
+
+Acknowledgement replay preserves the original response body and success semantics after later detector changes.
+Same-key different content/actor, stale version, acknowledged/resolved lifecycle and foreign Tenant requests fail
+closed. There is no create, delete, raw-evidence or arbitrary status endpoint.

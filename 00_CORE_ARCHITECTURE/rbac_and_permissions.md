@@ -212,3 +212,11 @@ heat cells, producer incidents or Journey Replay navigation: those sections addi
 `TRACKING_VIEW`, the corresponding producer event-view permission, or `JOURNEY_REPLAY_VIEW`. Conversely,
 broad Tracking view/history/management or producer permissions do not imply dashboard access. The literal
 `/api/v1/tracking/dashboard/**` route and secured use-case boundary both enforce the dashboard permission.
+## US-55 GPS exception permissions
+
+- `GPS_EXCEPTION_VIEW` authorizes bounded same-Tenant episode list/detail and immutable minimized evidence reads.
+- `GPS_EXCEPTION_REVIEW` authorizes acknowledgement only; it does not imply VIEW.
+- V99 grants both permissions only to active existing `ADMIN`, `LOCAL_MVP_ADMIN` and `DISPATCHER` roles. It
+  creates no role and does not provision future Tenants.
+- Backend HTTP and secured-use-case boundaries are authoritative. Replaying a completed acknowledgement still
+  requires current REVIEW authority and current same-Tenant membership.

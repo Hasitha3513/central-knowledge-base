@@ -1366,9 +1366,10 @@ append-only, Redis cannot regress or promote ineligible facts, and geofence/spee
 trusted, in-order, good-accuracy evidence at most five minutes old. Journey Replay may show retained uncertain
 evidence with warnings; Dashboard map/motion uses latest trusted only.
 
-Tracking will own a bounded exception workflow; minimized HIGH facts may integrate with accepted US-78 and IN_APP
-Notification through P1-01. Proposed permissions are `GPS_EXCEPTION_VIEW` and `GPS_EXCEPTION_REVIEW`. Expected
-schema and canonical V2 work require later separate authorization; no migration is reserved.
+Tracking owns a bounded exception workflow; minimized HIGH facts integrate with accepted US-78 and IN_APP
+Notification through P1-01. Permissions are `GPS_EXCEPTION_VIEW` and `GPS_EXCEPTION_REVIEW`. V99 implements
+those permissions and V100 implements durable acknowledgement replay without changing detector or notification
+semantics.
 
 CS01 implements framework-neutral `GpsCoordinate`, reliability observation/context/assessment types,
 `GpsReliabilityPolicy` and `GpsExceptionEpisode`. It freezes coordinate/accuracy/time/order/connectivity,
@@ -1443,7 +1444,23 @@ policies only for Tenants that exist when the migration runs. Automatic future-T
 `DEFERRED_PENDING_GOVERNED_TENANT_CREATION_WORKFLOW`; V98 creates no trigger or speculative provisioning
 workflow. Delivery is at least once through P1-01 and consumers retain Tenant-qualified idempotency.
 
-Next queue: `US-55-HANDLE-GPS-EDGE-CASES-CS06-APIS-RBAC-AUDIT-001`.
+## US-55 CS06 API, RBAC and audit
+
+CS06 is `COMPLETE`; US-55 remains `IMPLEMENTATION_IN_PROGRESS`, accounting remains 73/87, and Flyway head is
+V100. The bounded no-store `/api/v1/tracking/gps-exceptions` API provides same-Tenant list, detail, immutable
+evidence and acknowledgement. VIEW and REVIEW are independent permissions enforced at literal HTTP and secured
+use-case boundaries. List range is required, UTC, `[from,to)` and at most seven days; page size is 1–500 and
+Tenant/filter-bound HMAC cursors preserve deterministic keyset order.
+
+V100 records completed successful acknowledgement commands only. A Tenant-qualified PostgreSQL transaction
+advisory lock serializes the key before the row-locked episode mutation, response-snapshot insert and minimized
+`GPS_EXCEPTION_ACKNOWLEDGED` audit commit together. Retry reauthorizes the actor and returns the original
+allow-listed snapshot; reason is never returned or audited. There is no expiry until a separate retention policy.
+
+Verification includes concurrent retries, conflict/replay/lifecycle cases, forced audit rollback, V1/V98/V99
+upgrade paths, literal API security, architecture 59/59 and complete backend 1,890/1,890.
+
+Next queue: `US-55-HANDLE-GPS-EDGE-CASES-CS07-FRONTEND-001`.
 
 #### Table: `tracking_gps_exception_episode`
 
@@ -1493,6 +1510,25 @@ tracking_device_id, exception_type)` for `OPEN`, `ACKNOWLEDGED` and `RECOVERING`
 | `ordering_classification` | VARCHAR(20) | NO | - | Governed ordering CHECK | In-order/out-of-order/equal-time classification |
 | `reliability_state` | VARCHAR(16) | NO | - | Governed reliability CHECK | Resulting reliability state |
 | `quality_codes` | VARCHAR(400) | NO | - | Length 1..400 | Sorted minimized quality facts |
+
+#### Table: `tracking_gps_exception_acknowledgement_command`
+
+- **Purpose:** Durable immutable replay record for successful GPS-exception acknowledgements.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID, unique key and composite same-Tenant episode FK)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :---: | :--- | :--- | :--- |
+| `id` | UUID | NO | - | PRIMARY KEY | Command identity |
+| `tenant_id` | UUID | NO | - | Unique with idempotency key; composite FK scope | Trusted Tenant |
+| `idempotency_key` | VARCHAR(160) | NO | - | Length 16–160 | Opaque replay key; never logged |
+| `request_fingerprint` | CHAR(64) | NO | - | Lowercase hexadecimal SHA-256 CHECK | Canonical Tenant/operation/actor/request fingerprint |
+| `actor_id` | UUID | NO | - | Authenticated actor | Original authorized reviewer |
+| `episode_id` | UUID | NO | - | Composite FK → episode, `ON DELETE RESTRICT` | Acknowledged episode |
+| `expected_version` | BIGINT | NO | - | >= 0 | Original optimistic version |
+| `response_snapshot` | JSONB | NO | - | JSON object CHECK | Allow-listed acknowledgement response only |
+| `completed_at` | TIMESTAMPTZ | NO | - | - | Successful command completion |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | - | Durable record creation |
 | `transition` | VARCHAR(20) | NO | - | Governed transition CHECK | `OPENED`, `OBSERVED`, `RECOVERING` or `RESOLVED` |
 | `created_at` | TIMESTAMPTZ | NO | `now()` | - | Evidence creation time |
 
