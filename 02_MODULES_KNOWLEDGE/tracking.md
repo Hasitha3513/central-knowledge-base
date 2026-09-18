@@ -1776,4 +1776,20 @@ is the sum of bounded qualifying source-time intervals. No Notification, Operati
 fuel-waste estimate is proposed without a separately approved contract. Proposed V101-V103
 boundaries remain unreserved pending approval/version preflight. The proposed first change set is
 `US-51-MONITOR-IDLE-TIME-CS01-CANONICAL-ENGINE-SEMANTICS-001`; production mappings remain disabled.
+
+### US-51 CS01 canonical engine semantics
+
+D1-D11 were approved on 2026-09-18. CS01 implements the provider-neutral V3 contract with nullable
+separate ignition and authoritative engine-running state/source fields, governed topic/DLT names,
+exact enum validation and retained canonical Tenant/Vehicle/identity semantics. Legacy V1/V2
+`engineState` remains ignition-only and unchanged.
+
+Flyway remains V100. No V3 topic bean, producer routing, durable consumer, persistence column or
+production capability was activated. The publisher rejects V3 before Kafka interaction so it
+cannot acknowledge data that current history cannot store. Flespi, Traccar and Generic stay V2-only
+and cannot advertise `ENGINE_RUNNING`; V3 fixture construction exists only in test sources.
+
+Next: `US-51-MONITOR-IDLE-TIME-CS02-V101-HISTORY-CAPABILITY-001`. It must verify V101 is free and
+add the approved immutable history/capability boundary before any V3 production cutover. Verified
+production device/protocol mapping and physical acceptance remain independent later gates.
 Accounting remains 73/87 and Flyway remains V100.

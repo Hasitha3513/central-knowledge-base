@@ -162,6 +162,29 @@ The rollout is consumer-first, followed by one-version producer cutover. Rollbac
 back to V1 while leaving dual consumers deployed. V1 retirement requires a separately governed
 decision after active-producer, backlog, retention and rollback-window checks.
 
+### `TRACKING_TELEMETRY_INGESTED_V1` envelope version 3
+
+Status: `IMPLEMENTED_US51_CS01_CONTRACT / PRODUCTION_ACTIVATION_GATED`. D1-D11 are approved.
+The additive V3 contract uses `tracking.telemetry.ingested.v3` and
+`tracking.telemetry.ingested.v3.dlt`, the existing event type and Tenant/Vehicle partition key, and
+preserves canonical identity/deduplication semantics. It retains V2 fields and adds:
+
+- nullable `ignitionState`: `ON`, `OFF`, `UNKNOWN`;
+- nullable `engineRunningState`: `RUNNING`, `NOT_RUNNING`, `UNKNOWN`;
+- nullable `engineRunningSource`: `DEVICE_NATIVE_CAN`, `DEVICE_NATIVE_RPM`,
+  `DEVICE_NATIVE_STATUS`, `PROVIDER_VERIFIED_DERIVATION`.
+
+Absence is not reported and differs from explicit `UNKNOWN`. A reported engine-running state
+requires a source, and a source without a state is invalid. The legacy `engineState` remains
+ignition semantics and, when V3 `ignitionState` is present, must agree with it. Ignition, speed,
+movement, power, charging and connectivity cannot be inferred as engine-running evidence.
+
+CS01 deliberately creates no V3 producer route, topic bean or consumer. The production publisher
+rejects V3 before Kafka interaction while Flyway V100 cannot durably persist it. Flespi, Traccar
+and Generic remain V2-only and cannot advertise `ENGINE_RUNNING`. Controlled V3 fixtures exist
+only in test sources. V101 history/capability and consumer readiness are required before a later
+one-version producer cutover; real provider/device source activation is a separate approval.
+
 ## P1-01 Consumer Inventory and Durability Decision
 
 Production-source inspection identified 32 event classes or persisted event records: 22 `NO_CONSUMER`, zero `LOCAL_EPHEMERAL`, nine `LOCAL_AFTER_COMMIT`, one `DURABLE_INTERNAL_REQUIRED`, and zero approved `EXTERNAL_INTEGRATION_CANDIDATE`. The complete publisher/consumer/classification matrix is maintained in the application architecture record `docs/architecture/P1-01-EVENT-CONTRACT-DURABILITY-AND-ENVELOPE-HARDENING.md`.
