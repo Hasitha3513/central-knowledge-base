@@ -1529,8 +1529,9 @@ sign-off—are all `BLOCKED_EXTERNAL_PREREQUISITE`; none passed, failed or quali
 
 Flespi production polling and Generic signed ingress remain implemented but without genuine field evidence.
 Traccar now has a bounded production HTTPS bearer-token polling adapter qualified against the official 6.15.3
-OpenAPI contract. Real Traccar provider/device evidence and the guided onboarding workflow remain pending; the
-adapter does not change the open physical final-acceptance queue. Flyway and accounting remain V100 and 73/87.
+OpenAPI contract. Guided Flespi/Traccar onboarding and provider health recovery are implemented; real Traccar
+provider/device evidence remains pending and the open physical final-acceptance queue is unchanged. Flyway and
+accounting remain V100 and 73/87. The next independent queue is `US-55-IDEMPOTENCY-CLOSURE`.
 
 ## Provider-polling canonical Kafka prerequisite
 
@@ -1562,8 +1563,25 @@ Public HTTPS/443 is allowed by default. Private/self-hosted HTTPS requires an ex
 `host:port` entry in `TRACKING_TRACCAR_PRIVATE_ENDPOINT_ALLOWLIST`; Tenant configuration cannot expand it.
 Destination DNS is revalidated before every request. Loopback, link-local, multicast, metadata and unapproved
 private/ULA addresses are blocked, redirects are not followed and TLS verification remains mandatory. A governed
-private CA is installed through the JVM trust store, never by disabling verification. The next independent queue
-is `US-55-PROVIDER-UI`; real-provider acceptance remains open.
+private CA is installed through the JVM trust store, never by disabling verification. The provider UI and health
+recovery slices described below supersede that historical queue; real-provider acceptance remains open.
+
+## Provider health and recovery
+
+`US-55-HEALTH-RECOVERY` is complete. Flespi and Traccar adapters expose only bounded privacy-safe failure
+categories to the polling coordinator. Overflow, authentication, endpoint-policy, provider rejection,
+unavailability, transient/rate-limit and canonical Kafka publication failures retain the prior watermark and
+enter bounded backoff. Provider payloads, exception text, credentials, endpoints and precise locations are not
+persisted or rendered. A successful empty response records reachability and a completed poll but does not update
+the provider-message timestamp, manufacture telemetry, resolve GPS exceptions or claim live recovery.
+
+Required Kafka acknowledgements remain the durable progress boundary. Interrupted/partial publication leaves
+polling progress unchanged and retries with deterministic canonical identities; database leases and local
+single-flight coordination prevent overlapping connection work and recover expired leases after restart. The
+Provider Connections UI renders safe recovery guidance while keeping connection verification, successful poll,
+downstream telemetry receipt and freshness distinct. Generic signed-HMAC ingress remains unchanged. Controlled
+PostgreSQL/Kafka/provider fixtures and Chromium evidence pass, but they are not physical/provider acceptance.
+Flyway remains V100, accounting remains 73/87 and future-Tenant Notification provisioning remains deferred.
 
 #### Table: `tracking_gps_exception_episode`
 

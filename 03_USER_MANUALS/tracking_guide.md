@@ -204,8 +204,11 @@ device. Discovery is shown only when the installed adapter advertises it; otherw
 identity entry. Device-side protocol configuration remains required.
 
 Safe health categories cover rejected credentials, unavailable or invalid providers, unapproved
-endpoints and oversized responses. `No telemetry received` means no provider message timestamp is
-available; verify identity, provider destination, activation and the next bounded poll. Generic
+endpoints, rate limits, oversized responses and unavailable/timed-out telemetry publication. A
+failed poll retains the prior successful watermark and retries with bounded backoff. `No telemetry
+received` means no provider message timestamp is available; an empty successful poll or passing
+connection check does not change that state or prove recovery. Verify identity, provider destination,
+activation and the next bounded poll. Generic
 signed-HMAC ingress remains the separate governed push path, not a polling connection. Logout or
 session expiry clears cached Tenant data.
 
