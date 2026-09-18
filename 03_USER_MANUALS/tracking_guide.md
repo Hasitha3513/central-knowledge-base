@@ -188,6 +188,27 @@ treat US-48 or US-50 physical evidence as US-52 acceptance.
 
 ## Provider telemetry delivery
 
+Users with `TRACKING_DEVICE_MANAGE` can open **Tracking → Provider Connections**. Select an
+installed provider reported by the server, configure its HTTPS endpoint and polling bounds, and
+enter only an opaque deployment-secret reference. Provider tokens are never displayed. Flespi
+Cloud requires device-side channel/destination setup. Traccar uses an ApiKey bearer token; a
+private/self-hosted destination and trusted CA must be approved by a deployment administrator and
+cannot be allowlisted by a Tenant user.
+
+Save the connection, run **Test Connection**, then activate it to enable polling eligibility. A
+successful test proves access only; it does not prove that telemetry arrived. The details view
+shows saved, verified, device-bound, Vehicle-associated, polling-enabled and telemetry-received
+states separately. Continue to **Tracking → Devices**, create a DRAFT device, enter its governed
+external identity, bind the provider, associate an active same-Tenant Vehicle and activate the
+device. Discovery is shown only when the installed adapter advertises it; otherwise use manual
+identity entry. Device-side protocol configuration remains required.
+
+Safe health categories cover rejected credentials, unavailable or invalid providers, unapproved
+endpoints and oversized responses. `No telemetry received` means no provider message timestamp is
+available; verify identity, provider destination, activation and the next bounded poll. Generic
+signed-HMAC ingress remains the separate governed push path, not a polling connection. Logout or
+session expiry clears cached Tenant data.
+
 Active provider integrations continue to send signed telemetry to
 `POST /api/integration/v1/tracking/positions`. The provider must use its assigned key, current
 timestamp, unique nonce and valid HMAC signature; Tenant and Vehicle values in payloads are not
