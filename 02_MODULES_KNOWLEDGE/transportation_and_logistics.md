@@ -1097,9 +1097,12 @@ acceptance stays open and must not be replaced by fixtures.
 That recommendation is superseded by the explicit selection of US-51 prerequisite/product-decision
 work under newly created identifier
 `US-51-MONITOR-IDLE-TIME-PREREQUISITE-AND-PRODUCT-DECISIONS-001`. Its consolidated decisions are
-proposed only. No migration number, permission, API, event contract or implementation task is
-authorized, and implementation still requires approval of the contract plus one authoritative
-device-native engine-running source. US-72, US-76 and Wave E retain their recorded blockers.
+implementation-ready for review but proposed only. No migration number, permission, API or event
+contract is authorized. After D1-D11 approval, technical work may use controlled fixtures without
+hardware; every production engine-running mapping and physical acceptance remain separately gated.
+The proposed first change set is
+`US-51-MONITOR-IDLE-TIME-CS01-CANONICAL-ENGINE-SEMANTICS-001`. US-72, US-76 and Wave E retain their
+recorded blockers.
 
 ### US-50 Trip attribution contract (CS01 published)
 

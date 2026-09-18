@@ -1756,8 +1756,10 @@ and no independent implementation queue is selected after this closure.
 ## US-51 idle-monitoring prerequisite decisions selected
 
 `US-51-MONITOR-IDLE-TIME-PREREQUISITE-AND-PRODUCT-DECISIONS-001` is a newly created, explicitly
-selected governance task. Its consolidated decisions remain `PROPOSED`; no production code,
-migration, permission, API or event contract is authorized.
+selected governance task. Its consolidated decisions are implementation-ready for review but
+remain `PROPOSED`; no production code, migration, permission, API or event contract is authorized.
+Software implementation and controlled technical fixtures no longer depend on physical hardware.
+Production `ENGINE_RUNNING` activation and physical acceptance remain separate mandatory gates.
 
 Current canonical V1/V2 `engineState` is populated from ignition semantics by Traccar/Generic and
 is always UNKNOWN from Flespi. Provider-level field support is not device-level truth, and ignition
@@ -1767,8 +1769,11 @@ capability at source time and forbids inference from zero speed, movement, exter
 charging or connectivity.
 
 Proposed Phase-1 idle means supported combustion/hybrid Vehicle plus authoritative engine-running,
-speed at most 3 km/h, accuracy-adjusted displacement at most 50 m, two or more observations and
-five continuous minutes, with a two-minute maximum evidence gap. Gaps become UNKNOWN and are not
-counted. No Notification, Operations fact or fuel-waste estimate is proposed without a separately
-approved contract. Proposed V101-V103 boundaries remain unreserved pending approval and version
-preflight. Accounting remains 73/87 and Flyway remains V100.
+speed at most 3 km/h, WGS84 distance adjusted by two reported accuracies and at most 50 m, two or
+more observations and five continuous minutes, with a two-minute maximum evidence gap. Accuracy is
+required and capped at 100 m; gaps/contradictions become UNKNOWN and are not counted. Credited time
+is the sum of bounded qualifying source-time intervals. No Notification, Operations fact or
+fuel-waste estimate is proposed without a separately approved contract. Proposed V101-V103
+boundaries remain unreserved pending approval/version preflight. The proposed first change set is
+`US-51-MONITOR-IDLE-TIME-CS01-CANONICAL-ENGINE-SEMANTICS-001`; production mappings remain disabled.
+Accounting remains 73/87 and Flyway remains V100.
