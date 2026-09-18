@@ -182,3 +182,14 @@ device/episode physical relationships remain inside Tracking. IDLE intent is wri
 canonical history, but the normal worker excludes IDLE until
 `US-51-MONITOR-IDLE-TIME-CS04-EVALUATOR-001` installs the approved evaluator. Existing geofence,
 speed and route-deviation dispatch remain unchanged.
+
+### US-51 CS04 prerequisite persistence
+
+V103 corrects pre-confirmation persistence without activating the CS04 evaluator. Tracking now owns
+restart-safe candidate identity/state and Tenant-qualified append-only candidate evidence; promotion
+creates a confirmed episode atomically while discard retains immutable evidence for 180 days. Fleet
+publishes `VehiclePowertrainEligibilityQuery.classify(tenantId, vehicleId, observedAt)`. Its production
+adapter returns `UNKNOWN` because no authoritative effective-dated Fleet powertrain source exists.
+Tracking must consume this published contract and must not query Fleet persistence directly. Normal
+IDLE claims remain disabled; CS04 evaluator/worker activation and production source activation remain
+pending. CS05 permissions are resequenced from V103 to V104.

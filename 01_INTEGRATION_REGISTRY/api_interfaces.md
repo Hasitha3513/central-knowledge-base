@@ -350,6 +350,15 @@ partial degradation returns 200 with source labels, and total live-source unavai
 The endpoint is controlled by `app.tracking.dashboard.enabled`. It creates no producer mutation, event,
 topic or dashboard projection and exposes no Driver/Customer PII, provider/device facts, credentials,
 signatures, nonces, raw telemetry or review notes.
+## Fleet — US-51 powertrain eligibility query
+
+`VehiclePowertrainEligibilityQuery.classify(UUID tenantId, UUID vehicleId, Instant observedAt)` is
+the published, framework-neutral Fleet query consumed by Tracking. It returns one of `COMBUSTION`,
+`HYBRID`, `OTHER` or `UNKNOWN`. Every input is mandatory and Tenant/source time are explicit.
+Production currently returns `UNKNOWN` because Fleet has no authoritative effective-dated powertrain
+classification. Test fixtures may supply explicit source-time results; callers may never infer a
+classification from telemetry, registration text, fuel, power, charging or connectivity.
+
 ## Tracking — US-55 GPS exceptions
 
 All responses use `Cache-Control: no-store`; Tenant and actor come only from authenticated context.

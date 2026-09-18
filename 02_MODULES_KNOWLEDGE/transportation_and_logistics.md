@@ -1186,3 +1186,13 @@ is staged only for source-time supported authoritative engine-running evidence; 
 ineligible. The normal dispatcher does not claim IDLE before the real CS04 evaluator exists, so no
 work is silently discarded. Production provider mappings and physical acceptance remain pending.
 Next: `US-51-MONITOR-IDLE-TIME-CS04-EVALUATOR-001`. Accounting remains 73/87.
+
+### US-51 CS04 V103 prerequisite persistence
+
+Application commit `9d2e424db582c4a1950ccfac7444e90494ebf5c3` verifies V103 as the current head. It corrects Tracking candidate persistence so pre-confirmation
+state and immutable evidence survive restart without creating an idle episode. Candidate discard
+creates no episode and retains evidence for 180 days; promotion atomically creates one confirmed
+episode associated with the stable candidate identity. Fleet publishes a Tenant/source-time
+powertrain eligibility query, but production returns `UNKNOWN` because authoritative effective-dated
+classification is unavailable. The CS04 evaluator and normal IDLE worker activation remain pending;
+CS05 permissions move unchanged to V104. Accounting remains 73/87.

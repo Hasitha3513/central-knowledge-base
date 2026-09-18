@@ -1906,3 +1906,48 @@ UPDATE and DELETE. Coordinates, raw payloads, credentials, signatures and person
 
 Next: `US-51-MONITOR-IDLE-TIME-CS04-EVALUATOR-001`. Accounting remains 73/87; production source
 activation and physical acceptance remain pending.
+
+### US-51 CS04 V103 candidate-persistence prerequisite
+
+The verified prerequisite slice is complete at application commit
+`9d2e424db582c4a1950ccfac7444e90494ebf5c3` without claiming CS04 evaluator completion. V103 adds
+`candidate_id`, `reference_history_id` and `recovery_started_at` to `tracking_idle_state`, and
+`candidate_id` to `tracking_idle_episode`. Existing populated V102 candidate rows are preserved
+losslessly; new candidates exist without an episode and promotion alone creates the confirmed episode.
+
+#### Table: `tracking_idle_candidate_evidence`
+
+- **Purpose:** Immutable minimized pre-confirmation evidence retained across restart, discard and promotion.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | `gen_random_uuid()` | PRIMARY KEY | Evidence identity |
+| `tenant_id` | UUID | NO | - | Tenant scope | Tenant owner |
+| `candidate_id` | UUID | NO | - | Stable Tracking candidate identity | Candidate |
+| `vehicle_id` | UUID | NO | - | Logical Fleet Vehicle reference | Vehicle |
+| `device_id` | UUID | NO | - | Same-Tenant FK to `tracking_device` | Device |
+| `history_id` | UUID | NO | - | Logical Tracking history reference | Observation |
+| `source_timestamp` | TIMESTAMPTZ | NO | - | Dedupe component | Source time |
+| `dedupe_identity` | CHAR(64) | NO | - | Dedupe component | Canonical identity |
+| `outcome` | VARCHAR(24) | NO | - | QUALIFYING/NOT_QUALIFYING/UNKNOWN/CONFLICTING_EVIDENCE | Result |
+| `engine_running_state` | VARCHAR(16) | YES | NULL | Paired with source | Engine evidence |
+| `engine_running_source` | VARCHAR(40) | YES | NULL | Approved V3 provenance | Provenance |
+| `speed_kph` | NUMERIC(8,3) | YES | NULL | 0–400 | Movement evidence |
+| `horizontal_accuracy_meters` | NUMERIC(10,3) | YES | NULL | 0–100 | Accuracy evidence |
+| `adjusted_distance_meters` | NUMERIC(12,3) | YES | NULL | Non-negative | Adjusted displacement |
+| `credited_delta_seconds` | INTEGER | NO | `0` | 0–120 | Credited interval |
+| `retain_until` | TIMESTAMPTZ | NO | - | Not before source timestamp | 180-day retention boundary |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | - | Insertion time |
+
+Unique identity is `(tenant_id, candidate_id, source_timestamp, dedupe_identity)`. An append-only
+trigger rejects update and pre-expiry delete; bounded retention cleanup may delete expired rows.
+Indexes support Tenant/candidate source ordering and retention cleanup. Coordinates, raw payloads,
+credentials, signatures and PII are absent.
+
+Fleet's published source-time powertrain query is available, but its production implementation
+returns `UNKNOWN` until authoritative effective-dated classification exists. Consequently normal
+IDLE claims, the evaluator, production engine-running mappings and physical acceptance remain pending.
+CS05 permissions are resequenced to V104. Accounting remains 73/87 and the queue remains
+`US-51-MONITOR-IDLE-TIME-CS04-EVALUATOR-001`.
