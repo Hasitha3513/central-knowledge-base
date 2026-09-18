@@ -143,7 +143,7 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 | Trip | Tracking US-53 | Published replay-scope plus one-call, seven-day/2,000-interval bounded Vehicle assignment range with exact Trip/route-revision attribution | CS02_CONSUMER_ACTIVE; `LIMIT 2001`, no partial/N+1 fallback or Trip persistence access |
 | Routing | Tracking US-53 | Published exact immutable route-revision geometry lookup | CS02_CONSUMER_ACTIVE; exact revision only, per-request context cache, no latest fallback |
 | Tracking US-49/50/52 | Tracking US-53 | Tracking-owned query ports for labelled geofence, speed and route-deviation overlays | CS06_ACTIVE; same-Tenant bounded cursor-paged adapters retain producer acceptance status |
-| Tracking US-51 | Tracking US-53 | Engine/idle comparison | NONE_PHASE1; authoritative engine-state capability unresolved |
+| Tracking US-51 | Tracking US-53 | Engine/idle comparison | CS03_TRACKING_LOCAL_PERSISTENCE_COMPLETE; CS04 evaluator and production ENGINE_RUNNING activation pending |
 | Trip | Tracking US-54 | `TripDashboardQuery.findActiveContexts(tenantId,vehicleIds,evaluatedAt)` returns minimized active Trip/Driver/route context for at most 100 Vehicles in one bulk query | CS02_ACTIVE_MVP; Tenant-qualified, no N+1 calls, no Tracking access to Trip persistence |
 
 V91 adds no cross-module dependency. Tracking's Kafka history consumer now atomically writes three
@@ -172,3 +172,13 @@ TS02 is complete: Tracking secure ingress durably publishes the canonical
 Tenant, Device and source-time association resolution. This remains Tracking-local infrastructure;
 it adds no cross-module dependency and does not replace the shared business-event outbox. Redis
 projection and Timescale consumption remain TS03 and TS04. Accounting remains 73/87.
+
+### US-51 CS03 idle persistence and durable dispatch
+
+V102 creates Tracking-owned Tenant-qualified idle state, episode and append-only minimized evidence.
+It extends the existing Tracking-local evaluation dispatch vocabulary with `IDLE`; no new
+cross-module dependency is introduced. Vehicle identifiers remain logical Fleet references and all
+device/episode physical relationships remain inside Tracking. IDLE intent is written atomically with
+canonical history, but the normal worker excludes IDLE until
+`US-51-MONITOR-IDLE-TIME-CS04-EVALUATOR-001` installs the approved evaluator. Existing geofence,
+speed and route-deviation dispatch remain unchanged.

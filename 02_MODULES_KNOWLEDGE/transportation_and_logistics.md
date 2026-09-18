@@ -1176,3 +1176,13 @@ history fields and effective-dated `ENGINE_RUNNING` vocabulary. Existing V1/V2 i
 remain unchanged and no production provider capability is seeded. The next independent task is
 `US-51-MONITOR-IDLE-TIME-CS03-V102-IDLE-PERSISTENCE-DISPATCH-001`; story accounting remains 73/87,
 and production-source activation plus physical acceptance remain separately gated.
+
+### US-51 CS03 V102 persistence and dispatch
+
+US-51 CS03 is complete at application commit `ebcd73bf7990df11dca0b6b247ff3440a9c4e500`
+and Flyway V102. Tracking now owns Tenant-qualified current idle state,
+one-open idle episodes, append-only minimized evidence and staged durable `IDLE` dispatch. V3 work
+is staged only for source-time supported authoritative engine-running evidence; V1/V2 remain
+ineligible. The normal dispatcher does not claim IDLE before the real CS04 evaluator exists, so no
+work is silently discarded. Production provider mappings and physical acceptance remain pending.
+Next: `US-51-MONITOR-IDLE-TIME-CS04-EVALUATOR-001`. Accounting remains 73/87.

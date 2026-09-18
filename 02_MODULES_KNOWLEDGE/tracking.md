@@ -1813,3 +1813,96 @@ follows the committed history batch, and retry/cross-version identity retains lo
 Flespi, Traccar and Generic remain V2-only and cannot advertise authoritative engine-running.
 Next: `US-51-MONITOR-IDLE-TIME-CS03-V102-IDLE-PERSISTENCE-DISPATCH-001`. Accounting remains 73/87;
 production-source activation and physical acceptance remain separate holds.
+
+### US-51 CS03 V102 idle persistence and staged dispatch
+
+CS03 is complete at application commit `ebcd73bf7990df11dca0b6b247ff3440a9c4e500`.
+V102 adds only Tracking-owned idle persistence and extends the existing durable evaluator vocabulary
+with `IDLE`. A canonical V3 observation is eligible for staged IDLE work only with a consistent
+engine-running state/source pair and source-time `ENGINE_RUNNING=SUPPORTED`. The normal worker does
+not claim IDLE before CS04; the dedicated bounded claim retains the established lease/reclaim rules.
+No production capability or provider mapping is activated.
+
+#### Table: `tracking_idle_episode`
+
+- **Purpose:** Durable candidate, confirmed and closed idle-episode lifecycle.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | `gen_random_uuid()` | PRIMARY KEY; unique with `tenant_id` | Episode identity |
+| `tenant_id` | UUID | NO | - | Tenant scope | Tenant owner |
+| `vehicle_id` | UUID | NO | - | Logical Fleet Vehicle reference | Evaluated Vehicle |
+| `device_id` | UUID | NO | - | Same-Tenant FK to `tracking_device` | Source device |
+| `lifecycle` | VARCHAR(12) | NO | `CANDIDATE` | CANDIDATE/CONFIRMED/CLOSED | Episode lifecycle |
+| `start_source_timestamp` | TIMESTAMPTZ | NO | - | - | Candidate start source time |
+| `confirmed_at` | TIMESTAMPTZ | YES | NULL | Required for CONFIRMED | Confirmation source time |
+| `last_source_timestamp` | TIMESTAMPTZ | NO | - | Not before start | Latest evidence time |
+| `end_source_timestamp` | TIMESTAMPTZ | YES | NULL | Required only when CLOSED | Closure source time |
+| `end_reason` | VARCHAR(24) | YES | NULL | Approved five-value vocabulary | Closure reason |
+| `credited_seconds` | BIGINT | NO | `0` | Non-negative | Credited duration |
+| `evidence_count` | INTEGER | NO | `0` | Non-negative | Distinct evidence count |
+| `version` | BIGINT | NO | `0` | Non-negative | Optimistic version |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | - | Creation time |
+| `updated_at` | TIMESTAMPTZ | NO | `now()` | - | Mutation time |
+
+Indexes: unique `(tenant_id, vehicle_id) WHERE lifecycle <> 'CLOSED'`; keyset
+`(tenant_id, vehicle_id, start_source_timestamp DESC, id DESC)`.
+
+#### Table: `tracking_idle_state`
+
+- **Purpose:** Current durable idle evaluator state per Tenant/Vehicle.
+- **Primary Key:** `(tenant_id, vehicle_id)`
+- **Multi-Tenant Key:** `tenant_id` (UUID)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `tenant_id` | UUID | NO | - | PRIMARY KEY component | Tenant owner |
+| `vehicle_id` | UUID | NO | - | PRIMARY KEY; logical Fleet Vehicle reference | Vehicle |
+| `device_id` | UUID | NO | - | Same-Tenant FK to `tracking_device` | Device |
+| `state` | VARCHAR(28) | NO | - | Approved UNKNOWN through NORMAL vocabulary | Current state |
+| `capability_state` | VARCHAR(16) | NO | - | SUPPORTED/UNSUPPORTED/UNKNOWN | Eligibility |
+| `latest_source_timestamp` | TIMESTAMPTZ | NO | - | - | Ordering watermark |
+| `candidate_started_at` | TIMESTAMPTZ | YES | NULL | Required for CANDIDATE/IDLE | Candidate boundary |
+| `last_qualifying_at` | TIMESTAMPTZ | YES | NULL | - | Latest qualifying time |
+| `credited_seconds` | BIGINT | NO | `0` | Non-negative | Credited duration |
+| `evidence_count` | INTEGER | NO | `0` | Non-negative | Evidence count |
+| `open_episode_id` | UUID | YES | NULL | Same-Tenant idle episode FK | Open lifecycle |
+| `last_dedupe_identity` | CHAR(64) | NO | - | Canonical identity | Last applied evidence |
+| `version` | BIGINT | NO | `0` | Non-negative | Optimistic version |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | - | Creation time |
+| `updated_at` | TIMESTAMPTZ | NO | `now()` | - | Mutation time |
+
+Index: `(tenant_id, state, latest_source_timestamp DESC, vehicle_id)`.
+
+#### Table: `tracking_idle_episode_evidence`
+
+- **Purpose:** Append-only minimized evidence supporting an idle episode.
+- **Primary Key:** `id` (UUID)
+- **Multi-Tenant Key:** `tenant_id` (UUID)
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `id` | UUID | NO | `gen_random_uuid()` | PRIMARY KEY | Evidence identity |
+| `tenant_id` | UUID | NO | - | Tenant scope | Tenant owner |
+| `episode_id` | UUID | NO | - | Same-Tenant idle episode FK | Episode |
+| `vehicle_id` | UUID | NO | - | Logical Fleet Vehicle reference | Vehicle |
+| `device_id` | UUID | NO | - | Same-Tenant `tracking_device` FK | Device |
+| `history_id` | UUID | NO | - | Logical Tracking history reference | Observation |
+| `source_timestamp` | TIMESTAMPTZ | NO | - | Dedupe component | Source time |
+| `dedupe_identity` | CHAR(64) | NO | - | Dedupe component | Canonical identity |
+| `outcome` | VARCHAR(24) | NO | - | Approved four-value vocabulary | Evaluation result |
+| `engine_running_state` | VARCHAR(16) | YES | NULL | Paired with source | Engine evidence |
+| `engine_running_source` | VARCHAR(40) | YES | NULL | Approved V3 provenance | Provenance |
+| `speed_kph` | NUMERIC(8,3) | YES | NULL | 0–400 | Movement evidence |
+| `horizontal_accuracy_meters` | NUMERIC(10,3) | YES | NULL | 0–100 | Accuracy evidence |
+| `adjusted_distance_meters` | NUMERIC(12,3) | YES | NULL | Non-negative | Adjusted displacement |
+| `credited_delta_seconds` | INTEGER | NO | `0` | 0–120 | Credited interval |
+| `created_at` | TIMESTAMPTZ | NO | `now()` | - | Insertion time |
+
+Unique identity: `(tenant_id, episode_id, source_timestamp, dedupe_identity)`. A trigger rejects
+UPDATE and DELETE. Coordinates, raw payloads, credentials, signatures and personal data are absent.
+
+Next: `US-51-MONITOR-IDLE-TIME-CS04-EVALUATOR-001`. Accounting remains 73/87; production source
+activation and physical acceptance remain pending.
