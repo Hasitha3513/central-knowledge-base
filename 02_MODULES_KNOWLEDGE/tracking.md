@@ -1731,3 +1731,24 @@ Focused verification passed 31/31 and isolated PostgreSQL/Timescale/Kafka/Redis 
 Physical/provider acceptance remains blocked externally, future-Tenant Notification provisioning
 remains deferred, accounting remains 73/87, and the next independent queue is
 `US-55-TECHNICAL-CLOSURE`.
+
+## US-55 post-extension technical closure
+
+`US-55-TECHNICAL-CLOSURE` is `COMPLETE` at Flyway V100. It is a consolidation gate over the
+previously completed CS01-CS08 GPS-edge technical closure, canonical provider polling through
+Kafka, bounded Traccar 6.15.3 polling, guided Flespi/Traccar onboarding, provider health recovery
+and logical idempotency. It adds no production behavior, schema, API, permission, dependency or
+event contract.
+
+The integrated path preserves Tracking ownership: provider polling resolves Tenant-qualified
+effective device bindings and publishes canonical V2 telemetry; Tracking consumers own durable
+Timescale history, detector evaluation and eligible ordered Redis projection; GPS-exception state
+owns Notification/Operations facts; protected APIs and UI expose minimized operational state.
+Reachability, polling/publication, downstream processing, telemetry receipt/freshness and genuine
+physical acceptance remain distinct.
+
+Flespi, Traccar and Generic signed-HMAC technical paths have controlled evidence, but no fixture,
+local browser journey or connection check is credited as genuine provider/device acceptance.
+`US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001` remains externally blocked with nine field
+requirements. Future-Tenant Notification provisioning remains deferred, accounting remains 73/87,
+and no independent implementation queue is selected after this closure.
