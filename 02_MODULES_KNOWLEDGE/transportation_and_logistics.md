@@ -1094,12 +1094,12 @@ After the US-55 post-extension technical closure, no existing independent implem
 sufficient authorization. Accounting remains 73/87 and Flyway remains V100. US-55 physical
 acceptance stays open and must not be replaced by fixtures.
 
-The application roadmap now carries one consolidated proposal recommending that the next governed
-decision track be US-72 Enforce Compliance. This is a proposal only: policy jurisdiction/authority,
-typed checks and effects, effective dating, overrides/appeals, evidence/retention, RBAC/ABAC/SoD,
-public contracts and exact persistence remain unapproved. No migration number, permission, API,
-event contract or implementation task is reserved. US-51, US-76 and Wave E retain their recorded
-signal, product, external-system and dependency blockers.
+That recommendation is superseded by the explicit selection of US-51 prerequisite/product-decision
+work under newly created identifier
+`US-51-MONITOR-IDLE-TIME-PREREQUISITE-AND-PRODUCT-DECISIONS-001`. Its consolidated decisions are
+proposed only. No migration number, permission, API, event contract or implementation task is
+authorized, and implementation still requires approval of the contract plus one authoritative
+device-native engine-running source. US-72, US-76 and Wave E retain their recorded blockers.
 
 ### US-50 Trip attribution contract (CS01 published)
 

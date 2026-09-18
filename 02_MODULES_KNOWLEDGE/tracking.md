@@ -1752,3 +1752,23 @@ local browser journey or connection check is credited as genuine provider/device
 `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001` remains externally blocked with nine field
 requirements. Future-Tenant Notification provisioning remains deferred, accounting remains 73/87,
 and no independent implementation queue is selected after this closure.
+
+## US-51 idle-monitoring prerequisite decisions selected
+
+`US-51-MONITOR-IDLE-TIME-PREREQUISITE-AND-PRODUCT-DECISIONS-001` is a newly created, explicitly
+selected governance task. Its consolidated decisions remain `PROPOSED`; no production code,
+migration, permission, API or event contract is authorized.
+
+Current canonical V1/V2 `engineState` is populated from ignition semantics by Traccar/Generic and
+is always UNKNOWN from Flespi. Provider-level field support is not device-level truth, and ignition
+is not engine-running evidence. The proposed design therefore separates ignition from authoritative
+engine-running state in additive canonical V3, requires an effective-dated `ENGINE_RUNNING`
+capability at source time and forbids inference from zero speed, movement, external power,
+charging or connectivity.
+
+Proposed Phase-1 idle means supported combustion/hybrid Vehicle plus authoritative engine-running,
+speed at most 3 km/h, accuracy-adjusted displacement at most 50 m, two or more observations and
+five continuous minutes, with a two-minute maximum evidence gap. Gaps become UNKNOWN and are not
+counted. No Notification, Operations fact or fuel-waste estimate is proposed without a separately
+approved contract. Proposed V101-V103 boundaries remain unreserved pending approval and version
+preflight. Accounting remains 73/87 and Flyway remains V100.
