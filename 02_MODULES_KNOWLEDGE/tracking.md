@@ -1711,3 +1711,23 @@ Real Kafka/Timescale/DLT focused acceptance passes 11/11, affected Tracking regr
 247/247, architecture passes 58/58, and full Maven passes 1,711/1,711. No REST API or frontend was
 added. Flyway is V87; accounting remains 73/87. Next:
 `US-52-MONITOR-ROUTE-DEVIATIONS-CS02-V88-PERSISTENCE-001`.
+
+## US-55 idempotency closure
+
+`US-55-IDEMPOTENCY-CLOSURE` is `COMPLETE` at Flyway V100. Provider polling publishes
+tenant-qualified deterministic canonical identities and advances a device watermark only after all
+required Kafka acknowledgements. A crash before cursor persistence therefore replays safely through
+the same PostgreSQL history identity. V1 and V2 converge on the same tenant-qualified business
+identity; distinct provider messages remain distinct.
+
+Timescale history, evaluator dispatch, GPS-exception evidence, acknowledgement commands, durable
+Notification/Operations events and audit records retain their existing PostgreSQL uniqueness and
+transaction boundaries. Duplicate GPS recovery evidence cannot increment recovery counters twice.
+Redis remains a disposable ordered projection and is not an idempotency authority. This is
+at-least-once delivery with idempotent logical effects, not exactly-once transport.
+
+Focused verification passed 31/31 and isolated PostgreSQL/Timescale/Kafka/Redis verification passed
+34/34. No production code, migration, API, permission, dependency or event contract changed.
+Physical/provider acceptance remains blocked externally, future-Tenant Notification provisioning
+remains deferred, accounting remains 73/87, and the next independent queue is
+`US-55-TECHNICAL-CLOSURE`.
