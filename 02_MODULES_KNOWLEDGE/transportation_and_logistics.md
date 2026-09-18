@@ -1088,6 +1088,19 @@ Database assertions are supplemental and may not create, update, delete, repair,
 
 `US-48-LIVE-VEHICLE-TRACKING-TECHNICAL-CLOSURE-001-RERUN` passes at current head V74. Fresh evidence is focused security/status/PostgreSQL 32/32 with exact concurrency 9/9, clean Flyway V1→V74, full Maven 1,430 tests with zero failures/errors and 15 skipped in 07:14, architecture 46/46, Checkstyle/PMD/SpotBugs, TypeScript, Vitest 265/265, production build and changed-file lint PASS, and controlled-provider real PostgreSQL-backed Chromium 11/11. Caller Tenant authority is removed; the Tracking-owned provider binding, `IntegrationSecretResolver`-only secret boundary, binding-scoped nonce, retention/TOO_OLD behavior, rebuild, observability, health and audit contracts pass without per-packet P1-01 or a second outbox. US-48 remains acceptance pending, accounting remains 72/87, and real-device/real-provider final acceptance is next.
 
+## Remaining MVP implementation authorization disposition
+
+After the US-55 post-extension technical closure, no existing independent implementation task has
+sufficient authorization. Accounting remains 73/87 and Flyway remains V100. US-55 physical
+acceptance stays open and must not be replaced by fixtures.
+
+The application roadmap now carries one consolidated proposal recommending that the next governed
+decision track be US-72 Enforce Compliance. This is a proposal only: policy jurisdiction/authority,
+typed checks and effects, effective dating, overrides/appeals, evidence/retention, RBAC/ABAC/SoD,
+public contracts and exact persistence remain unapproved. No migration number, permission, API,
+event contract or implementation task is reserved. US-51, US-76 and Wave E retain their recorded
+signal, product, external-system and dependency blockers.
+
 ### US-50 Trip attribution contract (CS01 published)
 
 US-50 CS01 publishes the read-only Trip contract,
