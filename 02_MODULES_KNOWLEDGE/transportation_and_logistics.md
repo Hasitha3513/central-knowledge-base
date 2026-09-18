@@ -1167,3 +1167,12 @@ transaction, requires the persisted canonical route revision, and then calls
 and provider failure remain distinct non-evaluable outcomes; no current-assignment, latest-revision,
 Organization-coordinate or endpoint-chord fallback is allowed. Tracking performs no Trip/Routing
 SQL, repository, entity or physical-foreign-key access. Flyway remains V88.
+
+### US-51 CS02 durable V3 boundary
+
+US-51 CS02 is complete at application commit `675503198a9e10a0d3a28790370bbec87dcf42bb` and
+Flyway V101. Tracking owns the V3 topic/consumer, immutable Timescale
+history fields and effective-dated `ENGINE_RUNNING` vocabulary. Existing V1/V2 ignition semantics
+remain unchanged and no production provider capability is seeded. The next independent task is
+`US-51-MONITOR-IDLE-TIME-CS03-V102-IDLE-PERSISTENCE-DISPATCH-001`; story accounting remains 73/87,
+and production-source activation plus physical acceptance remain separately gated.

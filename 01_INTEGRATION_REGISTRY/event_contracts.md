@@ -164,7 +164,7 @@ decision after active-producer, backlog, retention and rollback-window checks.
 
 ### `TRACKING_TELEMETRY_INGESTED_V1` envelope version 3
 
-Status: `IMPLEMENTED_US51_CS01_CONTRACT / PRODUCTION_ACTIVATION_GATED`. D1-D11 are approved.
+Status: `IMPLEMENTED_US51_CS02_DURABLE / PRODUCTION_SOURCE_ACTIVATION_GATED`. D1-D11 are approved.
 The additive V3 contract uses `tracking.telemetry.ingested.v3` and
 `tracking.telemetry.ingested.v3.dlt`, the existing event type and Tenant/Vehicle partition key, and
 preserves canonical identity/deduplication semantics. It retains V2 fields and adds:
@@ -179,11 +179,12 @@ requires a source, and a source without a state is invalid. The legacy `engineSt
 ignition semantics and, when V3 `ignitionState` is present, must agree with it. Ignition, speed,
 movement, power, charging and connectivity cannot be inferred as engine-running evidence.
 
-CS01 deliberately creates no V3 producer route, topic bean or consumer. The production publisher
-rejects V3 before Kafka interaction while Flyway V100 cannot durably persist it. Flespi, Traccar
-and Generic remain V2-only and cannot advertise `ENGINE_RUNNING`. Controlled V3 fixtures exist
-only in test sources. V101 history/capability and consumer readiness are required before a later
-one-version producer cutover; real provider/device source activation is a separate approval.
+CS02 provides the V3 topic/DLT beans, publisher route, bounded durable history consumer and live
+projection compatibility. Successful history acknowledgement follows the committed V101 batch;
+failed batches remain retryable under canonical Tenant-qualified identity and cross-version
+deduplication. Flyway V101 retains V3 fields losslessly and admits effective-dated
+`ENGINE_RUNNING` capability without seeding it. Flespi, Traccar and Generic remain V2-only and
+cannot advertise `ENGINE_RUNNING`; real device/protocol source activation is a separate approval.
 
 ## P1-01 Consumer Inventory and Durability Decision
 

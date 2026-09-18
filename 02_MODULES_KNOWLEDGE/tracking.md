@@ -91,7 +91,7 @@ no new permission, public API or migration is introduced by this architecture de
 | `tenant_id` | UUID | NO | - | PRIMARY KEY component | Trusted Tenant scope |
 | `source_timestamp` | TIMESTAMPTZ | NO | - | PRIMARY KEY/partition component | Device source time |
 | `id` | UUID | NO | - | PRIMARY KEY component | Immutable position identity |
-| `event_version` | INTEGER | NO | `1` | CHECK IN (1,2) | Canonical telemetry schema version |
+| `event_version` | INTEGER | NO | `1` | CHECK IN (1,2,3) | Canonical telemetry schema version |
 | `device_id` | UUID | NO | - | Logical Tracking device reference | Source device |
 | `vehicle_id` | UUID | NO | - | Logical Fleet Vehicle reference | Source-time Vehicle |
 | `provider_alias` | VARCHAR(80) | NO | - | - | Trusted provider alias |
@@ -115,13 +115,18 @@ no new permission, public API or migration is introduced by this architecture de
 | `retention_policy_version` | VARCHAR(40) | NO | - | - | Applied policy version |
 | `retain_until` | TIMESTAMPTZ | YES | NULL | Tenant-leading partial index | Optional retention boundary |
 | `safe_metadata` | JSONB | NO | `{}` | - | Bounded non-secret metadata |
-| `tamper_state` | VARCHAR(16) | YES | NULL | CHECK DETECTED/CLEAR/UNKNOWN; V2 only | Provider tamper evidence |
-| `battery_level_percent` | NUMERIC | YES | NULL | CHECK 0–100 and scale ≤ 3; V2 only | Provider battery percentage |
-| `battery_voltage_volts` | NUMERIC | YES | NULL | CHECK 0–1000 and scale ≤ 6; V2 only | Provider battery voltage |
-| `external_power_state` | VARCHAR(16) | YES | NULL | CHECK CONNECTED/DISCONNECTED/UNKNOWN; V2 only | Provider external-power evidence |
-| `battery_charging_state` | VARCHAR(20) | YES | NULL | CHECK CHARGING/NOT_CHARGING/UNKNOWN; V2 only | Provider charging evidence |
+| `tamper_state` | VARCHAR(16) | YES | NULL | CHECK DETECTED/CLEAR/UNKNOWN; V2/V3 only | Provider tamper evidence |
+| `battery_level_percent` | NUMERIC | YES | NULL | CHECK 0–100 and scale ≤ 3; V2/V3 only | Provider battery percentage |
+| `battery_voltage_volts` | NUMERIC | YES | NULL | CHECK 0–1000 and scale ≤ 6; V2/V3 only | Provider battery voltage |
+| `external_power_state` | VARCHAR(16) | YES | NULL | CHECK CONNECTED/DISCONNECTED/UNKNOWN; V2/V3 only | Provider external-power evidence |
+| `battery_charging_state` | VARCHAR(20) | YES | NULL | CHECK CHARGING/NOT_CHARGING/UNKNOWN; V2/V3 only | Provider charging evidence |
+| `ignition_state` | VARCHAR(16) | YES | NULL | V3 only; CHECK ON/OFF/UNKNOWN and agreement with legacy `engine_state` | Explicit ignition evidence |
+| `engine_running_state` | VARCHAR(16) | YES | NULL | V3 only; CHECK RUNNING/NOT_RUNNING/UNKNOWN; paired with source | Authoritative engine-running assessment |
+| `engine_running_source` | VARCHAR(40) | YES | NULL | V3 only; constrained approved provenance; paired with state | Engine-running provenance |
 
-V96 enforces append-only `tracking_position_history` at the database boundary. V1 rows must keep all V2-only evidence null. Missing V2 evidence remains null while an explicit provider-reported `UNKNOWN` remains a distinct stored value.
+V96 enforces append-only `tracking_position_history` at the database boundary. V101 permits V3,
+retains V2 optional signals in V2/V3, and requires all V3-only engine fields to remain null for
+V1/V2. Missing evidence remains null while explicit provider-reported `UNKNOWN` remains distinct.
 
 #### Table: `tracking_device_telemetry_capability`
 
@@ -134,7 +139,7 @@ V96 enforces append-only `tracking_position_history` at the database boundary. V
 | `id` | UUID | NO | - | PRIMARY KEY; UNIQUE with `tenant_id` | Capability-history identity |
 | `tenant_id` | UUID | NO | - | Same-Tenant FK component; index leader | Trusted Tenant scope |
 | `tracking_device_id` | UUID | NO | - | Same-Tenant FK → `tracking_device(tenant_id,id)` | Tracking-owned device |
-| `capability` | VARCHAR(32) | NO | - | CHECK approved position/speed/accuracy/heading/ignition/tamper/battery/power vocabulary | Capability name |
+| `capability` | VARCHAR(32) | NO | - | CHECK approved position/speed/accuracy/heading/ignition/engine-running/tamper/battery/power vocabulary | Capability name |
 | `capability_state` | VARCHAR(16) | NO | - | CHECK SUPPORTED/UNSUPPORTED/UNKNOWN | Explicit effective state |
 | `effective_from` | TIMESTAMPTZ | NO | - | Half-open interval; effective lookup index | Inclusive source-time boundary |
 | `effective_to` | TIMESTAMPTZ | YES | NULL | Must be greater than `effective_from` | Exclusive source-time boundary |
@@ -1793,3 +1798,18 @@ Next: `US-51-MONITOR-IDLE-TIME-CS02-V101-HISTORY-CAPABILITY-001`. It must verify
 add the approved immutable history/capability boundary before any V3 production cutover. Verified
 production device/protocol mapping and physical acceptance remain independent later gates.
 Accounting remains 73/87 and Flyway remains V100.
+
+### US-51 CS02 V101 history and capability
+
+CS02 is complete at application commit `675503198a9e10a0d3a28790370bbec87dcf42bb` and V101.
+Tracking history now accepts canonical V3 losslessly and retains the
+separate ignition and authoritative engine-running state/source fields under database constraints.
+V1/V2 history and legacy ignition semantics remain unchanged; no backfill or reinterpretation
+occurred. The effective-dated capability vocabulary includes `ENGINE_RUNNING`, but V101 seeds no
+production capability and absence resolves to `UNKNOWN`.
+
+The V3 publisher and bounded history consumer use `tracking.telemetry.ingested.v3`; acknowledgement
+follows the committed history batch, and retry/cross-version identity retains logical deduplication.
+Flespi, Traccar and Generic remain V2-only and cannot advertise authoritative engine-running.
+Next: `US-51-MONITOR-IDLE-TIME-CS03-V102-IDLE-PERSISTENCE-DISPATCH-001`. Accounting remains 73/87;
+production-source activation and physical acceptance remain separate holds.
