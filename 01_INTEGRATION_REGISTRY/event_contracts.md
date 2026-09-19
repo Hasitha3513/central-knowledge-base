@@ -164,7 +164,9 @@ decision after active-producer, backlog, retention and rollback-window checks.
 
 ### `TRACKING_TELEMETRY_INGESTED_V1` envelope version 3
 
-Status: `IMPLEMENTED_US51_CS02_DURABLE / PRODUCTION_SOURCE_ACTIVATION_GATED`. D1-D11 are approved.
+Status: `TECHNICALLY_COMPLETE_US51_V105 / PRODUCTION_SOURCE_ACTIVATION_GATED`. D1-D11 and
+CS01-CS07 technical closure are complete; production Fleet eligibility remains `UNKNOWN` and no
+production provider/device engine-running mapping is approved.
 The additive V3 contract uses `tracking.telemetry.ingested.v3` and
 `tracking.telemetry.ingested.v3.dlt`, the existing event type and Tenant/Vehicle partition key, and
 preserves canonical identity/deduplication semantics. It retains V2 fields and adds:

@@ -2033,5 +2033,26 @@ static-analysis, frontend and real Chromium continuity gates pass. Local timings
 evidence, not production SLOs or physical acceptance.
 
 Production Fleet eligibility remains `UNKNOWN`; production engine-running mappings remain disabled,
-accounting remains 73/87 and physical acceptance remains pending. Exact next queue:
-`US-51-MONITOR-IDLE-TIME-TECHNICAL-CLOSURE-001`.
+accounting remains 73/87 and physical acceptance remains pending. The subsequent consolidated
+technical closure is recorded below.
+
+### US-51 consolidated technical closure
+
+US-51 is `TECHNICALLY_COMPLETE / PRODUCTION_SOURCE_ACTIVATION_PENDING / ACCEPTANCE_PENDING` at
+Flyway V105. The consolidated traceability covers canonical V3 compatibility, durable history and
+source-time capability, conservative Fleet eligibility, restart-safe candidate persistence,
+immutable evidence, the D1-D5 evaluator, leased dispatch, exact read permissions/APIs, minimized
+audit, the permission-aware frontend and V105 plan hardening.
+
+At the final application commit, a fresh 53-test cross-layer selection passed with no failures,
+errors or skips. The same commit retains complete Maven 1,952/1,952, architecture 59/59, frontend
+346/346 and real Chromium 4/4 evidence. No Phase-1 Notification, Operations fact, fuel estimate or
+production source mapping exists.
+
+Production remains fail-closed: Fleet classification is `UNKNOWN` and production Flespi, Traccar
+and Generic engine-running mappings are disabled. Activation requires authoritative effective-dated
+Fleet classification and an approved native device/protocol mapping backed by real capture.
+Physical acceptance additionally requires a genuine same-Tenant provider/device/Vehicle journey,
+safe field procedure, privacy review and operator sign-off. No executable US-51 activation or
+final-acceptance task identifier is currently authorized, so none is invented. Accounting remains
+73/87.
