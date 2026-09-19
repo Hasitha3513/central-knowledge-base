@@ -220,3 +220,15 @@ broad Tracking view/history/management or producer permissions do not imply dash
   creates no role and does not provision future Tenants.
 - Backend HTTP and secured-use-case boundaries are authoritative. Replaying a completed acknowledgement still
   requires current REVIEW authority and current same-Tenant membership.
+
+## US-51 Idle Monitoring Permissions (Implemented in V104)
+
+- `IDLE_MONITOR_VIEW`: read same-Tenant current idle-monitoring state.
+- `IDLE_EVENT_VIEW`: read same-Tenant confirmed/closed idle episodes and their minimized immutable evidence.
+
+V104 seeds exactly these two active permissions and conditionally grants them only to existing `ADMIN` and
+`DISPATCHER` roles. It creates no role, does not grant `LOCAL_MVP_ADMIN`, and does not provision future
+Tenants. The permissions are independent and read-only. Neither grants Tracking configuration, precise
+coordinates, raw telemetry, provider/device details, credentials, Driver or Customer data, acknowledgement,
+review, mutation, Notification management, Operations authority, or cross-Tenant access. Literal
+`/api/v1/tracking/idle-monitoring/**` routes and the secured use-case boundary both enforce authority.

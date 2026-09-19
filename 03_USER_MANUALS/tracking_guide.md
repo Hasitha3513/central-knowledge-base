@@ -281,3 +281,19 @@ the client safely reuses the original command identity. If another operator chan
 refreshes current state and requires a new deliberate decision. Review-only users cannot open the page because
 the read permission is intentionally independent. Acknowledgement does not generate another Notification or
 Operations fact and does not stop detector-controlled recovery or escalation.
+
+## Idle monitoring API access
+
+Idle monitoring is currently available through the authenticated read-only API. Users with
+`IDLE_MONITOR_VIEW` can list same-Tenant current Vehicle idle-monitoring states. Users with
+`IDLE_EVENT_VIEW` can query a UTC episode range of at most 31 days, open a same-Tenant episode and page through
+its minimized immutable evidence. The permissions are independent; lacking the required permission returns a
+denial and a foreign-Tenant identifier is not disclosed.
+
+Use the server-provided opaque cursor for the next page and do not modify it. Results show source-time state,
+episode lifecycle, safe Vehicle identity, credited duration and evidence counts. They do not contain precise
+locations, Device/provider details, raw telemetry, credentials, personal data or fuel estimates. `UNKNOWN` or
+unavailable evidence is truthful and must not be interpreted as confirmed engine or idle state. Production
+powertrain classification and engine-running source activation remain pending, so local/fixture results are
+technical evidence rather than physical-device acceptance. The operator frontend is the next implementation
+stage (`CS06 frontend`) and is not yet presented as available.

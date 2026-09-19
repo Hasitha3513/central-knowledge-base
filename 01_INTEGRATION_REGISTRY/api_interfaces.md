@@ -374,6 +374,23 @@ Acknowledgement replay preserves the original response body and success semantic
 Same-key different content/actor, stale version, acknowledged/resolved lifecycle and foreign Tenant requests fail
 closed. There is no create, delete, raw-evidence or arbitrary status endpoint.
 
+## Tracking — US-51 idle monitoring
+
+All routes are read-only, derive Tenant and actor from authenticated context, return `Cache-Control: no-store`
+and `Referrer-Policy: no-referrer`, and use HMAC-authenticated cursors bound to Tenant and filters.
+
+| Method | Path | Permission | Contract |
+| --- | --- | --- | --- |
+| GET | `/api/v1/tracking/idle-monitoring/states` | `IDLE_MONITOR_VIEW` | Optional Vehicle/state filters; default 50, max 100; order `latest_source_timestamp DESC,vehicle_id DESC` |
+| GET | `/api/v1/tracking/idle-monitoring/episodes` | `IDLE_EVENT_VIEW` | Required UTC `[from,to)` up to 31 days; optional Vehicle/end-reason filters; default 50, max 100; order `start_source_timestamp DESC,id DESC` |
+| GET | `/api/v1/tracking/idle-monitoring/episodes/{episodeId}` | `IDLE_EVENT_VIEW` | Same-Tenant minimized detail or non-disclosing not-found |
+| GET | `/api/v1/tracking/idle-monitoring/episodes/{episodeId}/evidence` | `IDLE_EVENT_VIEW` | Same-Tenant minimized immutable evidence; default 50, max 100; order `source_timestamp ASC,id ASC` |
+
+Responses expose operational state, lifecycle, source timestamps, credited duration/counts and safe logical
+Vehicle identity only. They exclude coordinates, raw/provider payloads, Device/provider/credential facts,
+Driver/Customer PII and fuel estimates. Candidate lifecycle rows are not exposed as episodes. Invalid bounds,
+enums or cursors fail safely; foreign-Tenant identifiers are not-found-shaped.
+
 The CS07 operator client consumes these contracts at `/tracking/gps-exceptions`. It does not query until an
 explicit valid range is supplied, keeps server filters out of URLs and persistent browser storage, follows only
 opaque server cursors, cancels obsolete requests and partitions cached data by authenticated session. An

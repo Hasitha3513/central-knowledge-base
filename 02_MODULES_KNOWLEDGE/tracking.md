@@ -1978,3 +1978,21 @@ double-credit time, evidence or recovery.
 The existing leased dispatcher now claims IDLE work with this evaluator. Evaluation effects commit
 before lease completion; retries, expired-lease recovery and stale-owner protection are preserved.
 IDLE replay applies source-time continuity rather than the unrelated live-detector age guard.
+
+### US-51 CS05 V104 APIs, RBAC and audit
+
+V104 seeds only `IDLE_MONITOR_VIEW` and `IDLE_EVENT_VIEW`, granting both to existing `ADMIN` and
+`DISPATCHER` roles. It creates no role and deliberately does not grant `LOCAL_MVP_ADMIN`. CS05 adds four
+read-only `/api/v1/tracking/idle-monitoring` endpoints for current state, bounded episode history, episode
+detail and minimized immutable evidence. HTTP security and direct use-case method security enforce the two
+permissions independently.
+
+Every read is Tenant-qualified. Episode ranges are half-open and limited to 31 days; pages are capped at 100
+and use HMAC-authenticated Tenant/filter-bound keyset cursors. Foreign-Tenant detail is non-disclosing.
+Successful reads and same-Tenant absence are audited with actor, correlation ID, safe action/filter shape,
+requested limit and result count; no coordinates, raw telemetry, Device/provider facts, credentials, Driver or
+Customer PII, review notes or fuel estimates enter API responses or audit metadata. Responses are non-cacheable.
+
+CS05 does not activate production powertrain or engine-running sources and does not change the idle evaluator,
+events, Notifications or Operations. Accounting remains 73/87; physical acceptance remains pending. The exact
+next roadmap label is `CS06 frontend`.
