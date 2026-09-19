@@ -2006,3 +2006,32 @@ fuel estimation remains unavailable. It exposes no coordinates, raw telemetry, D
 Driver/Customer PII and provides no mutation action. Production eligibility remains `UNKNOWN`, production
 engine-running mappings remain disabled and physical acceptance remains pending. Accounting remains 73/87;
 the exact next roadmap label is `CS07 PostgreSQL/Kafka performance/recovery`.
+
+### US-51 CS07 V105 query hardening and recovery closure
+
+V105 adds exactly three ordinary transactional B-tree indexes without changing data, tables,
+constraints, APIs, permissions, events or business semantics:
+
+- `idx_tracking_idle_state_keyset` on
+  `(tenant_id, latest_source_timestamp DESC, vehicle_id DESC)`;
+- `idx_tracking_idle_episode_tenant_keyset` on
+  `(tenant_id, start_source_timestamp DESC, id DESC)` where `lifecycle <> 'CANDIDATE'`;
+- `idx_tracking_telemetry_dispatch_idle_due` on
+  `(next_attempt_at, tenant_id, vehicle_id, source_timestamp, dispatch_id)` where
+  `evaluator_type = 'IDLE'` and status is `PENDING`, `FAILED` or `PROCESSING`.
+
+Clean V1→V105 and populated V104→V105 paths pass and every index is ready and valid. Representative
+multi-Tenant production-query plans use the state and episode keyset indexes and a bounded bitmap
+path for due IDLE dispatch, eliminating the measured full-table scan/sort gaps. Existing evidence
+and retention indexes remain sufficient. Ordinary index construction may block affected writes and
+therefore requires a controlled maintenance window with drained writers and lock/disk monitoring.
+
+PostgreSQL/Kafka verification covers concurrent candidate evaluation, one-open-episode convergence,
+immutable duplicate-safe evidence, rollback, redelivery, crash/restart, expired leases, stale-owner
+rejection and effects-committed-before-dispatch-completion replay. Complete backend, architecture,
+static-analysis, frontend and real Chromium continuity gates pass. Local timings are technical
+evidence, not production SLOs or physical acceptance.
+
+Production Fleet eligibility remains `UNKNOWN`; production engine-running mappings remain disabled,
+accounting remains 73/87 and physical acceptance remains pending. Exact next queue:
+`US-51-MONITOR-IDLE-TIME-TECHNICAL-CLOSURE-001`.
