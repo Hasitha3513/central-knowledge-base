@@ -230,3 +230,17 @@ CS01 is narrowly complete as inactive framework-neutral structure. Its source-qu
 authorize provider adapters or runtime calls. Regional-operation and retention-disposition ports remain
 deferred. D1–D11 and qualified policy authority remain prerequisites for CS02 and all active behavior;
 missing policy/configuration cannot be treated as either clearance or an automatic operational block.
+
+### Remaining MVP planning disposition after US-72 CS01
+
+No Wave D/E implementation task is currently authorized and independently executable. US-87 prerequisite
+analysis is the recommended next governance candidate because accepted Identity, Audit, Workflow and
+Operations contracts can be reviewed independently of Tracking physical evidence and inactive Compliance.
+US-82 analytics is optional to its deterministic baseline, and an IdP is required only for eventual real
+MFA/SSO enforcement claims. The proposed review must freeze signal owners and published contracts before
+any consumer or persistence is introduced.
+
+US-76 runtime remains downstream of Compliance and unresolved device/channel decisions. US-85 requires
+owner-published validators and complete GPS/trip evidence; US-84 complete recovery certification requires
+integrity verification and a controlled fault environment; US-82 requires lineage/data-quality gates; and
+US-86 requires disruption/replan authority plus remaining Scheduling/Tracking/Compliance contracts.

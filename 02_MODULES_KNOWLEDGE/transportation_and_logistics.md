@@ -1230,3 +1230,23 @@ ports are deferred because their source meanings remain unresolved. Missing poli
 unavailable or unevaluated and cannot become either `ALLOW` or an automatic operational block. US-72 is
 `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE_INACTIVE / POLICY_APPROVAL_PENDING`; Flyway remains V105
 and accounting remains 73/87.
+
+### Remaining MVP dependency reconciliation after US-72 CS01
+
+Exactly 14 stories remain: US-48, US-50, US-51, US-52, US-53, US-54, US-55, US-72, US-76,
+US-82 and US-84 through US-87. US-48/50/52/53/54/55 are technically implemented but externally
+acceptance-blocked; US-51 is technically complete with production source activation and physical
+acceptance pending; US-72 has only inactive CS01 foundations and remains policy-authority blocked.
+
+No independently executable implementation task is authorized. The recommended next governance candidate
+is the newly proposed, documentation-only
+`US-87-DETECT-USER-RISK-PREREQUISITE-AND-PRODUCT-DECISIONS-001`. Its Identity/Security, Audit, Workflow
+and Operations foundations are accepted, and its prerequisite analysis does not depend on physical GPS or
+active Compliance policy. The proposal is not implementation authorization: signal, enforcement,
+IdP/MFA, review/appeal, privacy/retention, ownership and acceptance decisions remain unresolved.
+
+US-76 still needs mobile-channel/device/push decisions and is downstream of Compliance for runtime scope.
+US-85 lacks owner invariant/correction contracts and complete GPS/trip evidence; US-84 recovery
+certification depends on integrity verification; US-82 needs governed producer lineage/data quality; and
+US-86 needs disruption/replan authority plus remaining Scheduling/Tracking/Compliance contracts. Flyway
+and accounting remain V105 and 73/87.
