@@ -1199,8 +1199,8 @@ CS05 permissions move unchanged to V104. Accounting remains 73/87.
 
 ### US-72 prerequisite decision package
 
-US-72 is the recommended next independent MVP workstream, but its decision package remains
-`PROPOSED / IMPLEMENTATION_NOT_AUTHORIZED`. The accepted platform prerequisites—US-47 Billing facts,
+US-72 is the selected independent MVP workstream. Its D1–D11 decision package remains proposed, while
+the narrower inactive CS01 structural foundation is complete. The accepted platform prerequisites—US-47 Billing facts,
 Identity/security, Audit, Notification, Workflow, Scheduling, Document and Wave A Integration—are present.
 Tracking production-source and physical-acceptance holds are not dependencies for the proposed Phase-1
 catalogue because it consumes authoritative record facts rather than telemetry.
@@ -1210,9 +1210,23 @@ from Fleet/Driver, Freight/Hazmat, Billing and record owners. It would own effec
 evaluations, immutable decisions, minimized evidence references, overrides and appeals. Source modules retain
 their data; Compliance may not query their persistence or create physical cross-module foreign keys.
 
-No jurisdiction, legal rule, migration, permission, API or event has been approved. Before implementation,
-the product owner and a designated qualified regulatory/tax policy authority must approve D1-D11, the initial
+No jurisdiction, legal rule, migration, permission, API or event has been approved. Before CS02 or any
+active behavior, the product owner and a designated qualified regulatory/tax policy authority must approve D1-D11, the initial
 jurisdiction/policy scope, typed check catalogue, mandatory/advisory effects, override/appeal authority,
 segregation of duties and retention/privacy rules. The authoritative proposal is
 `docs/product-decisions/US-72-ENFORCE-COMPLIANCE-PREREQUISITE-AND-PRODUCT-DECISIONS-001.md` in the
 application repository. Story accounting remains 73/87 and Flyway remains V105.
+
+#### Narrow CS01 disposition
+
+`US-72-ENFORCE-COMPLIANCE-CS01-DOMAIN-PORTS-001` is complete only as inactive,
+framework-neutral structure. It adds Tenant-qualified policy/version and effective-time references,
+the seven structural check IDs, evidence/evaluation/effect vocabulary, minimized source references and
+structural Fleet/Driver, Freight/Hazmat and Billing fact-query ports. It adds no adapters, database,
+permissions, APIs, events, frontend, active jurisdiction, policy or operational enforcement.
+
+D1–D11 and qualified policy authority remain unapproved. Regional-operation and retention-disposition
+ports are deferred because their source meanings remain unresolved. Missing policy/configuration remains
+unavailable or unevaluated and cannot become either `ALLOW` or an automatic operational block. US-72 is
+`IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE_INACTIVE / POLICY_APPROVAL_PENDING`; Flyway remains V105
+and accounting remains 73/87.

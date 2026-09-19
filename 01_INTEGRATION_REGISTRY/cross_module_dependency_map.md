@@ -214,9 +214,9 @@ persistence access or physical FK was added.
 
 | Provider | Proposed consumer | Proposed contract | Governance status |
 | :--- | :--- | :--- | :--- |
-| Fleet/Driver boundary | Compliance | Tenant/effective-time Vehicle document and Driver licence, endorsement, suspension/restriction and minimized fitness results | PROPOSED; no published US-72 fact port authorized |
-| Freight | Compliance | Tenant-qualified manifest commodity, customs, hazardous classification and required-document/handling facts | PROPOSED; no published US-72 fact port authorized |
-| Billing | Compliance | Existing supplied tax category/jurisdiction/taxable amount/rate/amount/exemption/provenance snapshot | APPROVED_DEPENDENCY from US-47; Compliance evaluation not implemented |
+| Fleet/Driver boundary | Compliance | Tenant/effective-time Vehicle document and Driver licence plus minimized fitness results | CS01 INACTIVE STRUCTURAL QUERY PORT; no adapter, policy or runtime evaluation authorized |
+| Freight | Compliance | Tenant-qualified manifest commodity, customs-presence and hazardous classification/presence facts | CS01 INACTIVE STRUCTURAL QUERY PORT; no adapter, policy or runtime evaluation authorized |
+| Billing | Compliance | Existing supplied tax category/jurisdiction/taxable amount/rate/amount/exemption/provenance snapshot | APPROVED_DEPENDENCY from US-47; CS01 inactive structural query port; Compliance evaluation not implemented |
 | Record owners / US-83 | Compliance | Tenant-qualified record/evidence class, effective dates, hold and policy classification | PROPOSED; retention policy authority required |
 | Compliance | owning operational modules | Minimized immutable decision/query contract; any durable event requires explicit consumer and payload approval | PROPOSED; no API/event/permission authorized |
 
@@ -225,3 +225,8 @@ expression-language rules engine, and physical foreign keys across module bounda
 US-48/50/51/52/53/54/55 physical Tracking acceptance is not a dependency for the proposed non-telemetry
 Phase-1 catalogue. A future telemetry-based compliance policy requires separate source-contract and
 acceptance authority. US-76 is downstream of US-72, not a prerequisite.
+
+CS01 is narrowly complete as inactive framework-neutral structure. Its source-query interfaces do not
+authorize provider adapters or runtime calls. Regional-operation and retention-disposition ports remain
+deferred. D1–D11 and qualified policy authority remain prerequisites for CS02 and all active behavior;
+missing policy/configuration cannot be treated as either clearance or an automatic operational block.
