@@ -1253,8 +1253,11 @@ and accounting remain V105 and 73/87.
 
 ### US-87 prerequisite and product-decision package
 
-The documentation-only task `US-87-DETECT-USER-RISK-PREREQUISITE-AND-PRODUCT-DECISIONS-001` is complete.
-The resulting D1–D20 package is proposed and does not authorize implementation or enforcement.
+The prerequisite task `US-87-DETECT-USER-RISK-PREREQUISITE-AND-PRODUCT-DECISIONS-001` is complete. On
+2026-09-19 the project user approved its exact first-wave package at application commit
+`c8e811f6c55ec91859680048c51b8e08b1ac4b35`, stating that they hold or have delegated Product, Security,
+Privacy/records, Identity source-owner and Architecture/data authority. This is one approval statement;
+separate named reviewers or signatures are not inferred. Later-wave D1–D20 choices remain proposed.
 
 The recommended Phase-1 boundary is an Identity-owned, deterministic, advisory-first assessment and human
 review feature. Source domains remain authoritative for validation, authorization, facts and correction.
@@ -1275,19 +1278,20 @@ evidence, step-up or access-token restriction capability. The proposed Phase-1 e
 `ADVISORY_REVIEW_ONLY`; lockout, reauthentication, restriction, punishment and legal conclusions are not
 authorized.
 
-No schema, migration reservation, API, permission, event, producer, frontend or runtime policy exists for
-US-87. Product, security, privacy/records and first-wave source-owner approval is required before the
-proposed CS01–CS07 sequence. Flyway remains V105, accounting remains 73/87, US-72 remains inactive and all
-Tracking activation/physical-acceptance holds remain open.
+CS01 now provides framework-neutral Identity-owned domain and exact minimized signal contracts. No schema,
+migration reservation, API, permission, event producer, frontend or runtime policy exists for US-87. CS02
+requires separate exact DDL and migration authorization, and CS03-CS07 remain independently gated. Flyway
+remains V105, accounting remains 73/87, US-72 remains inactive and all Tracking activation/physical-
+acceptance holds remain open.
 
 #### US-87 first-wave approval package
 
-The concrete first-wave recommendation uses Identity's existing permission-ceiling denial as the only
+The approved concrete first wave uses Identity's existing permission-ceiling denial as the only
 source. Four Tenant-local user/role create/update action codes map to one safe reason code,
 `REQUESTED_PERMISSION_EXCEEDS_ACTOR_CEILING`. This proves a rejected grant exceeded the actor's authority at
 decision time; it does not prove intent, compromise, fraud or successful privilege escalation.
 
-The proposed rule requires three distinct, deduplicated facts for one Tenant/actor/action family within 15
+The approved rule requires three distinct, deduplicated facts for one Tenant/actor/action family within 15
 minutes and assigns MEDIUM advisory priority. Five minutes of delivery lateness is allowed; late evidence is
 history only, duplicate identities count once, conflicting identity reuse is quarantined, and structural
 absence produces no finding. Offline behavior is inapplicable because the source is an authenticated online
@@ -1299,7 +1303,8 @@ request data, IP/user-agent, username and exception text are prohibited. The den
 unchanged; later instrumentation would write the denial fact through an independent bounded transaction
 because the command intentionally fails.
 
-Proposed lifecycle choices are distinct same-Tenant human review, four dispositions, one internal 30-day
-appeal, 180-day retention and no automatic account/session action or Operations intake. Proposed CS01
-defines domain/contracts only; CS02 persistence, CS03 source production, CS04 evaluation/review, CS05 API/
-RBAC and CS06 UI form the bounded path to a usable signal. All remain unapproved; no migration is reserved.
+Approved first-wave lifecycle choices are distinct same-Tenant human review, four dispositions, one
+internal 30-day appeal, 180-day retention and no automatic account/session action or Operations intake.
+CS01 defines domain/contracts only and is complete; CS02 persistence, CS03 source production, CS04
+evaluation/review, CS05 API/RBAC and CS06 UI form the bounded path to a usable signal. Those later slices
+remain unapproved; no migration is reserved.

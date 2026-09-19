@@ -247,8 +247,12 @@ US-86 requires disruption/replan authority plus remaining Scheduling/Tracking/Co
 
 ### US-87 prerequisite and product-decision disposition
 
-`US-87-DETECT-USER-RISK-PREREQUISITE-AND-PRODUCT-DECISIONS-001` is complete as documentation-only
-analysis. Its advisory-first D1–D20 package remains `PROPOSED / IMPLEMENTATION_NOT_AUTHORIZED`.
+`US-87-DETECT-USER-RISK-PREREQUISITE-AND-PRODUCT-DECISIONS-001` is complete. On 2026-09-19 the project
+user approved the exact first-wave package at application commit
+`c8e811f6c55ec91859680048c51b8e08b1ac4b35`, stating that they hold or have delegated Product,
+Security, Privacy/records, Identity source-owner and Architecture/data authority. This is one approval
+statement; it does not represent separate named reviewers or signatures. Later-wave D1–D20 choices remain
+proposed.
 
 The proposed owner is an Identity-internal user-risk feature. Source modules retain mandatory-field
 validation, authorization, business facts and corrections; they may later publish only explicitly
@@ -262,10 +266,10 @@ are not proof of misuse. Current Identity has local JWT/refresh-token authentica
 device-bound session authority, step-up challenge or access-token session restriction; shared-login and
 enforcement capabilities therefore remain unavailable unless separately approved and implemented.
 
-No event, API, permission, persistence, producer, Operations intake or enforcement contract is active.
-Product, security, privacy/records and each first-wave source owner must approve D1–D20, the exact safe
-fact, thresholds, review/appeal authority and retention before proposed CS01 begins. No migration number is
-reserved. US-72 and all Tracking activation/physical-acceptance holds remain independent and unchanged.
+CS01 framework-neutral Identity domain and minimized signal contracts are complete. No event, API,
+permission, persistence, producer, Operations intake or enforcement contract is active. CS02 requires
+separate exact DDL and migration authorization; no migration number is reserved. US-72 and all Tracking
+activation/physical-acceptance holds remain independent and unchanged.
 
 #### Concrete first-wave approval recommendation
 
@@ -282,8 +286,7 @@ Tenant/actor/action family in 15 minutes, with five minutes allowed delivery lat
 MEDIUM advisory finding. Duplicates count once; missing/stale/conflicting facts do not create findings;
 offline behavior is not applicable.
 
-The proposed review is same-Tenant and actor-distinct, with four dispositions, one internal 30-day appeal
+The approved review is same-Tenant and actor-distinct, with four dispositions, one internal 30-day appeal
 and 180-day evidence/finding/review retention. There is no automatic restriction, MFA, lockout, permission
-mutation or Operations intake. Product, security, privacy/records, Identity source-owner and architecture/
-data authority functions must approve the exact package before proposed CS01. No approval or runtime
-contract is recorded yet.
+mutation or Operations intake. The internal CS01 contract records this vocabulary without activating a
+producer or runtime evaluator. An indicator remains explicitly distinct from proof of misuse.
