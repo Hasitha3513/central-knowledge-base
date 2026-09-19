@@ -209,3 +209,19 @@ Tracking dispatch owner. Candidate discard creates no episode, atomic promotion 
 confirmed episode, and device/capability changes, conflicts, engine stop and two-point movement
 recovery follow the approved source-time rules. V1/V2 remain ineligible. No new cross-module
 persistence access or physical FK was added.
+
+### US-72 proposed dependency disposition
+
+| Provider | Proposed consumer | Proposed contract | Governance status |
+| :--- | :--- | :--- | :--- |
+| Fleet/Driver boundary | Compliance | Tenant/effective-time Vehicle document and Driver licence, endorsement, suspension/restriction and minimized fitness results | PROPOSED; no published US-72 fact port authorized |
+| Freight | Compliance | Tenant-qualified manifest commodity, customs, hazardous classification and required-document/handling facts | PROPOSED; no published US-72 fact port authorized |
+| Billing | Compliance | Existing supplied tax category/jurisdiction/taxable amount/rate/amount/exemption/provenance snapshot | APPROVED_DEPENDENCY from US-47; Compliance evaluation not implemented |
+| Record owners / US-83 | Compliance | Tenant-qualified record/evidence class, effective dates, hold and policy classification | PROPOSED; retention policy authority required |
+| Compliance | owning operational modules | Minimized immutable decision/query contract; any durable event requires explicit consumer and payload approval | PROPOSED; no API/event/permission authorized |
+
+US-72 must use published contracts only. Direct JPA/repository/SQL access to provider tables, a generic
+expression-language rules engine, and physical foreign keys across module boundaries remain prohibited.
+US-48/50/51/52/53/54/55 physical Tracking acceptance is not a dependency for the proposed non-telemetry
+Phase-1 catalogue. A future telemetry-based compliance policy requires separate source-contract and
+acceptance authority. US-76 is downstream of US-72, not a prerequisite.

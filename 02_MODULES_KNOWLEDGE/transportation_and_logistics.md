@@ -1196,3 +1196,23 @@ episode associated with the stable candidate identity. Fleet publishes a Tenant/
 powertrain eligibility query, but production returns `UNKNOWN` because authoritative effective-dated
 classification is unavailable. The CS04 evaluator and normal IDLE worker activation remain pending;
 CS05 permissions move unchanged to V104. Accounting remains 73/87.
+
+### US-72 prerequisite decision package
+
+US-72 is the recommended next independent MVP workstream, but its decision package remains
+`PROPOSED / IMPLEMENTATION_NOT_AUTHORIZED`. The accepted platform prerequisites—US-47 Billing facts,
+Identity/security, Audit, Notification, Workflow, Scheduling, Document and Wave A Integration—are present.
+Tracking production-source and physical-acceptance holds are not dependencies for the proposed Phase-1
+catalogue because it consumes authoritative record facts rather than telemetry.
+
+The proposed dedicated Compliance decision/evidence context would consume typed Tenant-qualified facts
+from Fleet/Driver, Freight/Hazmat, Billing and record owners. It would own effective policy versions,
+evaluations, immutable decisions, minimized evidence references, overrides and appeals. Source modules retain
+their data; Compliance may not query their persistence or create physical cross-module foreign keys.
+
+No jurisdiction, legal rule, migration, permission, API or event has been approved. Before implementation,
+the product owner and a designated qualified regulatory/tax policy authority must approve D1-D11, the initial
+jurisdiction/policy scope, typed check catalogue, mandatory/advisory effects, override/appeal authority,
+segregation of duties and retention/privacy rules. The authoritative proposal is
+`docs/product-decisions/US-72-ENFORCE-COMPLIANCE-PREREQUISITE-AND-PRODUCT-DECISIONS-001.md` in the
+application repository. Story accounting remains 73/87 and Flyway remains V105.
