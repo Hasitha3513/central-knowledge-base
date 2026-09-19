@@ -295,5 +295,12 @@ episode lifecycle, safe Vehicle identity, credited duration and evidence counts.
 locations, Device/provider details, raw telemetry, credentials, personal data or fuel estimates. `UNKNOWN` or
 unavailable evidence is truthful and must not be interpreted as confirmed engine or idle state. Production
 powertrain classification and engine-running source activation remain pending, so local/fixture results are
-technical evidence rather than physical-device acceptance. The operator frontend is the next implementation
-stage (`CS06 frontend`) and is not yet presented as available.
+technical evidence rather than physical-device acceptance.
+
+The operator frontend is available at **Tracking → Idle Monitoring**. Current state and episode-history
+access are shown independently according to `IDLE_MONITOR_VIEW` and `IDLE_EVENT_VIEW`. Choose a history range
+no longer than 31 days; changing Vehicle or end-reason filters resets opaque pagination to page one. Confirmed
+and closed episode detail includes minimized immutable evidence only. Candidate state is visible where
+authorized but candidate records never appear as confirmed episode history. Signing out, session expiry or a
+different authenticated session clears cached idle-monitoring queries. The workspace is read-only and displays
+fuel estimation as **Unavailable**.

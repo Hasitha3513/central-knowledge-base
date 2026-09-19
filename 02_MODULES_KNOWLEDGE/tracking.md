@@ -1994,5 +1994,15 @@ requested limit and result count; no coordinates, raw telemetry, Device/provider
 Customer PII, review notes or fuel estimates enter API responses or audit metadata. Responses are non-cacheable.
 
 CS05 does not activate production powertrain or engine-running sources and does not change the idle evaluator,
-events, Notifications or Operations. Accounting remains 73/87; physical acceptance remains pending. The exact
-next roadmap label is `CS06 frontend`.
+events, Notifications or Operations. Accounting remains 73/87; physical acceptance remains pending.
+
+### US-51 CS06 operator frontend
+
+The permission-aware read-only frontend now presents current idle state, bounded confirmed/closed episode
+history, episode detail and minimized immutable evidence. It preserves independent `IDLE_MONITOR_VIEW` and
+`IDLE_EVENT_VIEW` access, session-qualified query caches, a 31-day range, opaque pagination and explicit
+unsupported/unknown/conflicting/candidate states. Credited duration is separate from elapsed timestamps and
+fuel estimation remains unavailable. It exposes no coordinates, raw telemetry, Device/provider credentials or
+Driver/Customer PII and provides no mutation action. Production eligibility remains `UNKNOWN`, production
+engine-running mappings remain disabled and physical acceptance remains pending. Accounting remains 73/87;
+the exact next roadmap label is `CS07 PostgreSQL/Kafka performance/recovery`.
