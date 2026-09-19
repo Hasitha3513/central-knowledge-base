@@ -1279,3 +1279,27 @@ No schema, migration reservation, API, permission, event, producer, frontend or 
 US-87. Product, security, privacy/records and first-wave source-owner approval is required before the
 proposed CS01–CS07 sequence. Flyway remains V105, accounting remains 73/87, US-72 remains inactive and all
 Tracking activation/physical-acceptance holds remain open.
+
+#### US-87 first-wave approval package
+
+The concrete first-wave recommendation uses Identity's existing permission-ceiling denial as the only
+source. Four Tenant-local user/role create/update action codes map to one safe reason code,
+`REQUESTED_PERMISSION_EXCEEDS_ACTOR_CEILING`. This proves a rejected grant exceeded the actor's authority at
+decision time; it does not prove intent, compromise, fraud or successful privilege escalation.
+
+The proposed rule requires three distinct, deduplicated facts for one Tenant/actor/action family within 15
+minutes and assigns MEDIUM advisory priority. Five minutes of delivery lateness is allowed; late evidence is
+history only, duplicate identities count once, conflicting identity reuse is quarantined, and structural
+absence produces no finding. Offline behavior is inapplicable because the source is an authenticated online
+Identity command.
+
+The proposed P1-01 payload is restricted to Tenant, actor/subject UUID, action/reason, logical target,
+occurred/received timestamps and correlation/retry identity. Requested permissions, credentials, raw
+request data, IP/user-agent, username and exception text are prohibited. The denied source command remains
+unchanged; later instrumentation would write the denial fact through an independent bounded transaction
+because the command intentionally fails.
+
+Proposed lifecycle choices are distinct same-Tenant human review, four dispositions, one internal 30-day
+appeal, 180-day retention and no automatic account/session action or Operations intake. Proposed CS01
+defines domain/contracts only; CS02 persistence, CS03 source production, CS04 evaluation/review, CS05 API/
+RBAC and CS06 UI form the bounded path to a usable signal. All remain unapproved; no migration is reserved.

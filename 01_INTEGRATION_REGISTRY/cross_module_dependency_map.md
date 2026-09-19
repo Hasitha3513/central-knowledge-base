@@ -266,3 +266,24 @@ No event, API, permission, persistence, producer, Operations intake or enforceme
 Product, security, privacy/records and each first-wave source owner must approve D1–D20, the exact safe
 fact, thresholds, review/appeal authority and retention before proposed CS01 begins. No migration number is
 reserved. US-72 and all Tracking activation/physical-acceptance holds remain independent and unchanged.
+
+#### Concrete first-wave approval recommendation
+
+The recommended first signal is limited to the existing Identity permission-ceiling decision. Identity
+already rejects Tenant-local user/role administration when requested role permissions exceed the actor's
+current server-resolved permission set. Proposed instrumentation covers exactly four create/update user/role
+action codes and reason `REQUESTED_PERMISSION_EXCEEDS_ACTOR_CEILING`; generic HTTP denials, authentication,
+membership, cross-Tenant not-found and other override cases remain excluded.
+
+The proposed minimized P1-01 fact identifies Tenant, actor/subject UUID, action/reason, logical target,
+source/receipt time and correlation/retry identity. It prohibits requested permissions, credentials, raw
+requests, IP/user-agent, usernames, exception text and free-form allegations. Three distinct facts for one
+Tenant/actor/action family in 15 minutes, with five minutes allowed delivery lateness, would create one
+MEDIUM advisory finding. Duplicates count once; missing/stale/conflicting facts do not create findings;
+offline behavior is not applicable.
+
+The proposed review is same-Tenant and actor-distinct, with four dispositions, one internal 30-day appeal
+and 180-day evidence/finding/review retention. There is no automatic restriction, MFA, lockout, permission
+mutation or Operations intake. Product, security, privacy/records, Identity source-owner and architecture/
+data authority functions must approve the exact package before proposed CS01. No approval or runtime
+contract is recorded yet.
