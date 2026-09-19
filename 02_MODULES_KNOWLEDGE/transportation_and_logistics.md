@@ -1250,3 +1250,32 @@ US-85 lacks owner invariant/correction contracts and complete GPS/trip evidence;
 certification depends on integrity verification; US-82 needs governed producer lineage/data quality; and
 US-86 needs disruption/replan authority plus remaining Scheduling/Tracking/Compliance contracts. Flyway
 and accounting remain V105 and 73/87.
+
+### US-87 prerequisite and product-decision package
+
+The documentation-only task `US-87-DETECT-USER-RISK-PREREQUISITE-AND-PRODUCT-DECISIONS-001` is complete.
+The resulting D1–D20 package is proposed and does not authorize implementation or enforcement.
+
+The recommended Phase-1 boundary is an Identity-owned, deterministic, advisory-first assessment and human
+review feature. Source domains remain authoritative for validation, authorization, facts and correction.
+They may eventually publish exact minimized facts through P1-01; Identity may not read their persistence or
+generic audit data. Current feature-owned audit stores and fixed workflows do not provide a reusable global
+Audit repository or Workflow engine. Operations `OperationalExceptionFactV1` does not currently admit an
+Identity/user-risk source, so Phase-1 Operations integration remains `NONE`.
+
+The structural proposed signal types are unauthorized-override attempts, repeated mandatory-field
+rejections, bounded source-owned fraud indicators, strong shared-login indicators and offline-aware delayed
+reporting. Each activates independently only after its owner, safe fields, thresholds, clocks and
+false-positive treatment are approved. Shared IP, multiple sessions or delay alone are insufficient, and
+an indicator is never proof of wrongdoing. Missing/conflicting/stale evidence remains non-affirmative.
+
+Current Identity supports local password authentication, server-revalidated Tenant/RBAC authority,
+stateless access JWTs and hashed rotating refresh tokens. It has no approved MFA, device-bound session
+evidence, step-up or access-token restriction capability. The proposed Phase-1 effect is therefore
+`ADVISORY_REVIEW_ONLY`; lockout, reauthentication, restriction, punishment and legal conclusions are not
+authorized.
+
+No schema, migration reservation, API, permission, event, producer, frontend or runtime policy exists for
+US-87. Product, security, privacy/records and first-wave source-owner approval is required before the
+proposed CS01–CS07 sequence. Flyway remains V105, accounting remains 73/87, US-72 remains inactive and all
+Tracking activation/physical-acceptance holds remain open.

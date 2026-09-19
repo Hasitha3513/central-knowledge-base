@@ -244,3 +244,25 @@ US-76 runtime remains downstream of Compliance and unresolved device/channel dec
 owner-published validators and complete GPS/trip evidence; US-84 complete recovery certification requires
 integrity verification and a controlled fault environment; US-82 requires lineage/data-quality gates; and
 US-86 requires disruption/replan authority plus remaining Scheduling/Tracking/Compliance contracts.
+
+### US-87 prerequisite and product-decision disposition
+
+`US-87-DETECT-USER-RISK-PREREQUISITE-AND-PRODUCT-DECISIONS-001` is complete as documentation-only
+analysis. Its advisory-first D1–D20 package remains `PROPOSED / IMPLEMENTATION_NOT_AUTHORIZED`.
+
+The proposed owner is an Identity-internal user-risk feature. Source modules retain mandatory-field
+validation, authorization, business facts and corrections; they may later publish only explicitly
+registered minimized P1-01 facts. US-87 may not query foreign repositories/tables, scrape feature-owned
+audit stores or become a generic activity/fraud engine. Current Audit and Workflow behavior is
+feature-owned; their accepted roadmap status does not expose a generic cross-domain feed or workflow API.
+
+The proposed first release is deterministic and advisory-only. Missing, stale, conflicting or unavailable
+evidence cannot become an affirmative finding. Multiple sessions, a shared IP or delayed reporting alone
+are not proof of misuse. Current Identity has local JWT/refresh-token authentication but no supported MFA,
+device-bound session authority, step-up challenge or access-token session restriction; shared-login and
+enforcement capabilities therefore remain unavailable unless separately approved and implemented.
+
+No event, API, permission, persistence, producer, Operations intake or enforcement contract is active.
+Product, security, privacy/records and each first-wave source owner must approve D1–D20, the exact safe
+fact, thresholds, review/appeal authority and retention before proposed CS01 begins. No migration number is
+reserved. US-72 and all Tracking activation/physical-acceptance holds remain independent and unchanged.
