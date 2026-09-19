@@ -1947,7 +1947,34 @@ Indexes support Tenant/candidate source ordering and retention cleanup. Coordina
 credentials, signatures and PII are absent.
 
 Fleet's published source-time powertrain query is available, but its production implementation
-returns `UNKNOWN` until authoritative effective-dated classification exists. Consequently normal
-IDLE claims, the evaluator, production engine-running mappings and physical acceptance remain pending.
-CS05 permissions are resequenced to V104. Accounting remains 73/87 and the queue remains
-`US-51-MONITOR-IDLE-TIME-CS04-EVALUATOR-001`.
+returns `UNKNOWN` until authoritative effective-dated classification exists. CS04 now activates
+normal durable IDLE claims with the approved evaluator, while production engine-running mappings
+and physical acceptance remain pending. CS05 permissions are resequenced to V104. Accounting
+remains 73/87 and the next approved roadmap label is `CS05 V104 APIs/RBAC/audit`.
+
+### US-51 CS04 idle evaluator
+
+Verified application commit: `fa2ad36225d561ea4a965369a4c540e9759efd4e`.
+
+The evaluator consumes only trusted, in-order canonical V3 observations with explicit authoritative
+engine-running state/source, source-time `ENGINE_RUNNING=SUPPORTED` capability and a same-Tenant
+combustion/hybrid result from Fleet's published query. It never infers engine-running or powertrain
+from ignition, speed, movement, power, charging or connectivity. Production remains ineligible
+because Fleet classification is conservatively `UNKNOWN` and all production engine-running mappings
+remain disabled.
+
+Candidate qualification requires speed at or below 3 km/h, accuracy at or below 100 m, and WGS84
+haversine displacement minus both observations' accuracies at or below 50 m. Confirmation requires
+two observations and 300 continuous credited seconds with no gap above 120 seconds. Failed
+candidates retain immutable minimized evidence but create no episode; promotion atomically creates
+one confirmed episode linked by stable candidate identity.
+
+Confirmed episodes close immediately for authoritative engine stop. Device reassignment and
+capability/classification loss close conservatively. Movement closes only after two non-qualifying
+observations at least 30 seconds apart, at the first movement timestamp. Late data cannot regress
+state, equal-timestamp contradictions do not use UUID ordering, and duplicate identities do not
+double-credit time, evidence or recovery.
+
+The existing leased dispatcher now claims IDLE work with this evaluator. Evaluation effects commit
+before lease completion; retries, expired-lease recovery and stale-owner protection are preserved.
+IDLE replay applies source-time continuity rather than the unrelated live-detector age guard.

@@ -100,12 +100,12 @@ US-48 is `IMPLEMENTATION_COMPLETE / ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM`; its pro
 | Fleet | Tracking | Same-Tenant Vehicle identity/reference validation | ACTIVE_MVP / provider onboarding and ingestion |
 | Trip | Tracking | Source-time Vehicle assignment fact used by implemented Tracking consumers | ACTIVE_MVP / published lookup, no foreign persistence |
 | Tracking | US-49/50/52/53 | Trusted latest, normalized optional speed and immutable accepted position/history contracts | FROZEN_US48 / TECHNICAL_DEPENDENCY_SATISFIED; no physical-acceptance inheritance |
-| Tracking | US-51 | Authoritative engine-running plus movement telemetry | IMPLEMENTATION_IN_PROGRESS / CS02_COMPLETE at V101; V3 durable history/capability is verified, while production source activation remains gated pending verified device/protocol evidence |
+| Tracking | US-51 | Authoritative engine-running plus movement telemetry | IMPLEMENTATION_IN_PROGRESS / CS04_COMPLETE at V103; V3 durable history, restart-safe candidate persistence and the D1-D5 evaluator are verified, while production source activation remains gated pending authoritative Fleet classification and verified device/protocol evidence |
 | Tracking | US-54 | US-49..53 producer states/events and Tracking freshness | BLOCKED_PRODUCERS; dashboard cannot recreate detector logic |
 | Tracking | US-55 | Provider-independent loss/delay/trust plus coordinate, accuracy, ordering, impossible-movement, binding and recovery rules; minimized same-Tenant Notification and HIGH-only Operations integration | TECHNICALLY_COMPLETE / IMPLEMENTATION_COMPLETE_ACCEPTANCE_BLOCKED_EXTERNAL_SYSTEM at V100; field matrix 0 PASS / 0 FAIL / 9 external blocks; independent `US-55-TRACCAR-ADAPTER` pending |
 | Integration | Tracking | Published `IntegrationSecretResolver` for opaque credential reference only; never table/repository access or packet transport | ACTIVE_MVP / V74_REMEDIATION_COMPLETE |
 
-The ARB disposition keeps US-48 physical acceptance `ON_HOLD_EXTERNAL_PREREQUISITE` until a genuine supported device/provider journey exists. The hold is not completion, acceptance or waiver. Downstream technical work may consume proven contracts without inheriting field acceptance. US-49 is accepted; US-50, US-52, US-53, US-54 and US-55 are technically complete with governed field/external holds. US-51 D1-D11 and CS01–CS02 are complete at V101; CS03 V102 idle persistence/dispatch is next. Software fixtures do not require hardware, while production source activation still requires verified device-native engine-running evidence. Accounting remains 73/87. The exact open US-55 acceptance queue is `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001`.
+The ARB disposition keeps US-48 physical acceptance `ON_HOLD_EXTERNAL_PREREQUISITE` until a genuine supported device/provider journey exists. The hold is not completion, acceptance or waiver. Downstream technical work may consume proven contracts without inheriting field acceptance. US-49 is accepted; US-50, US-52, US-53, US-54 and US-55 are technically complete with governed field/external holds. US-51 D1-D11 and CS01–CS04 are complete at V103; CS05 V104 APIs/RBAC/audit is next. Software fixtures do not require hardware, while production source activation still requires authoritative Fleet classification and verified device-native engine-running evidence. Accounting remains 73/87. The exact open US-55 acceptance queue is `US-55-HANDLE-GPS-EDGE-CASES-FINAL-ACCEPTANCE-001`.
 
 # US-49 Dependencies (CS01–CS05 Implemented)
 
@@ -143,7 +143,7 @@ US-49 CS01–CS05 are `COMPLETE`; US-49 remains implementation-in-progress witho
 | Trip | Tracking US-53 | Published replay-scope plus one-call, seven-day/2,000-interval bounded Vehicle assignment range with exact Trip/route-revision attribution | CS02_CONSUMER_ACTIVE; `LIMIT 2001`, no partial/N+1 fallback or Trip persistence access |
 | Routing | Tracking US-53 | Published exact immutable route-revision geometry lookup | CS02_CONSUMER_ACTIVE; exact revision only, per-request context cache, no latest fallback |
 | Tracking US-49/50/52 | Tracking US-53 | Tracking-owned query ports for labelled geofence, speed and route-deviation overlays | CS06_ACTIVE; same-Tenant bounded cursor-paged adapters retain producer acceptance status |
-| Tracking US-51 | Tracking US-53 | Engine/idle comparison | CS03_TRACKING_LOCAL_PERSISTENCE_COMPLETE; CS04 evaluator and production ENGINE_RUNNING activation pending |
+| Tracking US-51 | Tracking US-53 | Engine/idle comparison | CS04_EVALUATOR_COMPLETE; production Fleet eligibility and ENGINE_RUNNING activation remain pending |
 | Trip | Tracking US-54 | `TripDashboardQuery.findActiveContexts(tenantId,vehicleIds,evaluatedAt)` returns minimized active Trip/Driver/route context for at most 100 Vehicles in one bulk query | CS02_ACTIVE_MVP; Tenant-qualified, no N+1 calls, no Tracking access to Trip persistence |
 
 V91 adds no cross-module dependency. Tracking's Kafka history consumer now atomically writes three
@@ -191,5 +191,21 @@ creates a confirmed episode atomically while discard retains immutable evidence 
 publishes `VehiclePowertrainEligibilityQuery.classify(tenantId, vehicleId, observedAt)`. Its production
 adapter returns `UNKNOWN` because no authoritative effective-dated Fleet powertrain source exists.
 Tracking must consume this published contract and must not query Fleet persistence directly. Normal
-IDLE claims remain disabled; CS04 evaluator/worker activation and production source activation remain
-pending. CS05 permissions are resequenced from V103 to V104.
+IDLE claims were enabled only with the completed CS04 evaluator. Production Fleet classification
+remains `UNKNOWN`, and production engine-running mappings and physical acceptance remain pending.
+CS05 permissions are resequenced from V103 to V104.
+
+### US-51 CS04 evaluator and durable claiming
+
+Tracking evaluates only canonical V3, trusted, in-order observations with source-time
+`ENGINE_RUNNING=SUPPORTED` and a published Fleet classification of combustion or hybrid. The
+production Fleet adapter still returns `UNKNOWN`, so worker activation does not create production
+eligibility. Controlled fixtures prove the approved 3 km/h speed, 100 m accuracy, accuracy-adjusted
+50 m displacement, five-minute/two-observation confirmation and two-minute continuity boundaries.
+
+Normal `IDLE` leased claiming is active with the real evaluator. Evaluation mutations commit before
+dispatch completion; retry, expiry and stale-owner protection remain provided by the existing
+Tracking dispatch owner. Candidate discard creates no episode, atomic promotion creates one
+confirmed episode, and device/capability changes, conflicts, engine stop and two-point movement
+recovery follow the approved source-time rules. V1/V2 remain ineligible. No new cross-module
+persistence access or physical FK was added.
