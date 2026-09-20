@@ -232,12 +232,12 @@ Tenants. The permissions are independent and read-only. Neither grants Tracking 
 coordinates, raw telemetry, provider/device details, credentials, Driver or Customer data, acknowledgement,
 review, mutation, Notification management, Operations authority, or cross-Tenant access. Literal
 `/api/v1/tracking/idle-monitoring/**` routes and the secured use-case boundary both enforce authority.
-## US-87 CS05 proposed permissions (not active)
+## US-87 CS05 permissions (catalogued, ungranted and inactive)
 
-The implementation-ready CS05 package proposes `USER_RISK_VIEW`, `USER_RISK_EVIDENCE_VIEW`,
-`USER_RISK_REVIEW` and `USER_RISK_APPEAL_DECIDE`. None exists in the active catalogue. The package proposes
-zero automatic grants: `ADMIN`, `DISPATCHER`, sample-data `AUDITOR` and opt-in `LOCAL_MVP_ADMIN` receive no
-user-risk authority implicitly. Production has no migration-owned reviewer role; an authorized Tenant role
-must receive the exact codes through the existing permission-ceiling-governed role workflow. Contextual
-same-Tenant membership, reviewer/subject separation and a distinct appeal reviewer remain mandatory in
-addition to RBAC. This proposal requires explicit CS05 approval before migration or runtime use.
+V107 catalogues `USER_RISK_VIEW`, `USER_RISK_EVIDENCE_VIEW`, `USER_RISK_REVIEW` and
+`USER_RISK_APPEAL_DECIDE` with zero automatic grants. `ADMIN`, `DISPATCHER`, sample-data `AUDITOR` and
+opt-in `LOCAL_MVP_ADMIN` receive no user-risk authority implicitly; sample-data seeding actively preserves
+that invariant on repeat execution. Production has no migration-owned reviewer role. A Tenant role must
+receive the exact codes through the existing permission-ceiling-governed workflow before the default-off API
+is enabled. Contextual same-Tenant membership, reviewer/subject separation and a distinct appeal reviewer
+remain mandatory in addition to RBAC.

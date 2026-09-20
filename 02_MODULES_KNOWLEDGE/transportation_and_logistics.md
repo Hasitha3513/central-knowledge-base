@@ -1372,13 +1372,42 @@ integrity rules. It accepts no free-form note. No production rule seed, API, per
 notification, Operations intake or enforcement effect exists. CS05 API/RBAC/audit is the next proposed
 separately authorized slice; Flyway remains V106 and accounting remains 73/87.
 
-#### US-87 CS05 authorization package
+#### US-87 CS05 API, RBAC and audit
 
-The CS05 API/RBAC/audit package is implementation-ready but not approved. It proposes seven bounded
-same-Tenant routes, four independent permissions with zero automatic grants, operator-only internal appeal,
-signed Tenant/filter-bound pagination, minimized no-store responses, and one Identity-owned append-only
-180-day audit table. Repository inspection found no production migration-owned `AUDITOR` role and no reusable
-global audit repository, so the proposal does not silently grant `ADMIN`, `DISPATCHER`, sample-data `AUDITOR`
-or `LOCAL_MVP_ADMIN`, and it keeps audit feature-owned. V107 was free when inspected but is not reserved.
-Flyway remains V106, CS04 stays inactive/default-off, no rule/API/permission/audit table exists yet, and
-accounting remains 73/87.
+`US-87-DETECT-USER-RISK-CS05-APIS-RBAC-AUDIT-001` is complete but production-inactive. V107 adds exactly
+four ungranted permission definitions and `identity_user_risk_audit_event`, an Identity-owned, Tenant-keyed,
+append-only 180-day audit table with history and disposition indexes. Seven bounded same-Tenant routes provide
+finding list/detail, minimized evidence, immutable history, initial review, internal appeal request and
+distinct-reviewer appeal decision. HMAC cursors bind Tenant/view/query, successful responses are `no-store`
+and `no-referrer`, and mutation replay returns stored immutable lifecycle results after reauthorization.
+
+The API remains absent unless `app.identity.user-risk.internal-review-enabled=true`. `ADMIN`, `DISPATCHER`,
+sample-data `AUDITOR` and `LOCAL_MVP_ADMIN` receive no automatic user-risk authority; repeatable sample-data
+startup preserves this rule. No production rule, evaluation activation, UI, Operations intake or enforcement
+is present. Flyway head is V107, accounting remains 73/87, and CS06 frontend remains separately proposed.
+
+#### Table: `identity_user_risk_audit_event`
+
+- **Purpose:** Minimized immutable access and mutation audit for the default-off US-87 review surface.
+- **Primary Key:** (`tenant_id`, `id`)
+- **Multi-Tenant Key:** `tenant_id` (leading key in finding-history access)
+
+| Column | Type | Nullable | Constraint / meaning |
+| --- | --- | --- | --- |
+| `tenant_id` | UUID | NO | Tenant scope |
+| `id` | UUID | NO | Audit identity |
+| `actor_user_id` | UUID | NO | Trusted authenticated actor logical reference |
+| `action` | VARCHAR(48) | NO | Seven approved read/mutation action codes |
+| `finding_id` | UUID | YES | Same-Tenant logical finding reference |
+| `lifecycle_record_id` | UUID | YES | Immutable review/appeal logical reference |
+| `correlation_id` | VARCHAR(128) | NO | Bounded correlation identity |
+| `filter_shape` | VARCHAR(160) | YES | Enum-only minimized query shape |
+| `requested_limit` | SMALLINT | YES | 1–100 when query counts are recorded |
+| `result_count` | INTEGER | YES | 0–100 paired with requested limit |
+| `outcome` | VARCHAR(24) | NO | Approved success/replay/failure outcome |
+| `occurred_at` | TIMESTAMPTZ | NO | Audit time |
+| `retain_until` | TIMESTAMPTZ | NO | Exactly 180 days after occurrence |
+
+Indexes: `(tenant_id, finding_id, occurred_at DESC, id DESC)` for bounded history and
+`(retain_until, tenant_id, id)` for disposition. The V106 immutable guard rejects update/delete outside the
+authorized retention mechanism.

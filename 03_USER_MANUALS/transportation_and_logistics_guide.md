@@ -469,7 +469,24 @@ Users with `FUEL_EXCEPTION_VIEW` can open **Fuel Management → Fuel Exceptions*
 
 The list shows category, impact, lifecycle, source, review and handoff state. Open a row to see safe source context, evidence, notes, corrections and append-only history. Cross-Tenant identifiers return safe not-found/denied results. Generic status editing, delete, reopen, raw-source editing and punitive verdicts are unavailable.
 
-## 14. 🛠️ Troubleshooting & Support Escalation
+## 14. 🛡️ Internal User-Risk Review (US-87, default-off)
+
+The first-wave internal review API is installed but unavailable unless a deployment administrator explicitly
+enables `app.identity.user-risk.internal-review-enabled`. Enabling it does not create risk rules or assign
+review authority. A Tenant administrator must separately assign the narrowly required `USER_RISK_VIEW`,
+`USER_RISK_EVIDENCE_VIEW`, `USER_RISK_REVIEW` and/or `USER_RISK_APPEAL_DECIDE` permissions through the
+existing governed role workflow.
+
+Authorized operators can list and inspect minimized same-Tenant advisory findings, view evidence only with
+the separate evidence permission, record a coded initial review, submit one internal appeal on behalf of the
+subject, and decide that appeal as a reviewer distinct from both the subject and initial reviewer. There is no
+subject self-service, free-form allegation/note, automatic lockout, session restriction, permission change or
+Operations case. An indicator is not proof of malicious intent or misconduct. Responses omit usernames,
+requested permission names, IP/user-agent data, credentials and raw request content.
+
+No frontend is delivered by CS05; the operator UI remains a separately approved future slice.
+
+## 15. 🛠️ Troubleshooting & Support Escalation
 
 | Error / Condition | Root Cause | Operator Action |
 | :--- | :--- | :--- |
@@ -481,7 +498,7 @@ The list shows category, impact, lifecycle, source, review and handoff state. Op
 
 ---
 
-## 15. 📑 Scope Boundaries
+## 16. 📑 Scope Boundaries
 
 This operational manual documents active features in **Phase 1, Phase 2A, Phase 3 Core Fuel, and MVP 1.3 Delivery Operations**. Features flagged on the project roadmap as deferred (e.g., dynamic multi-echelon routing, IoT telematics, mobile native apps) are outside current system scope.
 # Driver Payroll Input
