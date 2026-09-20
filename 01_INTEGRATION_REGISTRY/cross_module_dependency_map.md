@@ -270,8 +270,9 @@ CS01 framework-neutral Identity domain and minimized signal contracts are comple
 is complete with exactly seven Identity-owned tables, Tenant-qualified relationships, immutable evidence,
 conflict quarantine, optimistic review/appeal integrity and bounded 180-day disposition. CS03 activates
 only the exact four-action `IDENTITY_PERMISSION_CEILING_DENIED_V1` Identity-internal P1-01 source and V106
-evidence consumer. No API, permission, evaluator, finding/review runtime, Operations intake or enforcement
-contract is active. US-72 and all
+evidence consumer. CS04 adds the approved deterministic, effective-rule-driven three-in-15 evaluation and
+internal review/appeal lifecycle. Normal production remains inactive because no rule is seeded. No API,
+permission, Operations intake or enforcement contract is active. US-72 and all
 Tracking activation/physical-acceptance holds remain independent and unchanged.
 
 The CS02 implementation contains exactly seven Identity-owned persistence tables with no foreign-module
@@ -283,7 +284,7 @@ Later producer and evaluator slices remain responsible for their own transaction
 
 The implementation applies the approved 180-day clocks and bounded, foreign-key-safe expiry. Retention
 wins over an unresolved open review without manufacturing a disposition. CS04 evaluation/review remains
-proposed and separately gated; CS03 activates no evaluator or public contract.
+implemented but production-inactive; CS05 API/RBAC/audit remains proposed and separately gated.
 
 #### Concrete first-wave approval recommendation
 

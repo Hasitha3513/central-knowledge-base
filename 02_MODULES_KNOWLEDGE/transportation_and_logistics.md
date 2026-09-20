@@ -1356,3 +1356,18 @@ or storage failure never grants access and is reported without protected payload
 No new schema, permission, API, UI, rule seed, evaluator, finding/review activation, Notification,
 Operations fact or account/session control was introduced. Flyway remains V106, accounting remains 73/87,
 and `US-87-DETECT-USER-RISK-CS04-EVALUATION-REVIEW-001` is the next proposed separately authorized slice.
+
+#### US-87 CS04 evaluation and internal review
+
+`US-87-DETECT-USER-RISK-CS04-EVALUATION-REVIEW-001` is complete but production-inactive. The Identity-owned
+evaluator consumes only persisted sufficient evidence, selects an effective same-Tenant rule at source time,
+enforces five-minute delivery lateness, and opens one MEDIUM `ADVISORY_REVIEW_ONLY` finding after three
+distinct facts within the inclusive 15-minute source-time window. Finding and evidence association are
+atomic and converge through deterministic identity plus V106 uniqueness.
+
+The internal review boundary requires trusted same-Tenant actor context and explicit authorization from a
+future adapter. Initial disposition, one 30-day internal appeal and a distinct-reviewer decision use stable
+request fingerprints, optimistic versions, immutable history and the existing V106 retention/deferred
+integrity rules. It accepts no free-form note. No production rule seed, API, permission, role grant, UI,
+notification, Operations intake or enforcement effect exists. CS05 API/RBAC/audit is the next proposed
+separately authorized slice; Flyway remains V106 and accounting remains 73/87.

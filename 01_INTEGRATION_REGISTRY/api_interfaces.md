@@ -396,3 +396,13 @@ explicit valid range is supplied, keeps server filters out of URLs and persisten
 opaque server cursors, cancels obsolete requests and partitions cached data by authenticated session. An
 uncertain acknowledgement retry reuses the identical idempotency key, expected version and reason; conflict
 responses refresh authoritative detail and never auto-resubmit.
+## Identity user-risk internal review boundary (US-87 CS04)
+
+`UserRiskReviewUseCase` is an Identity-internal, framework-neutral application boundary with operations for
+initial disposition, one internal appeal request and distinct-reviewer appeal decision. Every command carries
+a trusted `ReviewContext(tenantId, actorId, authorized)` supplied by a future CS05 inbound adapter, a stable
+request identity and expected optimistic version. CS04 exposes no REST route and defines no permission code;
+the use-case bean is absent unless controlled configuration explicitly sets
+`app.identity.user-risk.internal-review-enabled=true`, and an unavailable or unauthorized context fails
+closed. Inputs are restricted to UUIDs, approved disposition and
+reason codes, timestamps and versions—no free-form note or allegation content.
