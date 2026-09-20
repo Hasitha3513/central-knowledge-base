@@ -1338,3 +1338,21 @@ Compose defaults it to false. `run.sh` is the explicit local-development opt-in 
 operator-supplied false. Controlled E2E explicitly opts in. The resulting `LOCAL_MVP_ADMIN` role includes
 the existing `IDLE_MONITOR_VIEW` and `IDLE_EVENT_VIEW` permissions; no permission codes or production role
 grants changed.
+
+#### US-87 CS03 first Identity source integration
+
+`US-87-DETECT-USER-RISK-CS03-FIRST-SOURCE-INTEGRATION-001` is complete. The existing Identity permission-
+ceiling decision now emits `IDENTITY_PERMISSION_CEILING_DENIED_V1` for exactly the approved user create,
+user update, role create and role update action codes. Trusted Tenant, actor UUID and correlation identity
+come from authenticated context. Generic 403, authentication, malformed-request and cross-Tenant denials
+are not classified as this signal.
+
+The rejected command remains rejected and performs no protected mutation. A bounded independent
+transaction stores the shared P1-01 outbox fact so the evidence can survive the command's intentional
+failure. The Identity-owned durable consumer validates the minimized allow-list and stores V106 evidence;
+identical delivery is idempotent, conflicting reuse is quarantined and stale replay is rejected. Publication
+or storage failure never grants access and is reported without protected payload details.
+
+No new schema, permission, API, UI, rule seed, evaluator, finding/review activation, Notification,
+Operations fact or account/session control was introduced. Flyway remains V106, accounting remains 73/87,
+and `US-87-DETECT-USER-RISK-CS04-EVALUATION-REVIEW-001` is the next proposed separately authorized slice.

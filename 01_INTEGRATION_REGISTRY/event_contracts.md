@@ -424,3 +424,27 @@ non-evaluable telemetry and review correction are silent. V90 provisions the two
 templates/rules without changing Notification severity values, roles, permissions or schema. Rendered
 messages round metres deterministically and render source time as UTC ISO-8601; they prohibit driver identity,
 coordinates, geometry, review notes, raw telemetry, provider/device details, credentials/signatures and PII.
+
+## IdentityPermissionCeilingDeniedV1 (US-87 CS03; Active Identity-internal durable fact)
+
+- **Owner / producer:** Identity, at the existing permission-ceiling subset decision only.
+- **Consumer:** Identity user-risk evidence persistence only (`identity-user-risk-evidence`).
+- **Envelope:** canonical P1-01 Tenant envelope; event ID is the stable source/retry identity; version 1;
+  aggregate type `IDENTITY_PERMISSION_CEILING_DENIAL`; aggregate ID is the actor/subject UUID.
+- **Delivery:** shared durable outbox, at least once, independently committed because the source command is
+  intentionally rejected; Tenant/source-event consumer idempotency; no global ordering.
+- **Event type:** `IDENTITY_PERMISSION_CEILING_DENIED_V1`.
+- **Actions:** exactly user create/update and role create/update permission-ceiling denials.
+- **Reason:** exactly `REQUESTED_PERMISSION_EXCEEDS_ACTOR_CEILING`.
+- **Payload:** `eventId`, `subjectUserId`, `actorUserId`, `actionCode`, `reasonCode`, `targetType`, nullable
+  `targetId`, `correlationId`, `evidenceState`.
+- **Identity:** deterministic over Tenant, actor, action, target type/identity and correlation ID. An
+  identical retry creates one logical delivery; a new correlation ID is a distinct observed attempt.
+- **Privacy:** requested permissions, credentials, usernames, email, IP, user agent, request body,
+  exception/stack text and free-form allegations are prohibited.
+
+The producer cannot change the existing denial or authorize a protected mutation. Publication failure is
+reported only through minimized health logging and the denial still fails closed. The consumer supplies
+its own receipt time, validates the exact envelope/allow-list, persists through V106, quarantines conflicting
+identity reuse and rejects expired replay. No rule seed, evaluator, finding, review, notification,
+Operations intake or account/session enforcement is activated by CS03.
