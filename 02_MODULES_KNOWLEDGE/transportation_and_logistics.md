@@ -1371,3 +1371,14 @@ request fingerprints, optimistic versions, immutable history and the existing V1
 integrity rules. It accepts no free-form note. No production rule seed, API, permission, role grant, UI,
 notification, Operations intake or enforcement effect exists. CS05 API/RBAC/audit is the next proposed
 separately authorized slice; Flyway remains V106 and accounting remains 73/87.
+
+#### US-87 CS05 authorization package
+
+The CS05 API/RBAC/audit package is implementation-ready but not approved. It proposes seven bounded
+same-Tenant routes, four independent permissions with zero automatic grants, operator-only internal appeal,
+signed Tenant/filter-bound pagination, minimized no-store responses, and one Identity-owned append-only
+180-day audit table. Repository inspection found no production migration-owned `AUDITOR` role and no reusable
+global audit repository, so the proposal does not silently grant `ADMIN`, `DISPATCHER`, sample-data `AUDITOR`
+or `LOCAL_MVP_ADMIN`, and it keeps audit feature-owned. V107 was free when inspected but is not reserved.
+Flyway remains V106, CS04 stays inactive/default-off, no rule/API/permission/audit table exists yet, and
+accounting remains 73/87.

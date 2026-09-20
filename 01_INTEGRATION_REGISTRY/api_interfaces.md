@@ -406,3 +406,15 @@ the use-case bean is absent unless controlled configuration explicitly sets
 `app.identity.user-risk.internal-review-enabled=true`, and an unavailable or unauthorized context fails
 closed. Inputs are restricted to UUIDs, approved disposition and
 reason codes, timestamps and versions—no free-form note or allegation content.
+
+### Proposed US-87 CS05 HTTP boundary (not active)
+
+The CS05 authorization package proposes a default-off `/api/v1/identity/user-risk` surface: bounded finding
+list, finding detail, minimized evidence, immutable lifecycle history, initial review, internal appeal request
+and appeal decision. Reads use signed 15-minute Tenant/filter-bound keyset cursors, 31-day maximum ranges,
+default 50/maximum 100 rows, `Cache-Control: no-store` and `Referrer-Policy: no-referrer`. Foreign-Tenant and
+expired IDs are safe `404`. No subject self-service route is proposed; an authorized operator submits the
+approved internal appeal on the subject's behalf. Mutation bodies carry stable resource/request UUIDs and
+optimistic versions but never Tenant, subject or reviewer identity. The API reconstructs stored immutable
+mutation results rather than promising byte-identical HTTP response replay. All routes and permissions remain
+unapproved and absent from runtime.
