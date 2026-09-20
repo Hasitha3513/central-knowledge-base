@@ -241,3 +241,10 @@ that invariant on repeat execution. Production has no migration-owned reviewer r
 receive the exact codes through the existing permission-ceiling-governed workflow before the default-off API
 is enabled. Contextual same-Tenant membership, reviewer/subject separation and a distinct appeal reviewer
 remain mandatory in addition to RBAC.
+
+CS06 maps the internal review workspace independently to those same codes: list/detail requires
+`USER_RISK_VIEW`, minimized evidence requires `USER_RISK_EVIDENCE_VIEW`, initial review and operator appeal
+require `USER_RISK_REVIEW`, and appeal decision requires `USER_RISK_APPEAL_DECIDE`. Navigation and controls
+hide when authority is absent, but this is usability only; the backend remains authoritative. Authentication,
+Tenant or permission changes clear the workspace and invalidate same-session mutation retry state. No role,
+including `ADMIN`, implies any of these permissions.

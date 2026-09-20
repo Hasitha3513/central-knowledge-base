@@ -471,20 +471,27 @@ The list shows category, impact, lifecycle, source, review and handoff state. Op
 
 ## 14. 🛡️ Internal User-Risk Review (US-87, default-off)
 
-The first-wave internal review API is installed but unavailable unless a deployment administrator explicitly
-enables `app.identity.user-risk.internal-review-enabled`. Enabling it does not create risk rules or assign
-review authority. A Tenant administrator must separately assign the narrowly required `USER_RISK_VIEW`,
-`USER_RISK_EVIDENCE_VIEW`, `USER_RISK_REVIEW` and/or `USER_RISK_APPEAL_DECIDE` permissions through the
-existing governed role workflow.
+The internal review workspace is unavailable unless a deployment administrator explicitly enables
+`app.identity.user-risk.internal-review-enabled`. Enabling it does not create rules or assign review authority.
+A Tenant administrator must separately assign the narrowly required permissions through the governed role
+workflow; holding `ADMIN` alone does not grant access.
 
-Authorized operators can list and inspect minimized same-Tenant advisory findings, view evidence only with
-the separate evidence permission, record a coded initial review, submit one internal appeal on behalf of the
-subject, and decide that appeal as a reviewer distinct from both the subject and initial reviewer. There is no
-subject self-service, free-form allegation/note, automatic lockout, session restriction, permission change or
-Operations case. An indicator is not proof of malicious intent or misconduct. Responses omit usernames,
-requested permission names, IP/user-agent data, credentials and raw request content.
+Operators with `USER_RISK_VIEW` can open **Administration → User Risk Review**, apply bounded state, subject
+and source-time filters, page through same-Tenant findings and open a detail drawer. The page describes every
+finding as a MEDIUM advisory indicator requiring human review—not proof of malicious intent or misconduct.
+Immutable lifecycle history is visible with the finding. Minimized evidence is shown only when the operator
+also holds `USER_RISK_EVIDENCE_VIEW`; without it, the workspace displays an explicit restricted-evidence state.
 
-No frontend is delivered by CS05; the operator UI remains a separately approved future slice.
+- `USER_RISK_REVIEW` permits a coded initial disposition and one governed operator-submitted internal appeal.
+- `USER_RISK_APPEAL_DECIDE` permits a distinct authorized reviewer to uphold or overturn a pending appeal.
+- If a mutation response is lost, **Retry same request** reuses the original request identity and exact payload
+  within the current authenticated session, and a replay response is labelled as such.
+- Signing out, changing Tenant, user or effective permissions clears loaded findings and any pending retry.
+
+There is no subject self-service, free-form allegation/note, automatic lockout, session restriction, permission
+change or Operations case. The page never exposes usernames, requested permission names, IP/user-agent data,
+credentials or raw request content. A successful connection or visible workspace does not mean a production
+risk rule has been activated; first-wave rule activation and later operational acceptance remain separate.
 
 ## 15. 🛠️ Troubleshooting & Support Escalation
 

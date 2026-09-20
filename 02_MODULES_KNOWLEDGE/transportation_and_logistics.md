@@ -1384,7 +1384,24 @@ and `no-referrer`, and mutation replay returns stored immutable lifecycle result
 The API remains absent unless `app.identity.user-risk.internal-review-enabled=true`. `ADMIN`, `DISPATCHER`,
 sample-data `AUDITOR` and `LOCAL_MVP_ADMIN` receive no automatic user-risk authority; repeatable sample-data
 startup preserves this rule. No production rule, evaluation activation, UI, Operations intake or enforcement
-is present. Flyway head is V107, accounting remains 73/87, and CS06 frontend remains separately proposed.
+is present. Flyway head is V107 and accounting remains 73/87.
+
+#### US-87 CS06 internal review frontend
+
+`US-87-DETECT-USER-RISK-CS06-FRONTEND-001` is complete but production-inactive. The permission-aware
+workspace is available at `/administration/user-risk` only when its default-off backend capability is enabled
+and the authenticated same-Tenant operator holds the required narrow permissions. List/detail access requires
+`USER_RISK_VIEW`; minimized evidence is independently gated by `USER_RISK_EVIDENCE_VIEW`; initial review and
+operator appeal require `USER_RISK_REVIEW`; and appeal decisions require `USER_RISK_APPEAL_DECIDE`.
+
+The workspace preserves bounded server-side filtering and cursor pagination, advisory-only language, coded
+review/appeal actions, immutable history and replay-aware mutation responses. An uncertain same-session
+mutation can be retried with the identical request identity and payload. Authentication, Tenant or permission
+context changes cancel outstanding work, clear query state and discard pending retry closures. Connection
+availability is never presented as a production rule activation or evidence of misconduct. Real Chromium
+acceptance covers authorization, lifecycle actions, evidence denial and Tenant isolation against isolated
+PostgreSQL. No migration, backend contract, permission grant, production rule, Operations intake or enforcement
+effect was introduced. CS07 remains a proposed, separately authorized verification/closure slice.
 
 #### Table: `identity_user_risk_audit_event`
 
