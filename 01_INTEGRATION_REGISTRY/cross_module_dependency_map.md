@@ -266,23 +266,22 @@ are not proof of misuse. Current Identity has local JWT/refresh-token authentica
 device-bound session authority, step-up challenge or access-token session restriction; shared-login and
 enforcement capabilities therefore remain unavailable unless separately approved and implemented.
 
-CS01 framework-neutral Identity domain and minimized signal contracts are complete. No event, API,
-permission, persistence, producer, Operations intake or enforcement contract is active. CS02 requires
-separate exact DDL and migration authorization; no migration number is reserved. US-72 and all Tracking
-activation/physical-acceptance holds remain independent and unchanged.
+CS01 framework-neutral Identity domain and minimized signal contracts are complete. CS02 V106 persistence
+is complete with exactly seven Identity-owned tables, Tenant-qualified relationships, immutable evidence,
+conflict quarantine, optimistic review/appeal integrity and bounded 180-day disposition. No event, API,
+permission, producer, evaluator, Operations intake or enforcement contract is active. US-72 and all
+Tracking activation/physical-acceptance holds remain independent and unchanged.
 
-The CS02 authorization package is now concrete but remains unapproved. It proposes exactly seven
-Identity-owned persistence tables with no foreign-module repository or database access: rule version,
+The CS02 implementation contains exactly seven Identity-owned persistence tables with no foreign-module
+repository or database access: rule version,
 minimized evidence, conflict quarantine, advisory finding, finding/evidence association, review history
 and appeal. Tenant-leading business operations, source-event idempotency, atomic finding association,
 optimistic review/appeal concurrency and deferred same-Tenant review/appeal validation are specified.
 Later producer and evaluator slices remain responsible for their own transactions and runtime behavior.
 
-The package applies the approved 180-day clocks and proposes bounded, foreign-key-safe expiry. Explicit
-authorization must confirm that retention wins over an unresolved open review without manufacturing a
-disposition or extending retention indefinitely. It also defines an isolated PostgreSQL/full-suite
-verification strategy for the two inconclusive CS01 suite attempts. No migration number is reserved and
-no runtime contract is activated by this documentation.
+The implementation applies the approved 180-day clocks and bounded, foreign-key-safe expiry. Retention
+wins over an unresolved open review without manufacturing a disposition. CS03 first-source integration
+remains proposed and separately gated; V106 activates no runtime producer, evaluator or public contract.
 
 #### Concrete first-wave approval recommendation
 

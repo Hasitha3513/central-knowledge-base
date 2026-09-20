@@ -1309,10 +1309,9 @@ CS01 defines domain/contracts only and is complete; CS02 persistence, CS03 sourc
 evaluation/review, CS05 API/RBAC and CS06 UI form the bounded path to a usable signal. Those later slices
 remain unapproved; no migration is reserved.
 
-#### US-87 CS02 bounded persistence proposal
+#### US-87 CS02 persistence (V106)
 
-`US-87-DETECT-USER-RISK-CS02-PERSISTENCE-001` now has a concrete authorization package in section 11 of
-the application decision document. It remains **PROPOSED / NOT AUTHORIZED** and changes no current schema.
+`US-87-DETECT-USER-RISK-CS02-PERSISTENCE-001` is approved, implemented and verified at V106.
 The boundary is exactly seven Identity-owned tables: immutable effective-dated rule versions, minimized
 evidence, conflicting-identity quarantine, advisory findings, immutable finding/evidence associations,
 append-only review history and one internal appeal. The evidence source identity is the durable
@@ -1324,8 +1323,18 @@ review/appeal integrity, bounded queries and explicit retention indexes. Busines
 Tenant-scoped. Only the owner retention scanner may discover globally due rows by `retain_until`, after
 which deletion is Tenant-qualified.
 
-The approved 180-day clocks are made executable without legal-hold invention or indefinite retention. One
-interaction still requires explicit CS02 approval: retention wins over an unresolved open review, with no
-fabricated disposition; only minimized operational health is recorded. Expired source-time evidence cannot
-be recreated by an old retry. No migration version is reserved; implementation must verify the next free
-version after current V105. No producer, evaluator, API, permission, UI or enforcement is active.
+The approved 180-day clocks are executable without legal-hold invention or indefinite retention. Retention
+wins over an unresolved open review without a fabricated disposition. Expired source-time evidence cannot
+be recreated by an old retry. The seven tables are `identity_user_risk_rule_version`,
+`identity_user_risk_evidence`, `identity_user_risk_evidence_conflict`, `identity_user_risk_finding`,
+`identity_user_risk_finding_evidence`, `identity_user_risk_review`, and `identity_user_risk_appeal`.
+All use composite Tenant keys/relationships, exact first-wave checks, immutable or optimistic lifecycle
+guards and the documented Tenant-leading business/retention indexes. No producer, evaluator, API,
+permission, UI or enforcement is active.
+
+Development identity bootstrap is now fail-closed by default. It is created only when
+`app.dev.identity-bootstrap.enabled=true` is explicitly supplied in an allowed local profile; shared
+Compose defaults it to false. `run.sh` is the explicit local-development opt-in and preserves an
+operator-supplied false. Controlled E2E explicitly opts in. The resulting `LOCAL_MVP_ADMIN` role includes
+the existing `IDLE_MONITOR_VIEW` and `IDLE_EVENT_VIEW` permissions; no permission codes or production role
+grants changed.
