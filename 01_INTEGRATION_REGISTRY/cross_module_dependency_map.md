@@ -271,6 +271,19 @@ permission, persistence, producer, Operations intake or enforcement contract is 
 separate exact DDL and migration authorization; no migration number is reserved. US-72 and all Tracking
 activation/physical-acceptance holds remain independent and unchanged.
 
+The CS02 authorization package is now concrete but remains unapproved. It proposes exactly seven
+Identity-owned persistence tables with no foreign-module repository or database access: rule version,
+minimized evidence, conflict quarantine, advisory finding, finding/evidence association, review history
+and appeal. Tenant-leading business operations, source-event idempotency, atomic finding association,
+optimistic review/appeal concurrency and deferred same-Tenant review/appeal validation are specified.
+Later producer and evaluator slices remain responsible for their own transactions and runtime behavior.
+
+The package applies the approved 180-day clocks and proposes bounded, foreign-key-safe expiry. Explicit
+authorization must confirm that retention wins over an unresolved open review without manufacturing a
+disposition or extending retention indefinitely. It also defines an isolated PostgreSQL/full-suite
+verification strategy for the two inconclusive CS01 suite attempts. No migration number is reserved and
+no runtime contract is activated by this documentation.
+
 #### Concrete first-wave approval recommendation
 
 The recommended first signal is limited to the existing Identity permission-ceiling decision. Identity

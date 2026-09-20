@@ -1308,3 +1308,24 @@ internal 30-day appeal, 180-day retention and no automatic account/session actio
 CS01 defines domain/contracts only and is complete; CS02 persistence, CS03 source production, CS04
 evaluation/review, CS05 API/RBAC and CS06 UI form the bounded path to a usable signal. Those later slices
 remain unapproved; no migration is reserved.
+
+#### US-87 CS02 bounded persistence proposal
+
+`US-87-DETECT-USER-RISK-CS02-PERSISTENCE-001` now has a concrete authorization package in section 11 of
+the application decision document. It remains **PROPOSED / NOT AUTHORIZED** and changes no current schema.
+The boundary is exactly seven Identity-owned tables: immutable effective-dated rule versions, minimized
+evidence, conflicting-identity quarantine, advisory findings, immutable finding/evidence associations,
+append-only review history and one internal appeal. The evidence source identity is the durable
+idempotency boundary; no duplicate generic idempotency table is proposed.
+
+The design specifies Tenant-leading business keys and relationships, immutable and optimistic-concurrency
+guards, one open advisory finding, atomic evidence association, retry fingerprinting, deferred
+review/appeal integrity, bounded queries and explicit retention indexes. Business queries remain
+Tenant-scoped. Only the owner retention scanner may discover globally due rows by `retain_until`, after
+which deletion is Tenant-qualified.
+
+The approved 180-day clocks are made executable without legal-hold invention or indefinite retention. One
+interaction still requires explicit CS02 approval: retention wins over an unresolved open review, with no
+fabricated disposition; only minimized operational health is recorded. Expired source-time evidence cannot
+be recreated by an old retry. No migration version is reserved; implementation must verify the next free
+version after current V105. No producer, evaluator, API, permission, UI or enforcement is active.
