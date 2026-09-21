@@ -1401,7 +1401,18 @@ context changes cancel outstanding work, clear query state and discard pending r
 availability is never presented as a production rule activation or evidence of misconduct. Real Chromium
 acceptance covers authorization, lifecycle actions, evidence denial and Tenant isolation against isolated
 PostgreSQL. No migration, backend contract, permission grant, production rule, Operations intake or enforcement
-effect was introduced. CS07 remains a proposed, separately authorized verification/closure slice.
+effect was introduced.
+
+#### US-87 CS07 concurrency, security and verification closure
+
+`US-87-DETECT-USER-RISK-CS07-CONCURRENCY-SECURITY-001` is complete and verified. PostgreSQL transaction isolation,
+deterministic advisory transaction locks (`pg_advisory_xact_lock`), durable evidence deduplication, concurrent evaluation
+deduplication, optimistic concurrency, and idempotent mutation replays are fully hardened. Multi-tenant IDOR protection,
+granular RBAC, evidence minimization, and strict separation of duties (distinct reviewers for initial review, mediated appeal,
+and appeal decision) are validated across 86 UserRisk/Architecture tests (4/4 PostgreSQL concurrency acceptance, 39/39 UserRisk,
+49/49 Modulith/Hexagonal architecture), zero Checkstyle/PMD/SpotBugs static analysis violations, and 351/351 frontend Vitest/build/lint
+passes. The feature remains default-disabled (`app.identity.user-risk.internal-review-enabled=false`) with zero default role grants
+and strictly advisory-only semantics. Flyway head is V107 and accounting remains 73/87.
 
 #### Table: `identity_user_risk_audit_event`
 
