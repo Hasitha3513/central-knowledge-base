@@ -2,7 +2,7 @@
 
 ## Phase 1: Current MVP Scope
 
-US-72 is `IMPLEMENTATION_IN_PROGRESS / CS05_API_RBAC_AUDIT_COMPLETE / POLICY_APPROVAL_PENDING`. CS01 established framework-neutral structural domain contracts, CS02 established the tenant-isolated persistence schema (Flyway V108) and outbound persistence adapters, CS03 established typed, read-only compliance fact-provider contracts and anti-corruption adapters across Fleet, Freight, and Billing, CS04 established the deterministic evaluation engine (`EvaluateComplianceUseCase` / `ComplianceEvaluationEngine`) with pure domain check handlers and fail-closed composite rules, and CS05 established the secure REST API (`ComplianceController`), RBAC/ABAC authorization (`SecuredComplianceApiUseCase`), four catalogued ungranted permissions, and immutable audit logging (`compliance_audit_event`, Flyway V109). It does not activate automated runtime policy enforcement, operational blocking, or UI workflows. Story accounting remains 73/87 and Flyway head is V109.
+US-72 is `IMPLEMENTATION_IN_PROGRESS / CS06_FRONTEND_COMPLETE / POLICY_APPROVAL_PENDING`. CS01 established framework-neutral structural domain contracts, CS02 established the tenant-isolated persistence schema (Flyway V108) and outbound persistence adapters, CS03 established typed, read-only compliance fact-provider contracts and anti-corruption adapters across Fleet, Freight, and Billing, CS04 established the deterministic evaluation engine (`EvaluateComplianceUseCase` / `ComplianceEvaluationEngine`) with pure domain check handlers and fail-closed composite rules, CS05 established the secure REST API (`ComplianceController`), RBAC/ABAC authorization (`SecuredComplianceApiUseCase`), four catalogued ungranted permissions, and immutable audit logging (`compliance_audit_event`, Flyway V109), and CS06 established the permission-aware, read-only operator Compliance workspace in React + TypeScript + Ant Design / Refine. It does not activate automated runtime policy enforcement or operational blocking. Story accounting remains 73/87 and Flyway head is V109.
 
 ### Database Schema (Flyway V108 & V109)
 
@@ -16,12 +16,25 @@ All tables are strictly tenant-isolated (`tenant_id` leading on PKs and indexes)
 - `compliance_fact_reference_record`: Minimized immutable evidence references (`source_module`, `fact_type`, `fact_id`, `fact_version`, `effective_at`).
 - `compliance_audit_event` (V109): Append-only immutable audit trail protected by `guard_compliance_audit_immutable()` trigger (`id`, `tenant_id`, `actor_id`, `action_code`, `resource_id`, `resource_type`, `correlation_id`, `payload`, `created_at`).
 
-### Permissions Catalogued (V109)
+### Permissions Matrix & Operator Capabilities (V109 & CS06)
 
-- `COMPLIANCE_EVALUATE`: Point-in-time policy evaluations.
-- `COMPLIANCE_EVALUATION_VIEW`: Evaluation summary inspection.
-- `COMPLIANCE_EVIDENCE_VIEW`: Granular evaluation evidence inspection (decoupled for segregation of duties).
-- `COMPLIANCE_POLICY_VIEW`: Policy definitions and rule inspection.
+- `COMPLIANCE_EVALUATE`: Allows executing point-in-time policy evaluations via `POST /api/v1/compliance/evaluations` and the Run Evaluation workspace form.
+- `COMPLIANCE_EVALUATION_VIEW`: Allows inspecting evaluation summaries via `GET /api/v1/compliance/evaluations/{id}` and the Evaluation Lookup tab.
+- `COMPLIANCE_EVIDENCE_VIEW`: Allows inspecting granular check results and fact references via `GET /api/v1/compliance/evaluations/{id}/evidence` in a segregated drawer.
+- `COMPLIANCE_POLICY_VIEW`: Allows reading tenant compliance policies and version rules via `GET /api/v1/compliance/policies` and `GET /api/v1/compliance/policies/{id}`.
+
+### Frontend Operator Workspace Architecture (CS06)
+
+- Workspace Route: `/compliance`
+- Components:
+  - `ComplianceWorkspacePage`: Tabbed operator dashboard with persistent advisory notices.
+  - `CompliancePolicyList`: Read-only summary table of tenant compliance policies.
+  - `CompliancePolicyDetailModal`: Read-only inspector for policy version rules.
+  - `ComplianceEvaluationForm`: Controlled form with client-side UUID validation.
+  - `ComplianceEvaluationSummary`: Presentation of evaluation outcome and per-check results.
+  - `ComplianceEvidenceDrawer`: Segregated drawer for data-minimized fact provenance.
+- Multi-Tenancy: `useComplianceSession()` invalidates caches on tenant/session changes.
+- Read-Only Guard: Strictly no mutating policy authoring, form editing, or publishing controls.
 
 ### Inbound & Outbound Ports
 
@@ -54,4 +67,3 @@ D1–D11 remain proposed. Product and qualified policy authority must approve ju
 ## Phase 2: Post-MVP / Future Roadmap
 
 Any generic rule language, external rules feed or additional jurisdiction remains separately governed in Phase 2.
-
