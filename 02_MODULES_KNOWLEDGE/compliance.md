@@ -2,9 +2,9 @@
 
 ## Phase 1: Current MVP Scope
 
-US-72 is `IMPLEMENTATION_IN_PROGRESS / CS04_EVALUATION_ENGINE_COMPLETE / POLICY_APPROVAL_PENDING`. CS01 established framework-neutral structural domain contracts, CS02 established the tenant-isolated persistence schema (Flyway V108) and outbound persistence adapters, CS03 established typed, read-only compliance fact-provider contracts and anti-corruption adapters across Fleet, Freight, and Billing, and CS04 established the deterministic evaluation engine (`EvaluateComplianceUseCase` / `ComplianceEvaluationEngine`) with pure domain check handlers and fail-closed composite rules. It does not activate automated runtime policy enforcement, operational blocking, or UI workflows. Story accounting remains 73/87 and Flyway head is V108.
+US-72 is `IMPLEMENTATION_IN_PROGRESS / CS05_API_RBAC_AUDIT_COMPLETE / POLICY_APPROVAL_PENDING`. CS01 established framework-neutral structural domain contracts, CS02 established the tenant-isolated persistence schema (Flyway V108) and outbound persistence adapters, CS03 established typed, read-only compliance fact-provider contracts and anti-corruption adapters across Fleet, Freight, and Billing, CS04 established the deterministic evaluation engine (`EvaluateComplianceUseCase` / `ComplianceEvaluationEngine`) with pure domain check handlers and fail-closed composite rules, and CS05 established the secure REST API (`ComplianceController`), RBAC/ABAC authorization (`SecuredComplianceApiUseCase`), four catalogued ungranted permissions, and immutable audit logging (`compliance_audit_event`, Flyway V109). It does not activate automated runtime policy enforcement, operational blocking, or UI workflows. Story accounting remains 73/87 and Flyway head is V109.
 
-### Database Schema (Flyway V108)
+### Database Schema (Flyway V108 & V109)
 
 All tables are strictly tenant-isolated (`tenant_id` leading on PKs and indexes) and owned by the `compliance` module:
 
@@ -14,13 +14,24 @@ All tables are strictly tenant-isolated (`tenant_id` leading on PKs and indexes)
 - `compliance_evaluation_record`: Immutable audit logs of compliance evaluations (`target_id`, `operation_type`, `evaluation_instant`, `overall_status` [EVALUATED, POLICY_UNAVAILABLE, POLICY_NOT_EFFECTIVE, SOURCE_FACTS_UNAVAILABLE, UNEVALUATED]).
 - `compliance_check_result_record`: Per-rule check results (`check_type`, `evaluation_status`, `evidence_state` [PRESENT_VALID, MISSING, EXPIRED, CONFLICTING, UNKNOWN, NOT_APPLICABLE], `decision_effect` [ALLOW, ADVISORY, RESTRICT, BLOCK, UNKNOWN], `reason_codes`).
 - `compliance_fact_reference_record`: Minimized immutable evidence references (`source_module`, `fact_type`, `fact_id`, `fact_version`, `effective_at`).
+- `compliance_audit_event` (V109): Append-only immutable audit trail protected by `guard_compliance_audit_immutable()` trigger (`id`, `tenant_id`, `actor_id`, `action_code`, `resource_id`, `resource_type`, `correlation_id`, `payload`, `created_at`).
+
+### Permissions Catalogued (V109)
+
+- `COMPLIANCE_EVALUATE`: Point-in-time policy evaluations.
+- `COMPLIANCE_EVALUATION_VIEW`: Evaluation summary inspection.
+- `COMPLIANCE_EVIDENCE_VIEW`: Granular evaluation evidence inspection (decoupled for segregation of duties).
+- `COMPLIANCE_POLICY_VIEW`: Policy definitions and rule inspection.
 
 ### Inbound & Outbound Ports
 
-- Inbound: `EvaluateComplianceUseCase` -> implemented by `ComplianceEvaluationEngine`.
+- Inbound:
+  - `EvaluateComplianceUseCase` -> implemented by `ComplianceEvaluationEngine`.
+  - `ComplianceApiUseCase` -> implemented by `ComplianceApiService` (secured by `SecuredComplianceApiUseCase`).
 - Outbound Persistence:
-  - `CompliancePolicyPersistencePort` -> implemented by `JdbcCompliancePolicyPersistenceAdapter`
-  - `ComplianceEvaluationPersistencePort` -> implemented by `JdbcComplianceEvaluationPersistenceAdapter`
+  - `CompliancePolicyPersistencePort` -> implemented by `JdbcCompliancePolicyPersistenceAdapter`.
+  - `ComplianceEvaluationPersistencePort` -> implemented by `JdbcComplianceEvaluationPersistenceAdapter`.
+  - `ComplianceAuditPort` -> implemented by `JdbcComplianceAuditAdapter`.
 - Outbound Fact Queries:
   - `VehicleDocumentFactsQuery` -> implemented by `ComplianceVehicleDocumentFactAdapter` consuming `FleetVehicleDocumentLookup`.
   - `DriverEligibilityFactsQuery` -> implemented by `ComplianceDriverEligibilityFactAdapter` consuming `FleetDriverComplianceLookup`.
@@ -43,3 +54,4 @@ D1–D11 remain proposed. Product and qualified policy authority must approve ju
 ## Phase 2: Post-MVP / Future Roadmap
 
 Any generic rule language, external rules feed or additional jurisdiction remains separately governed in Phase 2.
+

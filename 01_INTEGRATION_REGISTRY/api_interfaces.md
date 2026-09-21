@@ -419,3 +419,18 @@ optimistic versions but never Tenant, subject or reviewer identity. The API reco
 mutation results rather than promising byte-identical HTTP response replay. The routes are absent unless
 `app.identity.user-risk.internal-review-enabled=true`; V107 defines the four permissions but grants them to
 no role, so deployment opt-in also requires governed Tenant-role assignment.
+
+## Compliance REST & Evaluation Boundary (US-72 CS05)
+
+CS05 implements a default-off `/api/v1/compliance` REST API gated by `@ConditionalOnProperty(name = "app.compliance.api.enabled", havingValue = "true")` and secured by `SecuredComplianceApiUseCase`:
+
+| Method | Path | Permission | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/compliance/evaluations` | `COMPLIANCE_EVALUATE` | Execute point-in-time compliance evaluation against tenant policy |
+| `GET` | `/api/v1/compliance/evaluations/{id}` | `COMPLIANCE_EVALUATION_VIEW` | Read evaluation summary (safe 404 on missing/foreign tenant) |
+| `GET` | `/api/v1/compliance/evaluations/{id}/evidence` | `COMPLIANCE_EVIDENCE_VIEW` | Read granular check results/evidence (segregated from evaluation summary view) |
+| `GET` | `/api/v1/compliance/policies` | `COMPLIANCE_POLICY_VIEW` | List tenant policy definitions |
+| `GET` | `/api/v1/compliance/policies/{id}` | `COMPLIANCE_POLICY_VIEW` | Read detailed policy definition with published version rules |
+
+Responses set `Cache-Control: no-store` and `Referrer-Policy: no-referrer`. Server-side tenant derivation via `CurrentTenant.required()` is authoritative. All evaluation actions emit immutable audit records into `compliance_audit_event` (Flyway V109). No operational enforcement or automated blocking is active.
+

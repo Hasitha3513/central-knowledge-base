@@ -248,3 +248,15 @@ require `USER_RISK_REVIEW`, and appeal decision requires `USER_RISK_APPEAL_DECID
 hide when authority is absent, but this is usability only; the backend remains authoritative. Authentication,
 Tenant or permission changes clear the workspace and invalidate same-session mutation retry state. No role,
 including `ADMIN`, implies any of these permissions.
+
+## US-72 CS05 Compliance Permissions (Catalogued, Ungranted and Inactive)
+
+V109 catalogues `COMPLIANCE_EVALUATE`, `COMPLIANCE_EVALUATION_VIEW`, `COMPLIANCE_EVIDENCE_VIEW`, and `COMPLIANCE_POLICY_VIEW` with zero automatic grants:
+
+- `COMPLIANCE_EVALUATE`: Authorizes executing deterministic point-in-time evaluations (`POST /api/v1/compliance/evaluations`).
+- `COMPLIANCE_EVALUATION_VIEW`: Authorizes reading evaluation summary records (`GET /api/v1/compliance/evaluations/{id}`).
+- `COMPLIANCE_EVIDENCE_VIEW`: Authorizes reading granular evaluation evidence and check results (`GET /api/v1/compliance/evaluations/{id}/evidence`). Decoupled from evaluation summary view to enforce segregation of duties.
+- `COMPLIANCE_POLICY_VIEW`: Authorizes reading tenant compliance policy definitions and published version rules (`GET /api/v1/compliance/policies`, `GET /api/v1/compliance/policies/{id}`).
+
+No default or automatic grants are assigned to `ADMIN`, `DISPATCHER`, or `LOCAL_MVP_ADMIN`. A tenant role must explicitly receive the permission codes. The web API is conditionally enabled via `@ConditionalOnProperty(name = "app.compliance.api.enabled", havingValue = "true")` (defaults to disabled in production). Multi-tenancy is enforced server-side; cross-tenant requests result in non-disclosing 404 responses. Audit events are immutably written to `compliance_audit_event`.
+
