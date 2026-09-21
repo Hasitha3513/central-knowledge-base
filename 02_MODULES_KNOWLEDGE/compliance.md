@@ -2,10 +2,23 @@
 
 ## Phase 1: Current MVP Scope
 
-US-72 is `IMPLEMENTATION_IN_PROGRESS / CS01_COMPLETE_INACTIVE /
-POLICY_APPROVAL_PENDING`. CS01 establishes framework-neutral structural contracts only. It does not
-activate a jurisdiction, policy, evaluator, persistence model, permission, API, event, frontend workflow
-or operational enforcement. Story accounting remains 73/87 and Flyway remains V105.
+US-72 is `IMPLEMENTATION_IN_PROGRESS / CS02_PERSISTENCE_COMPLETE / POLICY_APPROVAL_PENDING`. CS01 established framework-neutral structural domain contracts, and CS02 established the tenant-isolated persistence schema (Flyway V108) and outbound persistence adapters. It does not activate automated runtime policy evaluation, operational blocking, or UI workflows. Story accounting remains 73/87 and Flyway head is V108.
+
+### Database Schema (Flyway V108)
+
+All tables are strictly tenant-isolated (`tenant_id` leading on PKs and indexes) and owned by the `compliance` module:
+
+- `compliance_policy`: Master definitions of compliance policies with `policy_code`, `name`, `jurisdiction_code`, and `policy_scope`.
+- `compliance_policy_version`: Versioned policy configurations (`version_number`, `status` [DRAFT, PUBLISHED, SUPERSEDED, ARCHIVED], half-open UTC `effective_from` / `effective_to` window, audit references).
+- `compliance_policy_rule`: Granular rules per version (`check_type`, `is_mandatory`, `default_effect` [ALLOW, BLOCK, WARN, FLAG_FOR_REVIEW], `is_overrideable`, `rule_parameters_json`).
+- `compliance_evaluation_record`: Immutable audit logs of compliance evaluations (`target_id`, `operation_type`, `evaluation_instant`, `overall_status` [COMPLIANT, NON_COMPLIANT, INDETERMINATE, BLOCKED, EXEMPTED]).
+- `compliance_check_result_record`: Per-rule check results (`check_type`, `evaluation_status`, `evidence_state`, `decision_effect`, `reason_codes`).
+- `compliance_fact_reference_record`: Minimized immutable evidence references (`source_module`, `fact_type`, `fact_id`, `fact_version`, `effective_at`).
+
+### Outbound Persistence Ports & Adapters
+
+- `CompliancePolicyPersistencePort` -> implemented by `JdbcCompliancePolicyPersistenceAdapter`
+- `ComplianceEvaluationPersistencePort` -> implemented by `JdbcComplianceEvaluationPersistenceAdapter`
 
 ### Inactive structural domain
 
@@ -13,33 +26,29 @@ or operational enforcement. Story accounting remains 73/87 and Flyway remains V1
 - Opaque jurisdiction/scope references and half-open UTC effective-time values.
 - Seven structural check identifiers: vehicle document, Driver eligibility, cargo document, hazmat,
   billing tax fact, regional operation and retention disposition eligibility.
-- Evidence states, evaluation statuses and decision-effect vocabulary. No mandatory/advisory mapping,
-  aggregation precedence or operational interpretation is approved.
+- Evidence states, evaluation statuses and decision-effect vocabulary.
 - Minimized immutable source-fact references and evaluation request/check-result/result structures.
 - An unavailable or unevaluated check cannot carry `ALLOW`, `BLOCK` or another decision effect.
 
 ### Inactive outbound fact-query contracts
 
-The current source-contract review supports structural, implementation-free queries for:
-
+The source-contract review supports structural, implementation-free queries for:
 - Fleet-owned Vehicle document facts;
 - Fleet-owned Driver licence and minimized fitness outcomes;
 - Freight-owned cargo/customs/hazmat facts; and
 - Billing-owned supplied tax facts.
 
 Every contract is Tenant- and effective-time-qualified. It carries logical IDs and minimized facts only;
-Compliance may not query another module's repository or table. No adapter is registered and no runtime
-query occurs in CS01. Regional-operation and retention-disposition ports remain deferred because their
-source semantics are not approved.
+Compliance may not query another module's repository or table. Regional-operation and retention-disposition ports remain deferred.
 
 ## Policy and activation hold
 
 D1–D11 remain proposed. Product and qualified policy authority must approve jurisdiction/policy scope,
 facts, mandatory/advisory classification, effects, precedence, authority, override/appeal, retention,
-privacy, security and acceptance before CS02 or any active behavior. Missing authority/configuration is
+privacy, security and acceptance before runtime operational enforcement. Missing authority/configuration is
 unavailable/unevaluated; it is neither affirmative clearance nor an automatic operational block.
 
 ## Phase 2: Post-MVP / Future Roadmap
 
-No Phase-2 behavior was introduced by CS01. Any generic rule language, external rules feed or additional
-jurisdiction remains separately governed.
+Any generic rule language, external rules feed or additional jurisdiction remains separately governed in Phase 2.
+
