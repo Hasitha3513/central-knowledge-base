@@ -21,7 +21,7 @@ Software development is **100% complete** across all 11 stories. Remaining activ
 | **US-72** | Enforce Compliance Policies | D | `YES` | `POLICY_APPROVAL_PENDING` | `POLICY_AUTHORITY` | Formal approval of Policy Decisions D1–D11 by qualified legal, tax, and regulatory authorities. |
 | **US-76** | Support Mobile Operations | D | `YES` | `PHYSICAL_ACCEPTANCE_PENDING` | `PHYSICAL_HARDWARE` | Physical Android Chrome & iOS Safari PWA installation, rear camera barcode scanning, signature canvas. |
 | **US-85** | Protect Data Integrity | E | `YES` | `PHYSICAL_ACCEPTANCE_PENDING` | `PHYSICAL_HARDWARE` | Live telemetry mismatch detection (`GPS_TRIP_MISMATCH`) evaluated against live physical GPS streams. |
-| **US-87** | Detect User Risk | E | `YES` | `COMPLETE_INACTIVE / ACTIVATION_PREREQUISITES_PENDING` | `GOVERNANCE_APPROVAL` | First-grant authority and immutable Tenant rule publication/withdrawal are not implemented; named pilot Tenant, four permission rosters, finite rule interval, missing post-CS07 evidence and Product/Security/Privacy/Identity/Architecture sign-offs remain pending. |
+| **US-87** | Detect User Risk | E | `YES` | `COMPLETE_INACTIVE / ACTIVATION_PREREQUISITES_PENDING` | `GOVERNANCE_APPROVAL` | A bounded signed one-shot first-grant/removal and immutable Tenant rule publication/withdrawal design is published but unapproved and unimplemented; named pilot Tenant, four permission rosters, finite rule interval, missing post-CS07 evidence and Product/Security/Privacy/Identity/Architecture sign-offs remain pending. |
 
 ---
 

@@ -245,6 +245,14 @@ default-off, Tenant-explicit, audited and idempotent deployment-admin first-gran
 to these four existing permissions. Contextual same-Tenant membership, reviewer/subject separation and a
 distinct appeal reviewer remain mandatory in addition to RBAC.
 
+The proposed `US-87-GOVERNANCE-OPERATIONS-PREREQUISITE-DESIGN-001` closes that design gap with a default-off,
+one-shot, non-HTTP, deployment-signed operation. It is not implemented or approved. Its permission operation
+accepts only the four existing codes, requires every target role to have an active membership in the explicit
+Tenant and no active membership in another Tenant, and commits exact deltas plus immutable command/audit
+evidence atomically. Automatic grants remain zero. Current backend revocation is authoritative on the next
+authenticated request because `JwtAuthenticationFilter` reloads the active user, roles and permissions from
+PostgreSQL for every request; browser sign-out/in is an operator clarity step, not the security boundary.
+
 CS06 maps the internal review workspace independently to those same codes: list/detail requires
 `USER_RISK_VIEW`, minimized evidence requires `USER_RISK_EVIDENCE_VIEW`, initial review and operator appeal
 require `USER_RISK_REVIEW`, and appeal decision requires `USER_RISK_APPEAL_DECIDE`. Navigation and controls

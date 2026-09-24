@@ -407,6 +407,17 @@ the use-case bean is absent unless controlled configuration explicitly sets
 closed. Inputs are restricted to UUIDs, approved disposition and
 reason codes, timestamps and versions—no free-form note or allegation content.
 
+### Proposed US-87 governance operations boundary (not implemented)
+
+The published prerequisite design proposes a one-shot non-HTTP Identity `ApplicationRunner`, enabled only by
+explicit governance configuration in a non-web, scheduler-disabled and Kafka-listener-disabled process. Its
+signed canonical command allow-list is limited to exact first-grant/removal of the four existing user-risk
+permissions, frozen first-wave rule publication, immutable rule withdrawal and read-back. It is not a REST API,
+does not weaken ordinary role permission ceilings, and does not grant anything automatically. A proposed
+forward migration would add exactly three Tenant-qualified Identity tables for command idempotency, immutable
+withdrawal and minimized governance audit; no migration number is reserved. Implementation requires separate
+approval of the trust boundary, queued/late withdrawal semantics, migration and key lifecycle.
+
 ### US-87 CS05 HTTP boundary (implemented, default-off)
 
 CS05 implements a default-off `/api/v1/identity/user-risk` surface: bounded finding
