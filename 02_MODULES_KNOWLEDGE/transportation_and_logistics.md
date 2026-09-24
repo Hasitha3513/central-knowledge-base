@@ -1414,6 +1414,71 @@ and appeal decision) are validated across 86 UserRisk/Architecture tests (4/4 Po
 passes. The feature remains default-disabled (`app.identity.user-risk.internal-review-enabled=false`) with zero default role grants
 and strictly advisory-only semantics. Flyway head is V107 and accounting remains 73/87.
 
+#### US-87 governance operations (V113, implemented and inactive)
+
+V113 implements the approved default-off signed, one-shot, non-HTTP deployment operation for the exact four
+existing `USER_RISK_*` permissions and the frozen first-wave rule. It supports permission grant/removal,
+immutable rule publication/withdrawal and minimized read-back without weakening ordinary permission ceilings.
+Commands require a deployment-allow-listed key ID, canonical JSON, detached HMAC-SHA256 signature, mounted key
+material, bounded issue/expiry times and an explicitly safe non-web runtime. Production execution and pilot
+activation remain authority gated; automatic grants remain zero.
+
+#### Table: `identity_user_risk_governance_command`
+
+- **Purpose:** Durable successful mutation identity, replay result and approval provenance.
+- **Primary Key:** (`tenant_id`, `command_id`)
+- **Multi-Tenant Key:** `tenant_id`
+
+| Column | Type | Nullable | Constraint / meaning |
+| --- | --- | --- | --- |
+| `tenant_id` | UUID | NO | Tenant scope |
+| `command_id` | UUID | NO | Stable command identity |
+| `operation` | VARCHAR(32) | NO | Grant, remove, publish or withdraw |
+| `canonical_fingerprint` | CHAR(64) | NO | Lowercase SHA-256 command fingerprint |
+| `key_id` | VARCHAR(80) | NO | Non-secret deployment key identifier |
+| `approval_reference` | VARCHAR(128) | NO | Provenance, never authentication |
+| `issued_at`, `expires_at`, `completed_at` | TIMESTAMPTZ | NO | Bounded command lifecycle |
+| `outcome`, `result_code` | VARCHAR | NO | Stored successful result classification |
+| `affected_ids` | JSONB | NO | UUID-only result array |
+| `retain_until` | TIMESTAMPTZ | NO | Exactly 180 days after completion |
+
+Index: `(retain_until, tenant_id, command_id)`. Rows are immutable until authorized expiry.
+
+#### Table: `identity_user_risk_rule_withdrawal`
+
+- **Purpose:** Immutable source-time closure of a published Tenant rule version.
+- **Primary Key:** (`tenant_id`, `withdrawal_id`)
+- **Multi-Tenant Key:** `tenant_id`
+
+| Column | Type | Nullable | Constraint / meaning |
+| --- | --- | --- | --- |
+| `tenant_id`, `withdrawal_id` | UUID | NO | Tenant-qualified identity |
+| `rule_version_id` | UUID | NO | Same-Tenant FK to immutable rule version; unique per version |
+| `effective_at` | TIMESTAMPTZ | NO | Source-time evaluation boundary |
+| `reason_code` | VARCHAR(32) | NO | Pilot, safety or governance withdrawal |
+| `approval_reference` | VARCHAR(128) | NO | Approved provenance |
+| `governance_command_id` | UUID | NO | Deferred same-Tenant FK to command result |
+| `created_at`, `retain_until` | TIMESTAMPTZ | NO | Record and 180-day expiry times |
+
+Indexes support Tenant/rule effective lookup and bounded retention. Rows are immutable until expiry.
+
+#### Table: `identity_user_risk_governance_audit_event`
+
+- **Purpose:** Minimized immutable success/denial/conflict/read-back audit.
+- **Primary Key:** (`tenant_id`, `id`)
+- **Multi-Tenant Key:** `tenant_id`
+
+| Column | Type | Nullable | Constraint / meaning |
+| --- | --- | --- | --- |
+| `tenant_id`, `id`, `command_id` | UUID | NO | Tenant, audit and command identities |
+| `operation` | VARCHAR(32) | NO | Governed operation, read-back or dry run |
+| `key_id`, `approval_reference` | VARCHAR | NO | Minimized authority provenance |
+| `outcome`, `result_code` | VARCHAR | NO | Bounded outcome classification |
+| `occurred_at`, `retain_until` | TIMESTAMPTZ | NO | Audit time and exact 180-day expiry |
+
+Indexes: `(tenant_id, occurred_at DESC, id DESC)` for bounded history and
+`(retain_until, tenant_id, id)` for disposition. Rows are immutable until expiry.
+
 #### Table: `identity_user_risk_audit_event`
 
 - **Purpose:** Minimized immutable access and mutation audit for the default-off US-87 review surface.

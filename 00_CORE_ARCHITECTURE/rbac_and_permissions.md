@@ -240,13 +240,14 @@ opt-in `LOCAL_MVP_ADMIN` receive no user-risk authority implicitly; sample-data 
 that invariant on repeat execution. Production has no migration-owned reviewer role. Ordinary role
 create/update enforces that requested permissions are already held by the authenticated actor, so it cannot
 legitimately perform the first user-risk grant when no actor holds these four codes. The repository has no
-separate production bootstrap authority. Activation therefore remains blocked on a separately authorized,
-default-off, Tenant-explicit, audited and idempotent deployment-admin first-grant/removal operation limited
-to these four existing permissions. Contextual same-Tenant membership, reviewer/subject separation and a
+separate ordinary production bootstrap authority. V113 now provides a separately authorized, default-off,
+Tenant-explicit, audited and idempotent signed deployment-admin first-grant/removal operation limited to
+these four existing permissions. Production execution remains gated by the approved Tenant roster,
+deployment key authority and sign-off. Contextual same-Tenant membership, reviewer/subject separation and a
 distinct appeal reviewer remain mandatory in addition to RBAC.
 
-The proposed `US-87-GOVERNANCE-OPERATIONS-PREREQUISITE-DESIGN-001` closes that design gap with a default-off,
-one-shot, non-HTTP, deployment-signed operation. It is not implemented or approved. Its permission operation
+The approved `US-87-GOVERNANCE-OPERATIONS-PREREQUISITE-DESIGN-001` is implemented as a default-off,
+one-shot, non-HTTP, deployment-signed operation. Its permission operation
 accepts only the four existing codes, requires every target role to have an active membership in the explicit
 Tenant and no active membership in another Tenant, and commits exact deltas plus immutable command/audit
 evidence atomically. Automatic grants remain zero. Current backend revocation is authoritative on the next
@@ -270,4 +271,3 @@ V109 catalogues `COMPLIANCE_EVALUATE`, `COMPLIANCE_EVALUATION_VIEW`, `COMPLIANCE
 - `COMPLIANCE_POLICY_VIEW`: Authorizes reading tenant compliance policy definitions and published version rules (`GET /api/v1/compliance/policies`, `GET /api/v1/compliance/policies/{id}`).
 
 No default or automatic grants are assigned to `ADMIN`, `DISPATCHER`, or `LOCAL_MVP_ADMIN`. A tenant role must explicitly receive the permission codes. The web API is conditionally enabled via `@ConditionalOnProperty(name = "app.compliance.api.enabled", havingValue = "true")` (defaults to disabled in production). Multi-tenancy is enforced server-side; cross-tenant requests result in non-disclosing 404 responses. Audit events are immutably written to `compliance_audit_event`.
-

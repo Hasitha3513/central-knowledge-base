@@ -407,16 +407,17 @@ the use-case bean is absent unless controlled configuration explicitly sets
 closed. Inputs are restricted to UUIDs, approved disposition and
 reason codes, timestamps and versions—no free-form note or allegation content.
 
-### Proposed US-87 governance operations boundary (not implemented)
+### US-87 governance operations boundary (implemented, default-off, non-HTTP)
 
-The published prerequisite design proposes a one-shot non-HTTP Identity `ApplicationRunner`, enabled only by
+The approved prerequisite design is implemented by a one-shot non-HTTP Identity `ApplicationRunner`, enabled only by
 explicit governance configuration in a non-web, scheduler-disabled and Kafka-listener-disabled process. Its
 signed canonical command allow-list is limited to exact first-grant/removal of the four existing user-risk
 permissions, frozen first-wave rule publication, immutable rule withdrawal and read-back. It is not a REST API,
-does not weaken ordinary role permission ceilings, and does not grant anything automatically. A proposed
-forward migration would add exactly three Tenant-qualified Identity tables for command idempotency, immutable
-withdrawal and minimized governance audit; no migration number is reserved. Implementation requires separate
-approval of the trust boundary, queued/late withdrawal semantics, migration and key lifecycle.
+does not weaken ordinary role permission ceilings, and does not grant anything automatically. V113 adds exactly
+three Tenant-qualified Identity tables for command idempotency, immutable withdrawal and minimized governance
+audit. Commands are canonical JSON with detached HMAC-SHA256 signatures and mounted key material; `keyId` is
+deployment-allow-listed. Production commands still require approved pilot identities, authority provenance,
+key lifecycle, finite rule interval and operational sign-off.
 
 ### US-87 CS05 HTTP boundary (implemented, default-off)
 
@@ -444,4 +445,3 @@ CS05 implements a default-off `/api/v1/compliance` REST API gated by `@Condition
 | `GET` | `/api/v1/compliance/policies/{id}` | `COMPLIANCE_POLICY_VIEW` | Read detailed policy definition with published version rules |
 
 Responses set `Cache-Control: no-store` and `Referrer-Policy: no-referrer`. Server-side tenant derivation via `CurrentTenant.required()` is authoritative. All evaluation actions emit immutable audit records into `compliance_audit_event` (Flyway V109). No operational enforcement or automated blocking is active.
-

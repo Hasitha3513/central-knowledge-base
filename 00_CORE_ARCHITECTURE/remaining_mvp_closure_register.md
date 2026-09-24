@@ -21,7 +21,7 @@ Software development is **100% complete** across all 11 stories. Remaining activ
 | **US-72** | Enforce Compliance Policies | D | `YES` | `POLICY_APPROVAL_PENDING` | `POLICY_AUTHORITY` | Formal approval of Policy Decisions D1–D11 by qualified legal, tax, and regulatory authorities. |
 | **US-76** | Support Mobile Operations | D | `YES` | `PHYSICAL_ACCEPTANCE_PENDING` | `PHYSICAL_HARDWARE` | Physical Android Chrome & iOS Safari PWA installation, rear camera barcode scanning, signature canvas. |
 | **US-85** | Protect Data Integrity | E | `YES` | `PHYSICAL_ACCEPTANCE_PENDING` | `PHYSICAL_HARDWARE` | Live telemetry mismatch detection (`GPS_TRIP_MISMATCH`) evaluated against live physical GPS streams. |
-| **US-87** | Detect User Risk | E | `YES` | `COMPLETE_INACTIVE / ACTIVATION_PREREQUISITES_PENDING` | `GOVERNANCE_APPROVAL` | A bounded signed one-shot first-grant/removal and immutable Tenant rule publication/withdrawal design is published but unapproved and unimplemented; named pilot Tenant, four permission rosters, finite rule interval, missing post-CS07 evidence and Product/Security/Privacy/Identity/Architecture sign-offs remain pending. |
+| **US-87** | Detect User Risk | E | `YES` | `COMPLETE_INACTIVE / PILOT_ACTIVATION_AND_SIGN_OFF_PENDING` | `GOVERNANCE_APPROVAL` | V113 and the default-off signed one-shot first-grant/removal plus immutable Tenant rule publication/withdrawal boundary are technically complete. Named pilot Tenant, four permission rosters, finite rule interval, deployment key authority, controlled operational acceptance and Product/Security/Privacy/Identity/Architecture sign-offs remain pending. |
 
 ---
 
@@ -29,4 +29,4 @@ Software development is **100% complete** across all 11 stories. Remaining activ
 1. **Track 1: Unified Telematics Field Campaign (8 Stories):** US-48, US-50, US-51, US-52, US-53, US-54, US-55, and US-85 executed in a single 60-minute vehicle test profile.
 2. **Track 2: Mobile Device Physical Acceptance (1 Story):** US-76 executed across physical Android and iOS smartphones.
 3. **Track 3: Legal & Regulatory Policy Sign-Off (1 Story):** US-72 D1–D11 decisions signed by General Counsel and CCO.
-4. **Track 4: User-Risk Governance Activation (1 Story):** US-87 remains default-off. Before authority sign-off and a controlled pilot, the project must implement separately authorized first-grant and immutable rule publication/withdrawal operations, then record the named Tenant, permission rosters, finite interval, evidence disposition and responsible authority functions.
+4. **Track 4: User-Risk Governance Activation (1 Story):** US-87 remains default-off. Governance operations are implemented at V113; before execution and a controlled pilot, record the named Tenant, permission rosters, finite interval, deployment key authority, evidence disposition and responsible authority functions.

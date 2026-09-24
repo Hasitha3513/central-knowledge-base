@@ -491,7 +491,9 @@ also holds `USER_RISK_EVIDENCE_VIEW`; without it, the workspace displays an expl
 There is no subject self-service, free-form allegation/note, automatic lockout, session restriction, permission
 change or Operations case. The page never exposes usernames, requested permission names, IP/user-agent data,
 credentials or raw request content. A successful connection or visible workspace does not mean a production
-risk rule has been activated; first-wave rule activation and later operational acceptance remain separate.
+risk rule has been activated. V113 provides a separate signed, one-shot deployment operation for approved
+permission rosters and immutable Tenant rule publication/withdrawal; it is not available through this UI and
+does not grant authority automatically. Pilot activation and operational acceptance remain separate.
 
 ## 15. 🛠️ Troubleshooting & Support Escalation
 
