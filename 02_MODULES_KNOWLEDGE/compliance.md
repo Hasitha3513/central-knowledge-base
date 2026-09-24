@@ -66,6 +66,8 @@ D1–D11 remain pending qualified approval. Product and qualified policy authori
 
 The implemented API is limited to evaluation create/read/evidence and policy list/detail. There is no governed policy publication/replacement/withdrawal command, override/appeal workflow, or approved first-assignment mechanism for the four ungranted Compliance permissions. Enabling `app.compliance.api.enabled` does not fill those gaps. The reconciled application package `docs/governance/US-72-POLICY-AUTHORITY-APPROVAL-PACKAGE-001.md` therefore keeps activation blocked until authorities supply the exact Tenant/jurisdiction policy matrix and separately authorize the missing lifecycle and permission-assignment mechanisms.
 
+The proposed prerequisite design `docs/governance/US-72-GOVERNANCE-OPERATIONS-PREREQUISITE-DESIGN-001.md` keeps those owners separate: Identity would own a default-off, signed one-shot runner and persistence limited to grant/removal of the four existing Compliance permissions, while Compliance would own a separate default-off runner and persistence for immutable policy publication, forward replacement, closure and read-back. It does not reuse V113 US-87 tables or allowlists, create a generic governance platform, reserve a migration, or authorize implementation. Source-time withdrawal/late-request behavior, governance retention and legal-hold ownership still require explicit D6/D8 authority decisions.
+
 ## Phase 2: Post-MVP / Future Roadmap
 
 Any generic rule language, external rules feed or additional jurisdiction remains separately governed in Phase 2.
