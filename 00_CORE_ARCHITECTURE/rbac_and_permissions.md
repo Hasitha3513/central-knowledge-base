@@ -271,3 +271,14 @@ V109 catalogues `COMPLIANCE_EVALUATE`, `COMPLIANCE_EVALUATION_VIEW`, `COMPLIANCE
 - `COMPLIANCE_POLICY_VIEW`: Authorizes reading tenant compliance policy definitions and published version rules (`GET /api/v1/compliance/policies`, `GET /api/v1/compliance/policies/{id}`).
 
 No default or automatic grants are assigned to `ADMIN`, `DISPATCHER`, or `LOCAL_MVP_ADMIN`. A tenant role must explicitly receive the permission codes. The web API is conditionally enabled via `@ConditionalOnProperty(name = "app.compliance.api.enabled", havingValue = "true")` (defaults to disabled in production). Multi-tenancy is enforced server-side; cross-tenant requests result in non-disclosing 404 responses. Audit events are immutably written to `compliance_audit_event`.
+
+
+### US-72 V114 governed initial assignment/removal
+
+V114 supplies an Identity-owned, default-off, signed, non-HTTP one-shot runner for the first assignment or
+removal of only `COMPLIANCE_EVALUATE`, `COMPLIANCE_EVALUATION_VIEW`,
+`COMPLIANCE_EVIDENCE_VIEW`, and `COMPLIANCE_POLICY_VIEW`. It validates existing active same-Tenant roles,
+rejects cross-Tenant or ambiguous roles, preserves unrelated permissions, records immutable Tenant-qualified
+command/audit evidence, and applies identical replay without repeating effects. Conflicting command identity
+reuse is rejected. Ordinary role APIs and actor permission ceilings are unchanged. Removal is authoritative
+on the next authenticated backend request. The runner is disabled by default and creates no automatic grant.

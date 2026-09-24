@@ -64,10 +64,74 @@ All tables are strictly tenant-isolated (`tenant_id` leading on PKs and indexes)
 
 D1–D11 remain pending qualified approval. Product and qualified policy authority must approve jurisdiction/policy scope, facts, mandatory/advisory classification, effects, precedence, authority, override/appeal, retention, privacy, security and acceptance before production evaluation or operational enforcement. Missing authority/configuration is unavailable/unevaluated; it is neither affirmative clearance nor an automatic operational block.
 
-The implemented API is limited to evaluation create/read/evidence and policy list/detail. There is no governed policy publication/replacement/withdrawal command, override/appeal workflow, or approved first-assignment mechanism for the four ungranted Compliance permissions. Enabling `app.compliance.api.enabled` does not fill those gaps. The reconciled application package `docs/governance/US-72-POLICY-AUTHORITY-APPROVAL-PACKAGE-001.md` therefore keeps activation blocked until authorities supply the exact Tenant/jurisdiction policy matrix and separately authorize the missing lifecycle and permission-assignment mechanisms.
-
-The proposed prerequisite design `docs/governance/US-72-GOVERNANCE-OPERATIONS-PREREQUISITE-DESIGN-001.md` keeps those owners separate: Identity would own a default-off, signed one-shot runner and persistence limited to grant/removal of the four existing Compliance permissions, while Compliance would own a separate default-off runner and persistence for immutable policy publication, forward replacement, closure and read-back. It does not reuse V113 US-87 tables or allowlists, create a generic governance platform, reserve a migration, or authorize implementation. Source-time withdrawal/late-request behavior, governance retention and legal-hold ownership still require explicit D6/D8 authority decisions.
+V114 now supplies the governed default-off policy lifecycle and initial permission-assignment mechanisms through separate Identity and Compliance owners. Enabling `app.compliance.api.enabled` still does not publish a policy, grant permissions, or authorize a jurisdiction. Override/appeal, policy authority decisions, named operational inputs and production acceptance remain open. The implementation does not reuse V113 US-87 tables or allowlists and does not create a generic governance platform.
 
 ## Phase 2: Post-MVP / Future Roadmap
 
 Any generic rule language, external rules feed or additional jurisdiction remains separately governed in Phase 2.
+
+
+## V114 Governance Operations (Technically Complete, Production Inactive)
+
+Flyway V114 adds separate default-off signed one-shot boundaries. Identity owns permission grant/removal for only
+the four existing Compliance codes; Compliance owns immutable policy publication, forward replacement,
+withdrawal and read-back. Neither runner is HTTP-accessible. Both require explicit enablement, safe non-web
+runtime, scheduling and Kafka listeners disabled, an allow-listed deployment key ID, a signed bounded command
+and Tenant-qualified existing records. Automatic grants remain zero.
+
+The prior text describing publication and initial permission assignment as missing is superseded by V114.
+Qualified D1-D11 authority decisions, named Tenant/role/key inputs, controlled activation, operational
+acceptance and sign-off remain missing. The API remains default-off and there is still no operational blocking,
+override/appeal workflow or production policy.
+
+### Table: `identity_compliance_governance_command` (Identity-owned)
+
+- **Purpose:** Immutable idempotency/result record for signed Compliance permission grant/removal.
+- **Primary Key:** `(tenant_id, command_id)`
+- **Multi-Tenant Key:** `tenant_id`
+
+| Column | Type | Nullable | Constraints / description |
+|---|---|---:|---|
+| tenant_id, command_id | UUID | NO | Composite primary key |
+| operation | VARCHAR(40) | NO | GRANT_COMPLIANCE_PERMISSIONS or REMOVE_COMPLIANCE_PERMISSIONS |
+| canonical_fingerprint | CHAR(64) | NO | lowercase SHA-256 |
+| key_id | VARCHAR(80) | NO | approved deployment key reference |
+| approval_reference | VARCHAR(128) | NO | provenance only |
+| issued_at, expires_at, completed_at | TIMESTAMPTZ | NO | maximum ten-minute command validity |
+| result_code | VARCHAR(64) | NO | committed result |
+| affected_role_ids | JSONB | NO | UUID array only |
+| retain_until | TIMESTAMPTZ | NO | completed_at plus 180 days |
+
+Retention index: `(retain_until, tenant_id, command_id)`. Updates and deletes are trigger-rejected.
+
+### Table: `identity_compliance_governance_audit_event` (Identity-owned)
+
+Tenant-qualified immutable minimized audit with `(tenant_id,id)` primary key, command identity, bounded
+operation/key/provenance/outcome/result fields, `occurred_at`, and `retain_until = occurred_at + 180 days`.
+History index: `(tenant_id, occurred_at DESC, id DESC)`.
+
+### Table: `compliance_governance_command`
+
+Same replay/provenance/time/retention shape as the Identity command table, with `affected_ids` and operations
+`PUBLISH_POLICY_VERSION`, `REPLACE_POLICY_VERSION`, or `WITHDRAW_POLICY_VERSION`. Primary key is
+`(tenant_id,command_id)`; retention index is `(retain_until,tenant_id,command_id)`; rows are immutable.
+
+### Table: `compliance_policy_version_closure`
+
+- **Purpose:** Immutable effective-dated closure for a published version.
+- **Primary Key:** `(tenant_id,id)`
+- **Relationships:** same-Tenant FKs to policy version and governance command; one closure per version.
+- **Fields:** policy_version_id, effective_at, reason_code (REPLACED/WITHDRAWN), approval_reference,
+  governance_command_id, created_at, retain_until.
+- **Index:** `(tenant_id,policy_version_id,effective_at DESC,id DESC)`.
+- **Behavior:** new selection excludes a version whose closure is effective at processing, including a
+  backdated new request; committed historical evaluations remain readable.
+
+### Table: `compliance_governance_audit_event`
+
+Tenant-qualified immutable minimized audit with `(tenant_id,id)` primary key. It records command identity,
+operation, key reference, approval provenance, outcome/result, occurred_at and 180-day retain_until. History
+index: `(tenant_id,occurred_at DESC,id DESC)`.
+
+V114 also trigger-protects published `compliance_policy_version` and its rules from update/delete. Frontend
+session or Tenant transitions invalidate Compliance queries and clear lookup/result/evidence state.

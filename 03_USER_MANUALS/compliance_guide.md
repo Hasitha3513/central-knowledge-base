@@ -81,3 +81,17 @@ Decision effects:
 - Switching tenants or logging out automatically clears all cached evaluation results and policy details.
 - Access to evidence is decoupled from summary records to enforce strict segregation of duties.
 - If the compliance API is inactive in the deployment environment (`app.compliance.api.enabled=false`), an informative advisory banner explains that the workspace is unavailable.
+
+
+## 8. Governance and activation status
+
+The software contains a deployment-authority, signed one-shot mechanism for assigning/removing the four
+existing Compliance permissions and publishing/replacing/withdrawing immutable policy versions. It is not a
+user-facing workflow, is disabled by default, and does not grant any permission or publish any policy
+automatically. Operators must not treat access to the workspace as evidence that a jurisdictional policy has
+been approved.
+
+Production use remains blocked until qualified authorities approve the Tenant/jurisdiction policy matrix,
+named roles, effective interval, key custody, monitoring, rollback and acceptance evidence. A session or Tenant
+change clears Compliance query caches, lookup inputs/results and an open evidence drawer. Permission removal
+is enforced by the backend on the next authenticated request.
