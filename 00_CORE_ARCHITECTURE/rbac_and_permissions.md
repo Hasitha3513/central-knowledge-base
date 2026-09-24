@@ -237,10 +237,13 @@ review, mutation, Notification management, Operations authority, or cross-Tenant
 V107 catalogues `USER_RISK_VIEW`, `USER_RISK_EVIDENCE_VIEW`, `USER_RISK_REVIEW` and
 `USER_RISK_APPEAL_DECIDE` with zero automatic grants. `ADMIN`, `DISPATCHER`, sample-data `AUDITOR` and
 opt-in `LOCAL_MVP_ADMIN` receive no user-risk authority implicitly; sample-data seeding actively preserves
-that invariant on repeat execution. Production has no migration-owned reviewer role. A Tenant role must
-receive the exact codes through the existing permission-ceiling-governed workflow before the default-off API
-is enabled. Contextual same-Tenant membership, reviewer/subject separation and a distinct appeal reviewer
-remain mandatory in addition to RBAC.
+that invariant on repeat execution. Production has no migration-owned reviewer role. Ordinary role
+create/update enforces that requested permissions are already held by the authenticated actor, so it cannot
+legitimately perform the first user-risk grant when no actor holds these four codes. The repository has no
+separate production bootstrap authority. Activation therefore remains blocked on a separately authorized,
+default-off, Tenant-explicit, audited and idempotent deployment-admin first-grant/removal operation limited
+to these four existing permissions. Contextual same-Tenant membership, reviewer/subject separation and a
+distinct appeal reviewer remain mandatory in addition to RBAC.
 
 CS06 maps the internal review workspace independently to those same codes: list/detail requires
 `USER_RISK_VIEW`, minimized evidence requires `USER_RISK_EVIDENCE_VIEW`, initial review and operator appeal
