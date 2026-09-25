@@ -282,3 +282,8 @@ rejects cross-Tenant or ambiguous roles, preserves unrelated permissions, record
 command/audit evidence, and applies identical replay without repeating effects. Conflicting command identity
 reuse is rejected. Ordinary role APIs and actor permission ceilings are unchanged. Removal is authoritative
 on the next authenticated backend request. The runner is disabled by default and creates no automatic grant.
+
+
+## US-87 / US-72 governance review remediation (2026-09-25)
+
+The stacked governance review remediation preserves both exact permission allowlists and zero automatic grants. Tenant-qualified read-back now returns only the approved `USER_RISK_*` or Compliance permission subset for explicitly requested existing roles; it does not expose memberships, users, or unrelated permissions. Signed command freshness is classified separately from validation, conflict, and infrastructure failure. Identical command replay returns the committed result, while authenticated conflicting identity reuse records one minimized immutable conflict audit and performs no mutation. Runtime activation remains default-off.

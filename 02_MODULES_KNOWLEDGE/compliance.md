@@ -135,3 +135,8 @@ index: `(tenant_id,occurred_at DESC,id DESC)`.
 
 V114 also trigger-protects published `compliance_policy_version` and its rules from update/delete. Frontend
 session or Tenant transitions invalidate Compliance queries and clear lookup/result/evidence state.
+
+
+## Governance code-review remediation
+
+The US-72 remediation serializes policy selection/evaluation/immutable decision persistence with withdrawal through one Tenant/policy transaction-scoped PostgreSQL advisory lock. Replacement is restricted to the expected latest version of the same Tenant/policy and may overlap only that exact prior interval at the forward closure boundary. Policy read-back returns the exact policy/version identity, finite effective interval, ordered bounded rule summary, and optional closure state. Compliance permission read-back returns only the four approved permissions for requested same-Tenant roles. V114 and all historical migrations remain unchanged; Compliance remains default-off and unaccepted.

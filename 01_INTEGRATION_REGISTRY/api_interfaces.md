@@ -445,3 +445,8 @@ CS05 implements a default-off `/api/v1/compliance` REST API gated by `@Condition
 | `GET` | `/api/v1/compliance/policies/{id}` | `COMPLIANCE_POLICY_VIEW` | Read detailed policy definition with published version rules |
 
 Responses set `Cache-Control: no-store` and `Referrer-Policy: no-referrer`. Server-side tenant derivation via `CurrentTenant.required()` is authoritative. All evaluation actions emit immutable audit records into `compliance_audit_event` (Flyway V109). No operational enforcement or automated blocking is active.
+
+
+### Governance review remediation (US-87 / US-72, non-HTTP)
+
+`US-87-US-72-GOVERNANCE-CODE-REVIEW-REMEDIATION-001` changes no public HTTP API. The existing signed one-shot boundaries now provide bounded authoritative permission/policy read-back, distinct command-expiry classification, and audited conflicting replay. US-87 evaluation and withdrawal share a Tenant/rule transaction-scoped advisory lock. US-72 policy selection, evaluation, immutable decision persistence, and withdrawal share a Tenant/policy transaction-scoped advisory lock. Historical finding, review, appeal, and committed compliance-decision reads remain available after withdrawal.

@@ -1504,3 +1504,8 @@ Indexes: `(tenant_id, occurred_at DESC, id DESC)` for bounded history and
 Indexes: `(tenant_id, finding_id, occurred_at DESC, id DESC)` for bounded history and
 `(retain_until, tenant_id, id)` for disposition. The V106 immutable guard rejects update/delete outside the
 authorized retention mechanism.
+
+
+#### US-87 / US-72 governance code-review remediation
+
+`US-87-US-72-GOVERNANCE-CODE-REVIEW-REMEDIATION-001` corrected withdrawal/evaluation serialization, authoritative bounded read-back, conflicting replay audit, and command-expiry classification in the stacked PRs. US-72 additionally validates exact same-policy version replacement and non-prior interval overlap. No migration, permission, HTTP contract, automatic grant, activation, acceptance status, or story accounting changed; V114 and `76 / 87 COMPLETE` remain authoritative.
