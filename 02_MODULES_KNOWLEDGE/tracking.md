@@ -1355,6 +1355,8 @@ same-Tenant field context, live-to-stale/offline recovery observation, privacy r
 sign-off. No synthetic Kafka record, seeded database fact, Testcontainer, Playwright fixture, mock provider or
 simulated track substitutes for those facts. No physical case was executed, so none is PASS or FAIL.
 
+The canonical development-only PostgreSQL fixture supplies ten same-Tenant trusted Vehicle observations, ten closed speed incidents and six closed route-deviation incidents for local Tracking Dashboard demonstration. The records populate the bounded table, map/density, freshness/connectivity, observed-motion and authorized incident sections without creating pending detector jobs or replay nonces. They are synthetic and do not satisfy or alter the external physical-device acceptance hold above.
+
 Accounting remains 73/87. Deferred acceptance is
 `US-54-VIEW-TRACKING-DASHBOARD-FINAL-ACCEPTANCE-001`; active queue is
 `US-55-HANDLE-GPS-EDGE-CASES-PRODUCT-DECISIONS-001`.

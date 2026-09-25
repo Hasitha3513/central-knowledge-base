@@ -35,14 +35,16 @@ genuine provider/device journey retained through the production telemetry path, 
 and overlay evidence where available, and authorized operator sign-off. Automated or simulated evidence does
 not replace that field phase. This hold does not remove or reduce the available technically verified workflow.
 
-The consolidated **Tracking Dashboard** backend query is available to users with
-`TRACKING_DASHBOARD_VIEW`, but the dedicated navigation and screen remain scheduled for the next change set.
-The API provides a permission-gated read-only summary with truthful live/recent/stale/offline labels,
-observed-speed motion, permission-filtered Tracking incidents and active Trip context. Precise coordinates and
-heat cells additionally require `TRACKING_VIEW`; each producer section requires its own event-view permission.
-It does not add engine/idle inference or change the field-acceptance status of Live Tracking, Speed Monitoring,
-Route Deviations or Journey Replay. Until the dashboard screen is delivered, operators continue using the
-existing feature pages; this is not a claim that the consolidated browser workflow is complete.
+The **Tracking Dashboard** is available at `/tracking/dashboard` to users with
+`TRACKING_DASHBOARD_VIEW`. It provides a permission-gated read-only fleet table, map/density enhancement,
+truthful live/recent/stale/offline labels, observed-speed motion, permission-filtered Tracking incidents and
+active Trip context. Precise coordinates and heat cells additionally require `TRACKING_VIEW`; each producer
+section requires its own event-view permission. It does not add engine/idle inference or change the
+field-acceptance status of Live Tracking, Speed Monitoring, Route Deviations or Journey Replay.
+
+With local PostgreSQL sample data enabled, the dashboard contains ten synthetic same-Tenant Vehicle
+observations plus closed speed and route-deviation incident examples. These are demonstration records only:
+they create no pending detector work and do not represent genuine provider/device or physical acceptance evidence.
 
 ## Provider connections
 
