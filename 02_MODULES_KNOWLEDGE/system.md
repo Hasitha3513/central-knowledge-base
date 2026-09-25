@@ -65,3 +65,7 @@ Stores detected data anomalies across master data, meter sequences, trip telemet
 - `DataIntegrityFindingDetectedV1` (Published when a new anomaly is registered)
 - `DataIntegrityFindingQuarantinedV1` (Published when finding is placed in quarantine)
 - `DataIntegrityFindingResolvedV1` (Published when finding is resolved via audited action)
+
+
+## 5. Development Sample-Data Bootstrap
+When the application runs with the `postgres` or `docker` profile and `app.dev.sample-data.enabled=true`, startup loads the canonical PostgreSQL sample fixture followed by an idempotent extended Phase 1 fixture. The extension supplies tenant-scoped demonstration records for Integration, operational exceptions, Driver payroll input, Transport Billing, live Tracking, Compliance, operational disruptions, and the data-integrity queue. It is development-only, uses stable identifiers, does not activate external connections, and does not change production migrations or domain contracts. The H2 profile continues to load only its H2-specific fixture.

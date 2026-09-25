@@ -51,3 +51,7 @@ The **System Resilience & Data Integrity Console** provides system administrator
 - `SYSTEM_INTEGRITY_READ`: View integrity findings and scan summaries.
 - `SYSTEM_INTEGRITY_MANAGE`: Trigger scans, quarantine findings, and record resolutions.
 - `SYSTEM_RESILIENCE_MANAGE`: Activate/deactivate controlled degraded modes during major outages.
+
+
+## 5. Local Demonstration Data
+A local Docker or PostgreSQL startup with sample data enabled includes representative records in the newer Phase 1 workspaces as well as the original core modules. Operators can immediately inspect Integration configuration, operational exceptions, payroll batches, billing records, live vehicle positions, compliance evaluation evidence, active disruptions, and data-integrity findings. These records are synthetic, tenant-scoped, and intended only for local demonstration and testing; they do not indicate a real external integration, compliance approval, disruption, financial posting, or production telemetry event. Repeated startup is safe because the records use stable identifiers and conflict-safe inserts.
