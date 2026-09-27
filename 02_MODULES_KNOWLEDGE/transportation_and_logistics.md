@@ -96,6 +96,8 @@ US-56 publishes no cross-module event because it captures requirements and readi
 
 `MVP-1.3-US57-POD-PRODUCT-DECISIONS-001` is implemented and verified (US-57 online POD + US-58 offline POD).
 
+US-76 mobile acquisition now includes a local-only camera scanner: `getUserMedia` with an environment-facing preference, native `BarcodeDetector` capability detection for QR/Code128, and a lazy ZXing fallback for browsers such as governed iOS Safari targets. Decoded values feed the existing POD/package verification; manual entry remains available. Scanner frames are not persisted, uploaded, logged, or used as Tenant authority. Software verification is complete; physical Android/iOS acceptance remains pending.
+
 ### US-59 Failed Deliveries Product Decisions & Implementation
 
 `MVP-1.3-US59-FAILED-DELIVERIES-PRODUCT-DECISIONS-001` is implemented and verified (US-59 Failed Deliveries):

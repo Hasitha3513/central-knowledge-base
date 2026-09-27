@@ -296,7 +296,7 @@ stateDiagram-v2
 3. Attach delivery evidence:
    - ✍️ **Digital Signature:** Draw signature directly on touchscreen/canvas or upload image ($\le 2$ MB).
    - 📸 **Delivery Photos:** Capture/upload up to 3 cargo handover photos ($\le 10$ MB each).
-   - 🏷️ **Barcode Scan:** Scan or input the exact `DEL-YYYY-NNNNNN` parcel barcode.
+   - 🏷️ **Barcode Scan:** Tap **Scan QR or Code128 with camera**, then **Start camera** and grant rear-camera permission. The app uses native browser decoding when available and a cross-browser fallback otherwise. A successful scan fills and verifies the exact `DEL-YYYY-NNNNNN` value through the same validation as manual entry. If permission is denied or no camera is available, choose **Use manual entry**; no camera frame is uploaded or retained.
 4. Finalize POD:
    - 🌐 **Online:** Click **Finalize POD Online** to immediately finalize and mark order `DELIVERED`.
    - 📴 **Offline Outbox:** Click **Save & Queue Offline** to stage in browser IndexedDB. Sync occurs automatically upon reconnection.
