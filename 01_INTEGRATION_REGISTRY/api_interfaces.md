@@ -459,3 +459,19 @@ IMEI handshake, unique ACTIVE Tenant/device/provider binding lookup, acceptance 
 CRC validation, source-time Vehicle association, durable canonical V2 Kafka publication, then record-count ACK.
 The device payload cannot select Tenant. Unknown, inactive or ambiguous bindings and decode/publication failures
 receive no success ACK. The existing signed `POST /api/integration/v1/tracking/positions` contract is unchanged.
+
+
+## US-72 V115 D7 governance boundaries (non-HTTP)
+
+The existing default-off signed `CompliancePolicyGovernanceRunner` dispatches the additional one-shot
+operations `REQUEST_OVERRIDE`, `APPROVE_OVERRIDE`, `REJECT_OVERRIDE`, `REVOKE_OVERRIDE`, and override
+`READ_BACK` to `ComplianceOverrideGovernanceUseCase`. No public HTTP route is added. Compliance obtains
+same-Tenant actor authorization through the published Identity-root contract:
+
+```java
+boolean ComplianceGovernanceAuthorization.authorized(
+    UUID tenantId, UUID userId, String requiredPermission);
+```
+
+Identity owns user/role persistence. Compliance never queries Identity tables. The exact allowed permission is
+selected by the D7 operation; inactive/missing/foreign-Tenant users return denial.

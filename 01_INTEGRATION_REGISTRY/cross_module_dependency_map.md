@@ -305,3 +305,13 @@ The approved review is same-Tenant and actor-distinct, with four dispositions, o
 and 180-day evidence/finding/review retention. There is no automatic restriction, MFA, lockout, permission
 mutation or Operations intake. The internal CS01 contract records this vocabulary without activating a
 producer or runtime evaluator. An indicator remains explicitly distinct from proof of misuse.
+
+
+### US-72 V115 provisional D7 dependency
+
+| Provider | Consumer | Contract | Status |
+|---|---|---|---|
+| Identity | Compliance | `ComplianceGovernanceAuthorization`: same-Tenant active-user check for one exact D7 permission | ACTIVE_INACTIVE_FEATURE; published root contract, no foreign SQL |
+
+This narrow query dependency enforces D7 RBAC without transferring identity ownership. V115 remains
+default-off, has zero grants, and does not activate policy or operational enforcement.

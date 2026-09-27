@@ -287,3 +287,12 @@ on the next authenticated backend request. The runner is disabled by default and
 ## US-87 / US-72 governance review remediation (2026-09-25)
 
 The stacked governance review remediation preserves both exact permission allowlists and zero automatic grants. Tenant-qualified read-back now returns only the approved `USER_RISK_*` or Compliance permission subset for explicitly requested existing roles; it does not expose memberships, users, or unrelated permissions. Signed command freshness is classified separately from validation, conflict, and infrastructure failure. Identical command replay returns the committed result, while authenticated conflicting identity reuse records one minimized immutable conflict audit and performs no mutation. Runtime activation remains default-off.
+
+
+## US-72 V115 provisional D7 override permissions
+
+V115 catalogs exactly `COMPLIANCE_OVERRIDE_REQUEST`, `COMPLIANCE_OVERRIDE_APPROVE`, and
+`COMPLIANCE_OVERRIDE_VIEW`, with zero automatic grants. The existing default-off V114 Identity governance
+runner may assign or remove only its exact allowlist, now including these three codes, for explicitly targeted
+same-Tenant roles. Ordinary actor permission ceilings remain unchanged. Formal D7 authority approval, named
+role assignments and production activation remain pending.

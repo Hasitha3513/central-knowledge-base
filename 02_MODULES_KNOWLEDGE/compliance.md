@@ -64,7 +64,7 @@ All tables are strictly tenant-isolated (`tenant_id` leading on PKs and indexes)
 
 D1–D11 remain pending qualified approval. Product and qualified policy authority must approve jurisdiction/policy scope, facts, mandatory/advisory classification, effects, precedence, authority, override/appeal, retention, privacy, security and acceptance before production evaluation or operational enforcement. Missing authority/configuration is unavailable/unevaluated; it is neither affirmative clearance nor an automatic operational block.
 
-V114 now supplies the governed default-off policy lifecycle and initial permission-assignment mechanisms through separate Identity and Compliance owners. Enabling `app.compliance.api.enabled` still does not publish a policy, grant permissions, or authorize a jurisdiction. Override/appeal, policy authority decisions, named operational inputs and production acceptance remain open. The implementation does not reuse V113 US-87 tables or allowlists and does not create a generic governance platform.
+V114 now supplies the governed default-off policy lifecycle and initial permission-assignment mechanisms through separate Identity and Compliance owners. Enabling `app.compliance.api.enabled` still does not publish a policy, grant permissions, or authorize a jurisdiction. The provisional V115 exact-target override lifecycle is technically implemented; appeals (`APPEAL_PHASE1_DEFERRED`), formal policy authority decisions, named operational inputs and production acceptance remain open. The implementation does not reuse V113 US-87 tables or allowlists and does not create a generic governance platform.
 
 ## Phase 2: Post-MVP / Future Roadmap
 
@@ -140,3 +140,85 @@ session or Tenant transitions invalidate Compliance queries and clear lookup/res
 ## Governance code-review remediation
 
 The US-72 remediation serializes policy selection/evaluation/immutable decision persistence with withdrawal through one Tenant/policy transaction-scoped PostgreSQL advisory lock. Replacement is restricted to the expected latest version of the same Tenant/policy and may overlap only that exact prior interval at the forward closure boundary. Policy read-back returns the exact policy/version identity, finite effective interval, ordered bounded rule summary, and optional closure state. Compliance permission read-back returns only the four approved permissions for requested same-Tenant roles. V114 and all historical migrations remain unchanged; Compliance remains default-off and unaccepted.
+
+
+## V115 Provisional D7 Override Governance (Technically Complete, Production Inactive)
+
+V115 implements an exact Tenant/policy-version/check/operation-type/operation-ID override lifecycle through
+the existing signed default-off one-shot governance runner. Only `RESTRICT` or `BLOCK` may be overridden, and
+the derived effective result is `ADVISORY` during `[valid_from, valid_until)`, for at most four hours. Requester
+and approver, and original evaluator and approver, must differ. Formal D1–D11 approval is still pending.
+
+#### Table: `compliance_override_governance_command`
+
+- **Purpose:** Immutable idempotency/result record for successful signed D7 mutation commands.
+- **Primary Key:** (`tenant_id`, `command_id`)
+- **Multi-Tenant Key:** `tenant_id`
+
+| Column | Type | Nullable | Constraints / description |
+|---|---|---:|---|
+| `tenant_id` | UUID | NO | Tenant scope |
+| `command_id` | UUID | NO | Stable command identity |
+| `operation` | VARCHAR(40) | NO | REQUEST/APPROVE/REJECT/REVOKE only |
+| `canonical_fingerprint` | CHAR(64) | NO | Lowercase SHA-256 hex |
+| `key_id` | VARCHAR(80) | NO | Trusted signing-key reference |
+| `approval_reference` | VARCHAR(128) | NO | Approval provenance |
+| `issued_at`, `expires_at`, `completed_at` | TIMESTAMPTZ | NO | Command interval <=10 minutes; completion not before issue |
+| `result_code` | VARCHAR(64) | NO | Minimized result |
+| `affected_ids` | JSONB | NO | JSON array of logical UUIDs |
+| `retain_until` | TIMESTAMPTZ | NO | Exactly completion +180 days |
+
+Index: `(retain_until, tenant_id, command_id)`. Update/delete is trigger-rejected.
+
+#### Table: `compliance_override`
+
+- **Purpose:** Exact-target D7 request and immutable-material lifecycle.
+- **Primary Key:** (`tenant_id`, `id`)
+- **Multi-Tenant Key:** `tenant_id`
+
+| Column | Type | Nullable | Constraints / description |
+|---|---|---:|---|
+| `tenant_id`, `id` | UUID | NO | Tenant-qualified identity |
+| `policy_version_id` | UUID | NO | Same-Tenant FK to policy version |
+| `check_type` | VARCHAR(64) | NO | Seven frozen Compliance check identifiers |
+| `operation_type` | VARCHAR(80) | NO | Bounded code format |
+| `operation_id` | UUID | NO | Exact operation target |
+| `source_evaluation_id` | UUID | NO | Same-Tenant FK to immutable evaluation |
+| `original_effect` | VARCHAR(16) | NO | RESTRICT or BLOCK |
+| `override_effect` | VARCHAR(16) | NO | ADVISORY only |
+| `reason_code` | VARCHAR(40) | NO | Three frozen D7 reasons |
+| `note` | VARCHAR(256) | YES | Optional minimized note |
+| `requester_id`, `original_evaluator_id` | UUID | NO | SoD actors |
+| `approver_id` | UUID | YES | Must differ from requester and evaluator |
+| `valid_from`, `valid_until` | TIMESTAMPTZ | NO | Positive half-open interval <=PT4H |
+| `state` | VARCHAR(16) | NO | REQUESTED/APPROVED/REJECTED/REVOKED |
+| `decision_at`, `revoked_at` | TIMESTAMPTZ | YES | Required by lifecycle state |
+| `revoked_by` | UUID | YES | Required only when revoked |
+| `approval_reference` | VARCHAR(128) | YES | Required when approved |
+| `request_command_id` | UUID | NO | Same-Tenant deferred FK to command |
+| `decision_command_id`, `revocation_command_id` | UUID | YES | Same-Tenant deferred command FKs |
+| `created_at` | TIMESTAMPTZ | NO | Creation time |
+| `version` | BIGINT | NO | Optimistic lifecycle version; default 0 |
+
+Tenant-leading indexes support exact active-target lookup, operation history and pending work. A trigger freezes
+material fields, permits only REQUESTED→APPROVED/REJECTED and APPROVED→REVOKED, and rejects deletion.
+
+#### Table: `compliance_override_audit_event`
+
+- **Purpose:** Immutable minimized D7 command/audit outcome.
+- **Primary Key:** (`tenant_id`, `id`)
+- **Multi-Tenant Key:** `tenant_id`
+
+| Column | Type | Nullable | Constraints / description |
+|---|---|---:|---|
+| `tenant_id`, `id` | UUID | NO | Tenant-qualified audit identity |
+| `override_id` | UUID | YES | Same-Tenant FK when the override exists |
+| `command_id`, `actor_user_id` | UUID | NO | Command and actor references |
+| `action` | VARCHAR(32) | NO | REQUESTED/APPROVED/REJECTED/REVOKED/READ_BACK/DRY_RUN vocabulary |
+| `key_id` | VARCHAR(80) | NO | Signing-key reference, never key material |
+| `approval_reference` | VARCHAR(128) | NO | Approval provenance |
+| `outcome` | VARCHAR(24) | NO | Minimized outcome vocabulary |
+| `result_code` | VARCHAR(64) | NO | Safe result code |
+| `occurred_at`, `retain_until` | TIMESTAMPTZ | NO | Retention exactly 180 days |
+
+Index: `(tenant_id, override_id, occurred_at DESC, id DESC)`. Update/delete is trigger-rejected.
