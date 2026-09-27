@@ -450,3 +450,12 @@ Responses set `Cache-Control: no-store` and `Referrer-Policy: no-referrer`. Serv
 ### Governance review remediation (US-87 / US-72, non-HTTP)
 
 `US-87-US-72-GOVERNANCE-CODE-REVIEW-REMEDIATION-001` changes no public HTTP API. The existing signed one-shot boundaries now provide bounded authoritative permission/policy read-back, distinct command-expiry classification, and audited conflicting replay. US-87 evaluation and withdrawal share a Tenant/rule transaction-scoped advisory lock. US-72 policy selection, evaluation, immutable decision persistence, and withdrawal share a Tenant/policy transaction-scoped advisory lock. Historical finding, review, appeal, and committed compliance-decision reads remain available after withdrawal.
+
+## Tracking native TCP ingress (internal network boundary)
+
+This is not an HTTP API. A default-off `SmartLifecycle` listener accepts Teltonika Codec 8/8E sessions when
+`app.tracking.ingress.tcp.enabled=true` and an explicit non-zero port is configured. Session order is: bounded
+IMEI handshake, unique ACTIVE Tenant/device/provider binding lookup, acceptance byte, bounded AVL framing and
+CRC validation, source-time Vehicle association, durable canonical V2 Kafka publication, then record-count ACK.
+The device payload cannot select Tenant. Unknown, inactive or ambiguous bindings and decode/publication failures
+receive no success ACK. The existing signed `POST /api/integration/v1/tracking/positions` contract is unchanged.

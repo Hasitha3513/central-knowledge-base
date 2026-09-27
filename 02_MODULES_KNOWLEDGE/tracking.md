@@ -2058,3 +2058,24 @@ Physical acceptance additionally requires a genuine same-Tenant provider/device/
 safe field procedure, privacy review and operator sign-off. No executable US-51 activation or
 final-acceptance task identifier is currently authorized, so none is invented. Accounting remains
 73/87.
+
+### Native Teltonika TCP ingress (EXT-TRACK-02-REM-01B)
+
+Tracking owns a default-off bounded JDK TCP listener for Teltonika Codec 8/8E. Configuration prefix is
+`app.tracking.ingress.tcp` with explicit enablement, bind address, non-zero port, read/idle timeouts, maximum
+frame size and maximum connections. The safe default bind address is `localhost`; production exposure requires
+explicit configuration and approved network protection. TLS-wrapped TCP, UDP and MQTT device ingress are not
+implemented.
+
+The listener accepts a bounded numeric IMEI, resolves exactly one ACTIVE Tenant-qualified provider/device
+binding whose safe configuration declares `protocolCode: TELTONIKA_CODEC8`, and only then emits the Teltonika
+acceptance byte. Ambiguous external identities, including cross-Tenant duplication, fail closed. Codec framing
+and CRC-16/IBM validation reuse `TeltonikaCodec8TelemetryAdapter`. Source-time Vehicle association and canonical
+V2 Kafka publication use the same Tracking application boundary as signed HTTPS ingress. The record-count ACK
+is written only after durable Kafka publication succeeds. Redis and TimescaleDB remain downstream projections;
+there is no TCP-specific persistence or deduplication store.
+
+The software preflight supports explicit HTTPS/TCP selection, requires operator credentials from the execution
+environment, and reports at most `READY_FOR_PHYSICAL_CONNECTION`. Physical/provider evidence and operator sign-off
+remain pending. No schema, migration, permission, dependency or public REST contract changed; Flyway remains V112
+on this remediation branch.

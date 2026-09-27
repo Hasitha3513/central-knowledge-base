@@ -306,3 +306,17 @@ and closed episode detail includes minimized immutable evidence only. Candidate 
 authorized but candidate records never appear as confirmed episode history. Signing out, session expiry or a
 different authenticated session clears cached idle-monitoring queries. The workspace is read-only and displays
 fuel estimation as **Unavailable**.
+
+## Native Teltonika TCP onboarding
+
+Native TCP is an optional deployment capability and is disabled by default. An administrator must register the
+device, create an ACTIVE provider connection and ACTIVE device-provider binding, associate the device with a
+same-Tenant Vehicle, and declare `protocolCode: TELTONIKA_CODEC8` in approved safe configuration. The deployment
+operator then explicitly enables and protects the listener and supplies its bind address and port to the device.
+
+Run `scripts/tracking/physical-device-preflight.sh` with `CERT_TRANSPORT=TCP`, `CERT_TCP_ENABLED=true`, the TCP host
+and port, and operator credentials supplied securely through the environment. `READY_FOR_PHYSICAL_CONNECTION`
+means only that software configuration, diagnostics, binding/assignment and listener reachability passed. It does
+not prove telemetry arrival or physical acceptance. Connection verification, first telemetry receipt, freshness,
+field scenarios, privacy review and operator sign-off remain separate. TLS-wrapped native TCP, UDP and MQTT device
+ingress are not available.
