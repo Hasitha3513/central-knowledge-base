@@ -1515,3 +1515,12 @@ authorized retention mechanism.
 #### US-87 activation readiness reconciliation
 
 At product HEAD `1464090d04f07e632a0a08d2d0a29b9e90315626`, the hostile readiness audit verified 50/50 focused domain, architecture, PostgreSQL V106/V107/V113, governance runner, concurrency, API/RBAC, cursor and failure-audit tests. US-87 is `COMPLETE_INACTIVE / US87_ACTIVATION_EXECUTION_READY`; runtime remains `GOVERNANCE_INACTIVE`, production activation is not authorized, and automatic grants remain zero. The governance runner property is `app.identity.user-risk.governance.enabled`; the separate review/API property is `app.identity.user-risk.internal-review-enabled`. G1–G10 authority decisions, named pilot Tenant, finite interval, permission/reviewer/appeal rosters, key custody, monitoring/rollback owners and controlled operational acceptance remain pending. Formal accounting remains 76/87 and the repository migration head is V115.
+
+#### MVP external execution campaign
+
+The application repository now owns `docs/closure/MVP-EXTERNAL-EXECUTION-REGISTER-001.md` as the single
+11-story external-execution register and `scripts/certification/external-execution-status.sh` as a read-only
+summary. It preserves Level 1 software, Level 2 preflight and Level 3 genuine external evidence as distinct
+classes and permits Tracks 1–4 to close independently. Current state is
+`EXTERNAL_ACCEPTANCE_CAMPAIGN_READY / NOT_SCHEDULED / WAITING_FOR_EXTERNAL_INPUT`, with 0/11 accepted Level 3
+records, 76/87 formal completion and Flyway V115.

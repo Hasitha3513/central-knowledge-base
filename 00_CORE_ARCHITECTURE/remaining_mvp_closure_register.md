@@ -30,3 +30,13 @@ Software development is **100% complete** across all 11 stories. Remaining activ
 2. **Track 2: Mobile Device Physical Acceptance (1 Story):** US-76 executed across physical Android and iOS smartphones.
 3. **Track 3: Legal & Regulatory Policy Sign-Off (1 Story):** US-72 D1–D11 decisions signed by General Counsel and CCO.
 4. **Track 4: User-Risk Governance Activation (1 Story):** US-87 is `US87_ACTIVATION_EXECUTION_READY` but remains `GOVERNANCE_INACTIVE`. Before the controlled pilot, record G1–G10 authority decisions, the named Tenant, permission/reviewer/appeal rosters, finite interval, deployment key authority, evidence disposition, monitoring/rollback ownership and operational acceptance owners.
+
+## 4. External execution campaign
+
+`MVP-EXTERNAL-EXECUTION-01` established the single application-side execution register and four independent
+track packets. Campaign preparation is `EXTERNAL_ACCEPTANCE_CAMPAIGN_READY`; execution is `NOT_SCHEDULED`,
+all 11 stories remain `WAITING_FOR_EXTERNAL_INPUT`, and accepted Level 3 evidence is `0 / 11`. Track 1 is
+`READY_FOR_PHYSICAL_CONNECTION`, Track 2 is `READY_FOR_PHYSICAL_MOBILE_DEVICES`, Track 3 is
+`US72_ACTIVATION_EXECUTION_READY / US72_POLICY_APPROVAL_PENDING`, and Track 4 is
+`US87_ACTIVATION_EXECUTION_READY / GOVERNANCE_INACTIVE`. Formal accounting remains 76/87 and Flyway remains
+V115. No physical evidence, authority approval, production activation or story closure was inferred from campaign preparation.
