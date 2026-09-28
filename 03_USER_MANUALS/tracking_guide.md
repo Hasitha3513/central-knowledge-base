@@ -48,6 +48,12 @@ they create no pending detector work and do not represent genuine provider/devic
 
 ## Provider connections
 
+Signed provider delivery remains the existing authenticated endpoint; operators do not choose a Tenant in a
+telemetry payload. An ACTIVE connection's installed protocol profile selects the decoder only after HMAC,
+timestamp, nonce and request bounds pass. Unknown or transport-incompatible profiles are rejected without
+publishing telemetry. A successful connection configuration means that an adapter is installed; it is not proof
+that a particular physical device or unsupported vendor protocol is compatible or certified.
+
 Operators with `TRACKING_DEVICE_MANAGE` can open **Tracking → Provider Connections**. The page lists same-Tenant connections with provider type and alias, lifecycle, safe test status, credential-configured state, poll interval and safe health timestamps. Open **Details** for endpoint, safe configuration and backend-reported capability tags. Provider credentials and their stored references are never displayed.
 
 Choose **Add Provider Connection**, select one of the installed provider types loaded from the backend, and enter the display name, alias, opaque provider key ID, approved HTTPS endpoint, opaque credential reference, polling interval, page size and bounded safe configuration. Connections are saved as DRAFT; creation never starts polling automatically. Safe configuration accepts an object of string values up to 8 KiB and rejects secret-like keys. The backend remains authoritative for provider-specific fields and SSRF protection; current Flespi endpoints must use HTTPS/443 in the `flespi.io` hostname zone.

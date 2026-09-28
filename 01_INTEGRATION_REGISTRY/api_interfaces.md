@@ -177,6 +177,14 @@ Device responses add `currentProviderBinding` and `currentVehicleAssociation` so
 
 External signed HTTPS JSON ingress is separate at `POST /api/integration/v1/tracking/positions`, maximum 500 messages and 1 MiB. Required authority headers are opaque `X-Tracking-Provider-Key-Id`, asserted `X-Tracking-Provider`, epoch `X-Tracking-Timestamp`, nonce and HMAC signature. The exact signature input is `epoch + "\n" + nonce + "\n" + providerKeyId + "\n" + providerAlias + "\n" + rawBody`. Tenant, trusted alias and opaque credential reference derive only from the ACTIVE Tracking binding; a caller Tenant header/payload cannot override them. Secrets resolve only through `IntegrationSecretResolver`; failures are sanitized `401 / TRACKING_PROVIDER_UNAUTHORIZED`.
 
+After those controls and request bounds pass, the ACTIVE binding selects a stable protocol code from its safe
+configuration, with the existing provider-type string retained as a compatibility fallback. Tracking resolves a
+registered `TelemetryProtocolAdapter` that explicitly supports `HTTP_POST`, converts each bounded JSON record to
+a Tenant-authoritative raw envelope, and invokes the unchanged Device/Vehicle authority and canonical publisher.
+Duplicate protocol registration fails deterministically; unknown protocols and transport mismatches fail closed.
+Adding a signed-HTTPS protocol requires a reviewed adapter and binding configuration, not a public API, vendor-enum
+or controller-dispatch change. This does not claim support for adapters that are not installed and certified.
+
 Provider-binding, retention-policy and projection-rebuild operations are internal maintenance use cases and add no public human endpoint or permission. No generic status PATCH, raw-payload, credential, purge, detector, Customer, export or arbitrary provider-success route is approved.
 
 US-48 live updates use 15-second visible polling with bounded 30/60-second failure backoff; SSE/WebSocket is deferred to US-54 if measured fanout justifies it. Controlled-provider PostgreSQL and Chromium implementation evidence passes; physical-device/real-provider final acceptance remains pending.

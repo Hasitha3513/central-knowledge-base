@@ -2094,3 +2094,19 @@ length-prefixed protocol uses a serial-number identity and distinct ACK bytes to
 reuse the listener, authoritative binding, source-time Vehicle assignment and durable canonical Kafka path without
 modifying downstream Redis, TimescaleDB or detector logic. This proof is software evidence only; it adds no
 commercial-device support or physical acceptance. Flyway remains V115 and accounting remains 76/87.
+
+### Signed HTTPS protocol extension boundary (DEVICE-PLUGPLAY-REM-02)
+
+The unchanged signed HTTPS endpoint now selects payload decoding through the same registered
+`TelemetryProtocolAdapter` SPI used by native ingestion. Request size, HMAC, provider identity, timestamp, nonce
+and ACTIVE binding checks complete before adapter invocation. The binding supplies a stable protocol code from
+safe configuration, falling back to its existing provider-type value for legacy rows, and the resolver requires
+declared `HTTP_POST` compatibility. Duplicate codes fail registration; unknown codes and transport mismatch fail
+closed without canonical publication.
+
+Adapters receive a transport-neutral raw envelope containing the already-authoritative Tenant. They cannot select
+Tenant, bypass source-time Device/Vehicle association, write Redis/history directly or create vendor-specific
+events/deduplication. A test-only adapter with a distinct payload proves dynamic discovery and canonical publication
+without changing `TelemetryGatewayType`, controller dispatch or the canonical publisher. Flespi and Traccar polling
+remain on their established asynchronous paths. No schema, migration, permission, dependency, REST or event
+contract changed; Flyway remains V115 and physical certification remains pending.
