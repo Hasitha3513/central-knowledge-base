@@ -288,6 +288,8 @@ on the next authenticated backend request. The runner is disabled by default and
 
 The stacked governance review remediation preserves both exact permission allowlists and zero automatic grants. Tenant-qualified read-back now returns only the approved `USER_RISK_*` or Compliance permission subset for explicitly requested existing roles; it does not expose memberships, users, or unrelated permissions. Signed command freshness is classified separately from validation, conflict, and infrastructure failure. Identical command replay returns the committed result, while authenticated conflicting identity reuse records one minimized immutable conflict audit and performs no mutation. Runtime activation remains default-off.
 
+The canonical controls are distinct: `app.identity.user-risk.governance.enabled` enables only the signed, one-shot, non-web governance runner, while `app.identity.user-risk.internal-review-enabled` enables the deployment-wide review/API surface. Both default off; neither property is executive approval. The runner requires scheduling and Kafka listener auto-start disabled and enforces signed-command validity, exact operation/permission allowlists and replay-safe read-back. The verified state is `US87_ACTIVATION_EXECUTION_READY / GOVERNANCE_INACTIVE`; production grants and activation remain prohibited pending G1–G10 decisions, named rosters/owners and controlled operational acceptance.
+
 
 ## US-72 V115 provisional D7 override permissions
 

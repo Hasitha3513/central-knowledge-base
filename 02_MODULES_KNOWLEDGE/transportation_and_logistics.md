@@ -1511,3 +1511,7 @@ authorized retention mechanism.
 #### US-87 / US-72 governance code-review remediation
 
 `US-87-US-72-GOVERNANCE-CODE-REVIEW-REMEDIATION-001` corrected withdrawal/evaluation serialization, authoritative bounded read-back, conflicting replay audit, and command-expiry classification in the stacked PRs. US-72 additionally validates exact same-policy version replacement and non-prior interval overlap. No migration, permission, HTTP contract, automatic grant, activation, acceptance status, or story accounting changed; V114 and `76 / 87 COMPLETE` remain authoritative.
+
+#### US-87 activation readiness reconciliation
+
+At product HEAD `1464090d04f07e632a0a08d2d0a29b9e90315626`, the hostile readiness audit verified 50/50 focused domain, architecture, PostgreSQL V106/V107/V113, governance runner, concurrency, API/RBAC, cursor and failure-audit tests. US-87 is `COMPLETE_INACTIVE / US87_ACTIVATION_EXECUTION_READY`; runtime remains `GOVERNANCE_INACTIVE`, production activation is not authorized, and automatic grants remain zero. The governance runner property is `app.identity.user-risk.governance.enabled`; the separate review/API property is `app.identity.user-risk.internal-review-enabled`. G1–G10 authority decisions, named pilot Tenant, finite interval, permission/reviewer/appeal rosters, key custody, monitoring/rollback owners and controlled operational acceptance remain pending. Formal accounting remains 76/87 and the repository migration head is V115.

@@ -472,9 +472,10 @@ The list shows category, impact, lifecycle, source, review and handoff state. Op
 ## 14. 🛡️ Internal User-Risk Review (US-87, default-off)
 
 The internal review workspace is unavailable unless a deployment administrator explicitly enables
-`app.identity.user-risk.internal-review-enabled`. Enabling it does not create rules or assign review authority.
-A Tenant administrator must separately assign the narrowly required permissions through the governed role
-workflow; holding `ADMIN` alone does not grant access.
+`app.identity.user-risk.internal-review-enabled`. Enabling it does not create rules, assign review authority or
+constitute executive approval. Initial permission assignment and immutable Tenant rule publication use the separate,
+default-off, signed one-shot governance runner controlled by `app.identity.user-risk.governance.enabled`; holding
+`ADMIN` alone does not grant access.
 
 Operators with `USER_RISK_VIEW` can open **Administration → User Risk Review**, apply bounded state, subject
 and source-time filters, page through same-Tenant findings and open a detail drawer. The page describes every
@@ -493,7 +494,7 @@ change or Operations case. The page never exposes usernames, requested permissio
 credentials or raw request content. A successful connection or visible workspace does not mean a production
 risk rule has been activated. V113 provides a separate signed, one-shot deployment operation for approved
 permission rosters and immutable Tenant rule publication/withdrawal; it is not available through this UI and
-does not grant authority automatically. Pilot activation and operational acceptance remain separate.
+does not grant authority automatically. The governance runner is non-web and must run with scheduling and Kafka listener auto-start disabled; it validates signed commands, validity windows and exact allowlists and provides replay-safe read-back. It does not expose the review API. US-87 is `US87_ACTIVATION_EXECUTION_READY`, but runtime remains `GOVERNANCE_INACTIVE`; G1–G10 authority approval, named rosters/owners, controlled pilot activation and operational acceptance remain separate.
 
 ## 15. 🛠️ Troubleshooting & Support Escalation
 
