@@ -95,3 +95,7 @@ Production use remains blocked until qualified authorities approve the Tenant/ju
 named roles, effective interval, key custody, monitoring, rollback and acceptance evidence. A session or Tenant
 change clears Compliance query caches, lookup inputs/results and an open evidence drawer. Permission removal
 is enforced by the backend on the next authenticated request.
+
+## Activation status and evaluation authorization
+
+The evaluation submission permission remains exactly `COMPLIANCE_EVALUATE`. Holding policy, evaluation-view, or evidence-view permissions alone does not permit submission. The packaged-browser acceptance journey now verifies the submission response directly and passes with the intended least-privilege evaluator. Compliance remains disabled by default; operators cannot use the workspace in production until the governed Tenant policy, permission roster, configuration activation and authority sign-off are completed. No policy or role grant is created automatically.

@@ -222,3 +222,7 @@ material fields, permits only REQUESTED→APPROVED/REJECTED and APPROVED→REVOK
 | `occurred_at`, `retain_until` | TIMESTAMPTZ | NO | Retention exactly 180 days |
 
 Index: `(tenant_id, override_id, occurred_at DESC, id DESC)`. Update/delete is trigger-rejected.
+
+## Evaluation Authorization Closure (EXT-COMP-02-REM-07)
+
+The final packaged-browser evaluation 403 was traced to the controlled Playwright origin (`http://localhost:5174`) being absent from that test backend's CORS environment, not to Compliance RBAC. Production authorization remains least-privilege: `POST /api/v1/compliance/evaluations` requires `COMPLIANCE_EVALUATE`; view-only, policy-view-only and evidence-view-only users remain forbidden; unauthenticated access remains rejected; and bounded source facts remain Tenant-qualified behind published module ports. The correction configures only the Playwright backend origin and adds response-level regression assertions. Fresh evidence passed the direct permission matrix, focused Compliance/architecture 92/92, real PostgreSQL-backed Chromium 6/6, and complete Maven 2,191/2,191. No production CORS default, permission, automatic grant, API, migration or policy activation changed. Software status is `US72_ACTIVATION_EXECUTION_READY`; authority status remains `US72_POLICY_APPROVAL_PENDING`, and appeals remain `APPEAL_PHASE1_DEFERRED`.
