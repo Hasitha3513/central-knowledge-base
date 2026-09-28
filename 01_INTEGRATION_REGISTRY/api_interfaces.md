@@ -453,10 +453,17 @@ Responses set `Cache-Control: no-store` and `Referrer-Policy: no-referrer`. Serv
 
 ## Tracking native TCP ingress (internal network boundary)
 
-This is not an HTTP API. A default-off `SmartLifecycle` listener accepts Teltonika Codec 8/8E sessions when
-`app.tracking.ingress.tcp.enabled=true` and an explicit non-zero port is configured. Session order is: bounded
-IMEI handshake, unique ACTIVE Tenant/device/provider binding lookup, acceptance byte, bounded AVL framing and
-CRC validation, source-time Vehicle association, durable canonical V2 Kafka publication, then record-count ACK.
+This is not an HTTP API. A default-off `SmartLifecycle` listener selects one registered
+`NativeTcpSessionProtocolHandler` through `app.tracking.ingress.tcp.protocol-code` when
+`app.tracking.ingress.tcp.enabled=true` and an explicit non-zero port is configured. The generic listener owns
+socket admission, timeouts, connection/frame limits and isolation. The selected handler owns identity framing,
+frame extraction and ACK/NACK, while its matching `TelemetryProtocolAdapter` validates and normalizes payloads.
+The production default remains `TELTONIKA_CODEC8`; its handler preserves bounded IMEI, AVL framing, CRC and
+record-count ACK semantics. Duplicate or unknown handler selection fails at startup.
+
+Session order is: protocol-specific bounded identity, unique ACTIVE Tenant/device/provider binding lookup,
+protocol acceptance response, bounded frame extraction and validation, source-time Vehicle association, durable
+canonical V2 Kafka publication, then protocol success ACK.
 The device payload cannot select Tenant. Unknown, inactive or ambiguous bindings and decode/publication failures
 receive no success ACK. The existing signed `POST /api/integration/v1/tracking/positions` contract is unchanged.
 

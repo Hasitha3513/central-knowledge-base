@@ -320,3 +320,10 @@ means only that software configuration, diagnostics, binding/assignment and list
 not prove telemetry arrival or physical acceptance. Connection verification, first telemetry receipt, freshness,
 field scenarios, privacy review and operator sign-off remain separate. TLS-wrapped native TCP, UDP and MQTT device
 ingress are not available.
+
+The deployment must also set or retain `app.tracking.ingress.tcp.protocol-code=TELTONIKA_CODEC8`. Native TCP is
+implemented through a protocol-session extension boundary: deployment configuration selects one registered
+handler per listener, while each supported handler owns its device handshake, frame boundaries and ACK behavior.
+This does not make unregistered trackers compatible. A different physical protocol requires an implemented,
+verified and certified handler/decoder profile before operators may select it; no such additional production
+handler is currently available.

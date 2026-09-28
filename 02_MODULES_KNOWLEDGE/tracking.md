@@ -2077,5 +2077,20 @@ there is no TCP-specific persistence or deduplication store.
 
 The software preflight supports explicit HTTPS/TCP selection, requires operator credentials from the execution
 environment, and reports at most `READY_FOR_PHYSICAL_CONNECTION`. Physical/provider evidence and operator sign-off
-remain pending. No schema, migration, permission, dependency or public REST contract changed; Flyway remains V112
-on this remediation branch.
+remain pending. No schema, migration, permission, dependency or public REST contract changed; Flyway was V112
+at that remediation checkpoint.
+
+### Native session protocol extension boundary (DEVICE-PLUGPLAY-REM-01)
+
+The bounded TCP listener no longer contains Teltonika handshake, identity, framing or ACK logic. It selects one
+registered `NativeTcpSessionProtocolHandler` using `app.tracking.ingress.tcp.protocol-code`; the backward-compatible
+default and only production handler remain `TELTONIKA_CODEC8`. The listener retains generic bind/listen,
+connection admission, timeouts, maximum frame size, isolation and shutdown. Handlers own protocol-specific
+identity framing, bounded frame extraction and ACK/NACK. Duplicate handler codes and unknown configured codes fail
+at startup without enabling the default-off listener.
+
+Teltonika retains numeric IMEI, Codec 8/8E, CRC-16/IBM and record-count acknowledgement behavior. A test-only
+length-prefixed protocol uses a serial-number identity and distinct ACK bytes to prove that another protocol can
+reuse the listener, authoritative binding, source-time Vehicle assignment and durable canonical Kafka path without
+modifying downstream Redis, TimescaleDB or detector logic. This proof is software evidence only; it adds no
+commercial-device support or physical acceptance. Flyway remains V115 and accounting remains 76/87.
