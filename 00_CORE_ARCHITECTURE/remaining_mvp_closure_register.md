@@ -1,13 +1,14 @@
-# Remaining MVP 11 Stories Master Closure Register
+# Post-Software MVP External Certification and Activation Register
 
 ## 1. Executive Summary
-This document registers the authoritative closure board for the final 11 stories required to complete the Transport & Logistics MVP (`87 / 87 COMPLETE`).
+This document registers the eleven external certification and activation gates that remain after the Transport & Logistics software MVP reached `87 / 87 COMPLETE`.
 
 Software development is **100% complete** across all 11 stories. Remaining activities consist strictly of physical field telematics runs, mobile hardware PWA validation, compliance policy authority sign-offs, and user risk governance authorization.
 
-The authoritative state is `MVP_SOFTWARE_FROZEN_EXTERNAL_CLOSURE`: software is implemented for 87/87
-stories, formal completion remains 76/87, all 11 external holds are software-ready, and accepted Level-3 evidence
-is 0/11. Known MVP software implementation blockers and planned device-architecture remediations are both zero.
+The authoritative state is `MVP_SOFTWARE_87_OF_87_COMPLETE / MVP_SOFTWARE_FROZEN_EXTERNAL_CLOSURE`:
+software is complete for 87/87 stories, all 11 external gates are software-ready, and accepted Level-3 evidence
+is 0/11. The former 76/87 figure belongs to the superseded combined software-plus-external acceptance model.
+Known MVP software implementation blockers and planned device-architecture remediations are both zero.
 This freeze is not formal MVP completion or production GA. Only genuine external evidence can advance a hold;
 evidence-driven defects may reopen bounded remediation, while speculative implementation is prohibited.
 
@@ -15,7 +16,7 @@ evidence-driven defects may reopen bounded remediation, while speculative implem
 
 ## 2. Closure Matrix
 
-| Story | Name | Wave | Software State | Formal Status | Closure Track | Missing Acceptance Evidence |
+| Story | Name | Wave | Software State | External Gate Status | Closure Track | Missing External Evidence |
 | :---: | :--- | :---: | :---: | :---: | :--- | :--- |
 | **US-48** | Track Vehicles (Live GPS Tracking) | C | `YES` | `PHYSICAL_ACCEPTANCE_PENDING` | `PHYSICAL_HARDWARE` | Live Teltonika FMC130 GPS stream over cellular ingress, normalization, live Leaflet map rendering. |
 | **US-50** | Monitor Speeding | C | `YES` | `PHYSICAL_ACCEPTANCE_PENDING` | `FIELD_OPERATION` | Real vehicle speed threshold crossing, real-time alert generation, incident persistence. |
@@ -40,11 +41,11 @@ evidence-driven defects may reopen bounded remediation, while speculative implem
 ## 4. External execution campaign
 
 `MVP-EXTERNAL-EXECUTION-01` established the single application-side execution register and four independent
-track packets. Campaign preparation is `EXTERNAL_ACCEPTANCE_CAMPAIGN_READY`; execution is `NOT_SCHEDULED`,
+track packets. Campaign preparation is `SOFTWARE_MVP_COMPLETE_EXTERNAL_GATES_PENDING`; execution is `NOT_SCHEDULED`,
 all 11 stories remain `WAITING_FOR_EXTERNAL_INPUT`, and accepted Level 3 evidence is `0 / 11`. Track 1 is
 `READY_FOR_PHYSICAL_CONNECTION`, Track 2 is `READY_FOR_PHYSICAL_MOBILE_DEVICES`, Track 3 is
 `US72_ACTIVATION_EXECUTION_READY / US72_POLICY_APPROVAL_PENDING`, and Track 4 is
-`US87_ACTIVATION_EXECUTION_READY / GOVERNANCE_INACTIVE`. Formal accounting remains 76/87 and Flyway remains
+`US87_ACTIVATION_EXECUTION_READY / GOVERNANCE_INACTIVE`. Software MVP accounting is 87/87 and Flyway remains
 V115. No physical evidence, authority approval, production activation or story closure was inferred from campaign preparation.
 
 ## 5. Authoritative external triggers
