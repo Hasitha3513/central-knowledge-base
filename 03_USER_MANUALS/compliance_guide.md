@@ -99,3 +99,17 @@ is enforced by the backend on the next authenticated request.
 ## Activation status and evaluation authorization
 
 The evaluation submission permission remains exactly `COMPLIANCE_EVALUATE`. Holding policy, evaluation-view, or evidence-view permissions alone does not permit submission. The packaged-browser acceptance journey now verifies the submission response directly and passes with the intended least-privilege evaluator. Compliance remains disabled by default; operators cannot use the workspace in production until the governed Tenant policy, permission roster, configuration activation and authority sign-off are completed. No policy or role grant is created automatically.
+
+### Human authority handoff
+
+The canonical D1–D11 decision sheet contains no preselected approvals. Accountable authorities must choose
+`APPROVE`, `AMEND`, or `REJECT` for each applicable decision and provide non-secret authority references.
+The complete permission catalogue is `COMPLIANCE_EVALUATE`, `COMPLIANCE_EVALUATION_VIEW`,
+`COMPLIANCE_EVIDENCE_VIEW`, `COMPLIANCE_POLICY_VIEW`, `COMPLIANCE_OVERRIDE_REQUEST`,
+`COMPLIANCE_OVERRIDE_APPROVE`, and `COMPLIANCE_OVERRIDE_VIEW`; automatic grants remain zero.
+
+Activation input must identify the Tenant, policy/version and finite interval, jurisdiction, approved
+checks/effects, exact role-permission roster, D7 disposition, non-secret signing-key ID and accountable
+deployment, monitoring, rollback and acceptance owners. It must never contain signing material or credentials.
+The V114/V115 signed one-shot runners remain disabled until those inputs and authority decisions are
+independently validated. Appeals remain `APPEAL_PHASE1_DEFERRED`.
