@@ -2110,3 +2110,19 @@ events/deduplication. A test-only adapter with a distinct payload proves dynamic
 without changing `TelemetryGatewayType`, controller dispatch or the canonical publisher. Flespi and Traccar polling
 remain on their established asynchronous paths. No schema, migration, permission, dependency, REST or event
 contract changed; Flyway remains V115 and physical certification remains pending.
+
+### Selected-profile certification truth (DEVICE-PLUGPLAY-REM-03)
+
+Track-1 preflight now requires a non-secret selected profile and validates its operational transport, registered
+protocol code, identity mechanism, authentication/session mechanism and exact capability mappings before online
+readiness checks. Current operational combinations are Teltonika Codec 8 over native TCP with IMEI/native-session
+binding, signed Generic JSON over HTTPS with external-device identity/HMAC-SHA256, and Flespi/Traccar through the
+governed gateway route. UDP and MQTT are not approved certification routes.
+
+The current Teltonika adapter publishes position, source timestamp, speed and heading. Certification must not
+claim altitude, device accuracy, ignition, authoritative engine-running, odometer, battery, tamper, external-power
+or charging mappings that are not produced by that adapter. Optional `UNKNOWN`, `UNSUPPORTED` and certification-only
+`NOT_APPLICABLE` states remain explicit; `NOT_APPLICABLE` does not change runtime capability semantics. A passing
+profile/online preflight is Level 1/2 and reports at most `READY_FOR_PHYSICAL_CONNECTION`; genuine device/provider
+evidence and operator sign-off remain mandatory. No runtime API, schema, permission or event changed; Flyway remains
+V115 and the next bounded architecture queue is `DEVICE-PLUGPLAY-REM-04`.

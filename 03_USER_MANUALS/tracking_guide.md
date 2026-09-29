@@ -320,7 +320,10 @@ device, create an ACTIVE provider connection and ACTIVE device-provider binding,
 same-Tenant Vehicle, and declare `protocolCode: TELTONIKA_CODEC8` in approved safe configuration. The deployment
 operator then explicitly enables and protects the listener and supplies its bind address and port to the device.
 
-Run `scripts/tracking/physical-device-preflight.sh` with `CERT_TRANSPORT=TCP`, `CERT_TCP_ENABLED=true`, the TCP host
+Select a non-secret certification profile and first run
+`scripts/certification/device-certify.sh telematics --profile <path> --profile-only`. The profile must declare
+the operational transport, protocol, identity, authentication and exact mappings for every supported capability.
+Then run online preflight with `CERT_TCP_ENABLED=true`, `CERT_TCP_LISTENER_PROTOCOL=TELTONIKA_CODEC8`, the TCP host
 and port, and operator credentials supplied securely through the environment. `READY_FOR_PHYSICAL_CONNECTION`
 means only that software configuration, diagnostics, binding/assignment and listener reachability passed. It does
 not prove telemetry arrival or physical acceptance. Connection verification, first telemetry receipt, freshness,
@@ -333,3 +336,9 @@ handler per listener, while each supported handler owns its device handshake, fr
 This does not make unregistered trackers compatible. A different physical protocol requires an implemented,
 verified and certified handler/decoder profile before operators may select it; no such additional production
 handler is currently available.
+
+The current Teltonika profile may require position and source timestamp and may declare speed and heading as
+supported. Do not claim altitude, device accuracy, ignition, authoritative engine-running, odometer, battery,
+tamper, external-power or charging support unless a future approved adapter mapping and genuine device evidence
+prove it. A profile warning for an optional unknown or unsupported signal is truthful and does not block unrelated
+required capabilities. Profiles must never contain credentials, tokens, keys or raw device identifiers.
