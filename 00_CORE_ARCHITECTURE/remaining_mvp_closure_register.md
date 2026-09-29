@@ -9,6 +9,11 @@ The authoritative state is `MVP_SOFTWARE_87_OF_87_COMPLETE / MVP_SOFTWARE_FROZEN
 software is complete for 87/87 stories, all 11 external gates are software-ready, and accepted Level-3 evidence
 is 0/11. The former 76/87 figure belongs to the superseded combined software-plus-external acceptance model.
 Known MVP software implementation blockers and planned device-architecture remediations are both zero.
+The current immutable software release candidate is `MVP-RC2 / 1.0.0-rc.2`, published from software source
+`da61863b7c89197d52d4bc06eb5a195575c2cb49` with Flyway V115 and
+`UNIVERSAL_DEVICE_EXTENSION_BOUNDARY_READY`. Physical GPS/mobile certification remains
+`DEFERRED_TO_PILOT`; US-72 and US-87 production activation remain pending; accepted Level-3 evidence
+remains 0/11; production GA is not authorized.
 This freeze is not formal MVP completion or production GA. Only genuine external evidence can advance a hold;
 evidence-driven defects may reopen bounded remediation, while speculative implementation is prohibited.
 
