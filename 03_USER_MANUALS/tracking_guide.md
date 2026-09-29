@@ -323,6 +323,10 @@ operator then explicitly enables and protects the listener and supplies its bind
 Select a non-secret certification profile and first run
 `scripts/certification/device-certify.sh telematics --profile <path> --profile-only`. The profile must declare
 the operational transport, protocol, identity, authentication and exact mappings for every supported capability.
+For each required capability, only `SUPPORTED` is certifiable; `UNSUPPORTED`, `UNKNOWN` and `NOT_APPLICABLE` fail
+closed. Optional capabilities may be `NOT_APPLICABLE` when they genuinely do not apply, without failing an otherwise
+valid profile. `UNKNOWN` means evidence is insufficient, while `UNSUPPORTED` means the relevant capability is known
+not to be supported. These profile labels never create or infer telemetry values.
 Then run online preflight with `CERT_TCP_ENABLED=true`, `CERT_TCP_LISTENER_PROTOCOL=TELTONIKA_CODEC8`, the TCP host
 and port, and operator credentials supplied securely through the environment. `READY_FOR_PHYSICAL_CONNECTION`
 means only that software configuration, diagnostics, binding/assignment and listener reachability passed. It does

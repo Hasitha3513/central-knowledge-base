@@ -2121,8 +2121,14 @@ governed gateway route. UDP and MQTT are not approved certification routes.
 
 The current Teltonika adapter publishes position, source timestamp, speed and heading. Certification must not
 claim altitude, device accuracy, ignition, authoritative engine-running, odometer, battery, tamper, external-power
-or charging mappings that are not produced by that adapter. Optional `UNKNOWN`, `UNSUPPORTED` and certification-only
-`NOT_APPLICABLE` states remain explicit; `NOT_APPLICABLE` does not change runtime capability semantics. A passing
+or charging mappings that are not produced by that adapter. The authoritative boundary is Model A: runtime
+capabilities remain `SUPPORTED`, `UNSUPPORTED` or `UNKNOWN`, while certification profiles may additionally use
+`NOT_APPLICABLE`. `SUPPORTED` means a verified usable mapping and path; `UNSUPPORTED` means the capability is
+relevant but known unsupported; `UNKNOWN` means relevant with insufficient evidence; `NOT_APPLICABLE` means the
+capability does not apply to the selected device/profile. A required capability is eligible only when `SUPPORTED`;
+an optional `NOT_APPLICABLE` capability does not invalidate an otherwise valid profile. No capability metadata may
+manufacture a telemetry value. A passing
 profile/online preflight is Level 1/2 and reports at most `READY_FOR_PHYSICAL_CONNECTION`; genuine device/provider
 evidence and operator sign-off remain mandatory. No runtime API, schema, permission or event changed; Flyway remains
-V115 and the next bounded architecture queue is `DEVICE-PLUGPLAY-REM-04`.
+V115. `DEVICE-PLUGPLAY-REM-01` through `DEVICE-PLUGPLAY-REM-05` are complete; no further architecture remediation
+is queued without a concrete demonstrated gap.
