@@ -98,6 +98,8 @@ US-56 publishes no cross-module event because it captures requirements and readi
 
 US-76 mobile acquisition now includes a local-only camera scanner: `getUserMedia` with an environment-facing preference, native `BarcodeDetector` capability detection for QR/Code128, and a lazy ZXing fallback for browsers such as governed iOS Safari targets. Decoded values feed the existing POD/package verification; manual entry remains available. Scanner frames are not persisted, uploaded, logged, or used as Tenant authority. Software verification is complete; physical Android/iOS acceptance remains pending.
 
+`DEVICE-PLUGPLAY-REM-04` adds the authenticated `/mobile/capability-check` gate. It evaluates standards-based secure-context, camera API, exact QR/Code128 decoder, pointer/touch, Canvas, IndexedDB, service-worker, manifest, offline-queue and reconnect software capabilities without collecting hardware identity or fingerprint data. Camera permission and bounded IndexedDB write/read/delete are explicit operator actions with deterministic cleanup. `FULL_CAPABILITY_READY` and `FALLBACK_CAPABILITY_READY` permit physical campaign entry; `LIMITED_CAPABILITY` and `NOT_CERTIFIABLE` do not establish mandatory optical acceptance. Server readiness, browser readiness and Level-3 physical acceptance remain separate.
+
 ### US-59 Failed Deliveries Product Decisions & Implementation
 
 `MVP-1.3-US59-FAILED-DELIVERIES-PRODUCT-DECISIONS-001` is implemented and verified (US-59 Failed Deliveries):

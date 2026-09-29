@@ -301,6 +301,16 @@ stateDiagram-v2
    - 🌐 **Online:** Click **Finalize POD Online** to immediately finalize and mark order `DELIVERED`.
    - 📴 **Offline Outbox:** Click **Save & Queue Offline** to stage in browser IndexedDB. Sync occurs automatically upon reconnection.
 
+### 9.2.1 Check a physical browser before field certification (`US-76`)
+
+1. Sign in and open **Mobile Operations > Physical Browser Capability Check**.
+2. Review the passive secure-context, camera API, QR/Code128 path, touch/pointer, Canvas, IndexedDB, service-worker, manifest, offline queue and reconnect states. The check uses browser capabilities, not a manufacturer/model allowlist, and records no persistent device identity.
+3. Select **Test camera permission** only when ready to respond to the browser prompt. The bounded test closes every opened camera track.
+4. Select **Test offline storage** to execute and clean up a certification-only IndexedDB write/read/delete probe; it does not queue a business operation.
+5. `FULL_CAPABILITY_READY` or `FALLBACK_CAPABILITY_READY` permits entry to the physical campaign. `LIMITED_CAPABILITY` cannot satisfy mandatory optical scanning, and `NOT_CERTIFIABLE` blocks field certification.
+
+This page supplies software/capability evidence only. Operators must still execute genuine QR, Code128, signature, offline and reconnect scenarios on the physical target and obtain the required sign-off.
+
 ### 9.3 Record Failed Delivery Attempts (`US-59`)
 1. When field delivery fails, open the order and navigate to **Failed Delivery Attempt**.
 2. Select standard Failure Reason (`CUSTOMER_UNAVAILABLE`, `WRONG_ADDRESS`, `ACCESS_RESTRICTED`, `CUSTOMER_REFUSED`, `DAMAGED_CARGO`).
