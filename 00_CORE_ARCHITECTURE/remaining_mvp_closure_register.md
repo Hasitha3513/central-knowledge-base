@@ -5,6 +5,12 @@ This document registers the authoritative closure board for the final 11 stories
 
 Software development is **100% complete** across all 11 stories. Remaining activities consist strictly of physical field telematics runs, mobile hardware PWA validation, compliance policy authority sign-offs, and user risk governance authorization.
 
+The authoritative state is `MVP_SOFTWARE_FROZEN_EXTERNAL_CLOSURE`: software is implemented for 87/87
+stories, formal completion remains 76/87, all 11 external holds are software-ready, and accepted Level-3 evidence
+is 0/11. Known MVP software implementation blockers and planned device-architecture remediations are both zero.
+This freeze is not formal MVP completion or production GA. Only genuine external evidence can advance a hold;
+evidence-driven defects may reopen bounded remediation, while speculative implementation is prohibited.
+
 ---
 
 ## 2. Closure Matrix
@@ -40,3 +46,16 @@ all 11 stories remain `WAITING_FOR_EXTERNAL_INPUT`, and accepted Level 3 evidenc
 `US72_ACTIVATION_EXECUTION_READY / US72_POLICY_APPROVAL_PENDING`, and Track 4 is
 `US87_ACTIVATION_EXECUTION_READY / GOVERNANCE_INACTIVE`. Formal accounting remains 76/87 and Flyway remains
 V115. No physical evidence, authority approval, production activation or story closure was inferred from campaign preparation.
+
+## 5. Authoritative external triggers
+
+| Track | Stories | Missing external input | Intake mode | Governed next execution |
+| :--- | :--- | :--- | :--- | :--- |
+| Track 1 | US-48, US-50–US-55, US-85 | Real physical tracker and governed field inputs | `telematics` | `EXT-TRACK-02-PHYSICAL-EXECUTION` |
+| Track 2 | US-76 | Physical Android and iOS devices and operators | `mobile` | `EXT-MOBILE-02-PHYSICAL-EXECUTION` |
+| Track 3 | US-72 | Genuinely executed D1–D11 package and activation inputs | `compliance` | `EXT-COMP-02-ACTIVATION` |
+| Track 4 | US-87 | Genuinely executed G1–G10 package and pilot inputs | `risk` | `EXT-RISK-02-ACTIVATION` |
+
+The read-only dispatcher also supports `status`. It does not activate software, grant permissions, publish rules
+or policies, mutate data, submit evidence, or accept stories. `MVP-FINAL-87-OF-87-RECONCILIATION` becomes
+eligible only after all 11 holds have genuine accepted Level-3 evidence.
