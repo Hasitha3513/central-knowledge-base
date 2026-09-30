@@ -39,6 +39,19 @@ The Operational Analytics & Forecasting module provides tenant-scoped operationa
 - **Historical Windows:** Preset buttons for `7 Days`, `30 Days`, `90 Days`, or custom RangePicker.
 - **Forecast Horizons:** Selectable ahead horizons of `7 Days`, `14 Days`, or `30 Days`.
 
-## 5. Operations Command Center API Readiness (DASH-02)
+## 5. Transport Operations Command Center (DASH-03)
 
-The post-RC2 command-center backend is available through `/api/v1/dashboard/operations-summary` and `/api/v1/dashboard/alerts`. `DASHBOARD_VIEW` permits the core Fleet, Driver and Trip summary only. Delivery, Fuel and operational-exception sections remain protected by their existing permissions and may appear as unavailable independently. Dates use the Tenant timezone. The graphical dashboard is planned for DASH-03.
+Open the Dashboard route (`/`) with `DASHBOARD_VIEW` to see the Transport Operations Command Center. The command-center header shows the Tenant-local reporting date, timezone and last successful evaluation time. Use **Refresh** to request only the dashboard summary; the page also refreshes every 90 seconds while it is visible and online. If a refresh fails after data was loaded, the last successful values remain visible with a stale-data warning.
+
+The KPI strip contains:
+
+- **Vehicles:** total Vehicles plus available, allocated and maintenance counts.
+- **Available Drivers:** available Drivers plus total, assigned and unavailable counts.
+- **Active Trips:** the server-authoritative active count plus scheduled, pending and problem counts.
+- **Deliveries Today:** Tenant-local scheduled deliveries, completed count and on-time rate when the Delivery section is available.
+- **Fuel Today:** consumed and issued quantities shown separately with their source-quality labels and server-provided unit.
+- **Open Exceptions:** all non-terminal operational exceptions and available severity detail.
+
+A genuine available count of zero is shown as `0`. **Restricted** means the actor lacks the specialized permission; **Data unavailable** means the owning source could not provide the section. Neither state is converted to a false zero. Fleet, Driver and Trip summaries require only `DASHBOARD_VIEW`; each drill-down link additionally requires its destination permission. Dashboard visibility never replaces backend authorization.
+
+The current slice provides the responsive command-center header and KPI strip. Map, chart, alert-detail and workflow zones remain unavailable until their later governed dashboard slices are implemented.
