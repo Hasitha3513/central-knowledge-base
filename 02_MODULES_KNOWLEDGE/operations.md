@@ -52,3 +52,7 @@ The `operations` module owns operational exception management (US-78) and operat
 - `POST /api/v1/operations/disruptions/{id}/resolve`: Authority `OPERATIONAL_EXCEPTION_MANAGE`
 - `GET /api/v1/operations/disruptions/{id}`: Authority `OPERATIONAL_EXCEPTION_VIEW`
 - `GET /api/v1/operations/disruptions`: Authority `OPERATIONAL_EXCEPTION_VIEW`
+
+## 5. Post-RC2 Dashboard Contract (DASH-02)
+
+Operations publishes `OperationalExceptionDashboardQuery` for Tenant-qualified counts over `OPEN`, `ACKNOWLEDGED`, and `IN_PROGRESS`, plus stable bounded alert paging. Reporting consumes the contract only when `OPERATIONAL_EXCEPTION_VIEW` is present. No Operations table, permission, lifecycle, or migration changed.

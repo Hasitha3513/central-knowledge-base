@@ -316,3 +316,15 @@ producer or runtime evaluator. An indicator remains explicitly distinct from pro
 
 This narrow query dependency enforces D7 RBAC without transferring identity ownership. V115 remains
 default-off, has zero grants, and does not activate policy or operational enforcement.
+
+## Post-RC2 DASH-02 dependencies
+
+| Consumer | Provider | Contract | Status |
+| :--- | :--- | :--- | :--- |
+| Reporting command center | Fleet | `FleetDashboardQuery` bounded Fleet/Driver counts | `DASH-02 COMPLETE` |
+| Reporting command center | Trip | `TripOperationsDashboardQuery` bounded lifecycle counts | `DASH-02 COMPLETE` |
+| Reporting command center | Delivery | `DeliveryDashboardQuery` Tenant-local-day scheduled/completed/on-time counts | `DASH-02 COMPLETE` |
+| Reporting command center | Fuel | `FuelDashboardQuery` independent consumed/issued totals and quality | `DASH-02 COMPLETE` |
+| Reporting command center | Operations | `OperationalExceptionDashboardQuery` open counts and bounded alerts | `DASH-02 COMPLETE` |
+
+All queries are Tenant-qualified owner contracts. Reporting does not access provider persistence. `DASHBOARD_VIEW` is not a permission umbrella.

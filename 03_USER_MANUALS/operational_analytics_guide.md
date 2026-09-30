@@ -38,3 +38,7 @@ The Operational Analytics & Forecasting module provides tenant-scoped operationa
 ## 4. Date Range & Forecast Horizon Filtering
 - **Historical Windows:** Preset buttons for `7 Days`, `30 Days`, `90 Days`, or custom RangePicker.
 - **Forecast Horizons:** Selectable ahead horizons of `7 Days`, `14 Days`, or `30 Days`.
+
+## 5. Operations Command Center API Readiness (DASH-02)
+
+The post-RC2 command-center backend is available through `/api/v1/dashboard/operations-summary` and `/api/v1/dashboard/alerts`. `DASHBOARD_VIEW` permits the core Fleet, Driver and Trip summary only. Delivery, Fuel and operational-exception sections remain protected by their existing permissions and may appear as unavailable independently. Dates use the Tenant timezone. The graphical dashboard is planned for DASH-03.
