@@ -39,7 +39,7 @@ The Operational Analytics & Forecasting module provides tenant-scoped operationa
 - **Historical Windows:** Preset buttons for `7 Days`, `30 Days`, `90 Days`, or custom RangePicker.
 - **Forecast Horizons:** Selectable ahead horizons of `7 Days`, `14 Days`, or `30 Days`.
 
-## 5. Transport Operations Command Center (DASH-03)
+## 5. Transport Operations Command Center (DASH-03 and DASH-04)
 
 Open the Dashboard route (`/`) with `DASHBOARD_VIEW` to see the Transport Operations Command Center. The command-center header shows the Tenant-local reporting date, timezone and last successful evaluation time. Use **Refresh** to request only the dashboard summary; the page also refreshes every 90 seconds while it is visible and online. If a refresh fails after data was loaded, the last successful values remain visible with a stale-data warning.
 
@@ -54,4 +54,6 @@ The KPI strip contains:
 
 A genuine available count of zero is shown as `0`. **Restricted** means the actor lacks the specialized permission; **Data unavailable** means the owning source could not provide the section. Neither state is converted to a false zero. Fleet, Driver and Trip summaries require only `DASHBOARD_VIEW`; each drill-down link additionally requires its destination permission. Dashboard visibility never replaces backend authorization.
 
-The current slice provides the responsive command-center header and KPI strip. Map, chart, alert-detail and workflow zones remain unavailable until their later governed dashboard slices are implemented.
+Users who also hold `TRACKING_DASHBOARD_VIEW` see the **Live Operations** region below the KPI strip. It shows Tracking-owned Vehicle freshness, connectivity, observed motion, active-Trip context and permission-filtered incident counts. The map uses only complete `TRUSTED` `latestTrusted` observations. Exact coordinates and the rendered map require `TRACKING_VIEW`; without it, the accessible Vehicle list and safe non-coordinate status remain available. Selecting **View details** opens the bounded Vehicle drawer with Tracking health, source/receipt times, optional speed and accuracy, Trip context and permitted navigation actions.
+
+The Vehicle list remains usable on narrow screens and whenever the map style cannot load. A map failure is reported as **Map unavailable** without hiding list data; missing coordinate permission is reported as **Map restricted**. No map-provider secret is stored in the frontend. Operators configure the deployment-approved style URL and attribution through the documented environment values. Charts and later workflow zones remain unavailable until their separately governed dashboard slices are implemented.
