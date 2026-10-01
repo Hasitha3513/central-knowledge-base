@@ -1528,3 +1528,7 @@ acceptance-boundary decision: software MVP is 87/87 complete, while eight GPS ce
 certification and the US-72/US-87 production activations remain separate release gates. Current state is
 `SOFTWARE_MVP_COMPLETE_EXTERNAL_GATES_PENDING / NOT_SCHEDULED / WAITING_FOR_EXTERNAL_INPUT`, with 0/11
 accepted Level 3 records, production GA not authorized and Flyway V115.
+
+#### DASH-07A governance capability status
+
+Reporting now publishes `GET /api/v1/dashboard/capability-status` under the existing `DASHBOARD_VIEW` boundary. It composes only bounded software, runtime, approval and activation state from the Compliance-root `ComplianceCapabilityStatusQuery` and Identity-root `UserRiskCapabilityStatusQuery`. Both provider adapters enforce explicit Tenant-qualified reads within their owning modules. Reporting has no Compliance or Identity persistence dependency, returns no policy/risk evidence or authority identity, and performs no activation, approval, withdrawal, permission grant or governance command. Owner failures remain independently `UNAVAILABLE`. The frontend API contract is ready for DASH-07B; DASH-07A adds no visible card. Flyway remains V115 and software-MVP accounting remains 87/87.

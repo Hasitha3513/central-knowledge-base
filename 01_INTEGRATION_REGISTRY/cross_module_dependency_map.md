@@ -326,5 +326,7 @@ default-off, has zero grants, and does not activate policy or operational enforc
 | Reporting command center | Delivery | `DeliveryDashboardQuery` Tenant-local-day scheduled/completed/on-time counts | `DASH-02 COMPLETE` |
 | Reporting command center | Fuel | `FuelDashboardQuery` independent consumed/issued totals and quality | `DASH-02 COMPLETE` |
 | Reporting command center | Operations | `OperationalExceptionDashboardQuery` open counts and bounded alerts | `DASH-02 COMPLETE` |
+| Reporting command center | Compliance | Compliance-root `ComplianceCapabilityStatusQuery`; bounded status only, read-only, Tenant-qualified | `DASH-07A COMPLETE` |
+| Reporting command center | Identity | Identity-root `UserRiskCapabilityStatusQuery`; bounded status only, read-only, Tenant-qualified | `DASH-07A COMPLETE` |
 
 All queries are Tenant-qualified owner contracts. Reporting does not access provider persistence. `DASHBOARD_VIEW` is not a permission umbrella.

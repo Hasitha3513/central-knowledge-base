@@ -41,6 +41,8 @@ All tables are strictly tenant-isolated (`tenant_id` leading on PKs and indexes)
 - Inbound:
   - `EvaluateComplianceUseCase` -> implemented by `ComplianceEvaluationEngine`.
   - `ComplianceApiUseCase` -> implemented by `ComplianceApiService` (secured by `SecuredComplianceApiUseCase`).
+- Published Read Contract:
+  - `ComplianceCapabilityStatusQuery.status(UUID tenantId)` publishes only minimized software, runtime, approval and activation states for DASH-07A. Its Compliance-owned JDBC adapter performs Tenant-qualified reads of Compliance tables and runtime configuration; consumers receive no policy/evidence details and cannot mutate governance state.
 - Outbound Persistence:
   - `CompliancePolicyPersistencePort` -> implemented by `JdbcCompliancePolicyPersistenceAdapter`.
   - `ComplianceEvaluationPersistencePort` -> implemented by `JdbcComplianceEvaluationPersistenceAdapter`.

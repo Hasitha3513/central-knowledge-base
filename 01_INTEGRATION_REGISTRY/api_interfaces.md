@@ -495,4 +495,5 @@ selected by the D7 operation; inactive/missing/foreign-Tenant users return denia
 
 - `GET /api/v1/dashboard/operations-summary` — `DASHBOARD_VIEW`; optional Delivery, Fuel and Operations sections additionally require their existing owner permissions and expose `AVAILABLE`, `FORBIDDEN`, or `UNAVAILABLE`. Tenant comes from authentication; `reportingDate` is interpreted in the Tenant timezone.
 - `GET /api/v1/dashboard/alerts?offset=0&limit=20` — `DASHBOARD_VIEW`; operational alerts additionally require `OPERATIONAL_EXCEPTION_VIEW`; limit is bounded to 1–100 and ordering is stable.
-- Reporting composes provider-neutral owner contracts only; there is no dashboard persistence or foreign repository access.
+- `GET /api/v1/dashboard/capability-status` — `DASHBOARD_VIEW`; returns only `evaluatedAt` and bounded software/runtime/approval/activation states for Compliance and User Risk. Tenant identity comes from authentication. It exposes no policy evidence, authority identities, risk subjects, findings, reviews, appeals, secrets or governance mutations.
+- Reporting composes provider-neutral owner contracts only; there is no dashboard persistence or foreign repository access. DASH-07A uses the Compliance-root `ComplianceCapabilityStatusQuery` and Identity-root `UserRiskCapabilityStatusQuery`; an owner failure maps only that capability to `UNAVAILABLE`.
