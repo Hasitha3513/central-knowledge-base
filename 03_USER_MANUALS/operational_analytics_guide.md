@@ -43,6 +43,8 @@ The Operational Analytics & Forecasting module provides tenant-scoped operationa
 
 Open the Dashboard route (`/`) with `DASHBOARD_VIEW` to see the Transport Operations Command Center. The command-center header shows the Tenant-local reporting date, timezone and last successful evaluation time. Use **Refresh** to request only the dashboard summary; the page also refreshes every 90 seconds while it is visible and online. If a refresh fails after data was loaded, the last successful values remain visible with a stale-data warning.
 
+For local demonstrations, `run.sh` enables the idempotent PostgreSQL sample bootstrap. Ten stable Vehicle, Driver, Trip, Delivery, Fuel and Tracking fixtures are refreshed into dashboard-relevant states and Tenant-local current-day windows without changing production data or Flyway migrations. Sign in with the local development account created by the explicitly enabled bootstrap and open `/`; the public API used by the page remains `GET /api/v1/dashboard/operations-summary` and requires `DASHBOARD_VIEW`.
+
 The KPI strip contains:
 
 - **Vehicles:** total Vehicles plus available, allocated and maintenance counts.
