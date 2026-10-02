@@ -39,7 +39,7 @@ The Operational Analytics & Forecasting module provides tenant-scoped operationa
 - **Historical Windows:** Preset buttons for `7 Days`, `30 Days`, `90 Days`, or custom RangePicker.
 - **Forecast Horizons:** Selectable ahead horizons of `7 Days`, `14 Days`, or `30 Days`.
 
-## 5. Transport Operations Command Center (DASH-03 and DASH-04)
+## 5. Transport Operations Command Center (DASH-03 through DASH-08)
 
 Open the Dashboard route (`/`) with `DASHBOARD_VIEW` to see the Transport Operations Command Center. The command-center header shows the Tenant-local reporting date, timezone and last successful evaluation time. Use **Refresh** to request only the dashboard summary; the page also refreshes every 90 seconds while it is visible and online. If a refresh fails after data was loaded, the last successful values remain visible with a stale-data warning.
 
@@ -73,3 +73,5 @@ The cards expose bounded system status only. They do not expose Compliance polic
 Governance status refreshes every ten minutes and when the browser window regains focus. The existing Command Center **Refresh** action also refreshes the summary and governance status through their bounded dashboard queries; it does not invalidate the complete application cache. If a refresh fails after a valid status was loaded, the previous value may remain visible with **Status refresh unavailable** and its original server `Last checked` time. Compliance and User Risk remain independent, so one unavailable source does not hide the other's valid status.
 
 Governance cards and capability tiles adapt across desktop, tablet and mobile layouts. Links remain keyboard-accessible with visible focus and remain large enough for touch use. These read-only views do not approve or activate Compliance or User Risk, execute D1-D11 or G1-G10, change Production GA authorization, or replace backend authorization.
+
+DASH-08 completed the final Command Center acceptance campaign. Custom KPI and capability-tile motion now honors the operating system's reduced-motion preference. The page remains usable from 360-pixel mobile widths through desktop layouts without horizontal page overflow. Trusted Tracking markers continue to use only `latestTrusted`; a newer untrusted observation is never promoted, and when no trusted position exists the accessible Vehicle list remains available without a geographic marker. Manual **Refresh** remains bounded to the summary and governance queries; Tracking and alert feeds retain their independent polling schedules. Empty, restricted, stale and unavailable states remain distinct, and one failed region does not blank unrelated dashboard content. This completion does not activate Compliance or User Risk, satisfy physical GPS/mobile certification, or authorize Production GA.
