@@ -64,7 +64,9 @@ Open **Administration → Roles** to view roles and safely edit role metadata. T
 
 Administrators with `IDENTITY_MANAGE` can also open **Administration → Users**, select a same-Tenant user, review the server-derived role catalogue, and explicitly replace that user's eligible ordinary role assignments. Saving user profile metadata alone does not change roles. Protected or above-ceiling assignments remain preserved and cannot be removed through this workflow. Cross-Tenant roles, self-elevation, disabling the final viable administrator, and stripping that administrator's effective `IDENTITY_MANAGE` access fail closed. Successful changes refresh user and current-session authorization state, and take effect on the next authenticated backend request.
 
-ACCESS-03 does not provide an effective-access explanation viewer, administrable ABAC scopes, or a new general-purpose immutable access-change audit. Those remain later ACCESS change sets.
+Use **Access Review** on a user row to open the read-only effective-access explanation. It shows the configured roles, whether each role is currently effective, the effective permission count, permission descriptions, and the role or roles that supply each permission. Search matches permission codes, descriptions, and source roles. An inactive user, membership, role, or permission is not presented as current authority; configured-but-ineffective roles remain visible with an explanatory state. **No effective permissions** is a valid zero-access result, while **Access information unavailable** means the backend read failed. This viewer cannot edit access, impersonate the user, create a session, or expose credentials or tokens.
+
+ACCESS-04 does not provide administrable ABAC scopes or a new general-purpose immutable access-change audit. Those remain later ACCESS change sets.
 
 ### 📌 Current-Scope Rules & Invariants
 - 🔒 **Vehicle Allocation:** Reserving a vehicle means assigning an eligible vehicle to a trip. There is no separate provisional hold.
