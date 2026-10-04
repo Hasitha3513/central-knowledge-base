@@ -169,6 +169,8 @@ Flyway V43 implements the first-class Tenant and Tenant membership foundation. V
 
 P0-05 hardens the existing Identity model without schema changes. Identity administration resolves an explicit application context from the authenticated request: Tenant ID, actor, and current server-side permissions. User lookup/list/mutation is Tenant-scoped, user creation assigns membership to the actor's Tenant, permission grants are capped by the actor's current permission set, and role templates assigned in another Tenant cannot be updated or deleted. Unmatched HTTP routes deny by default. JWT structure remains unchanged and embedded authorities are not trusted without server-side reload.
 
+ACCESS-02 adds safe role-to-permission administration without a migration or new permission code. Identity publishes its active system-defined permission catalogue, classifying entries as `ASSIGNABLE`, `GOVERNED`, `NOT_HELD_BY_ACTOR`, or `INACTIVE`. Metadata-only role updates preserve the current permission set; explicit replacement validates the complete ordinary request atomically against active definitions and the actor's current server-resolved ceiling. Existing Compliance and User-Risk governance permissions cannot be assigned or removed through the generic operation. Unsafe cross-Tenant/global-role mutation remains denied. Authorization reflects committed role state on the next authenticated backend request, and the frontend invalidates role and current-user state after successful permission mutation.
+
 ### P0-02 authoritative table ownership registry
 
 | Owner | Tables |

@@ -58,6 +58,12 @@ The system is strictly **permission-controlled** and **tenant-isolated**. Users 
 
 Organization administrators with `IDENTITY_MANAGE` can administer users only in their own active organization. New users are enrolled into that organization automatically. An administrator cannot assign a role containing permissions the administrator does not currently hold, and cannot change or remove a role template that is also assigned in another organization. Cross-organization user identifiers are reported as unavailable.
 
+### Role and permission administration
+
+Open **Administration → Roles** to view roles and safely edit role metadata. The permission editor loads the system-defined catalogue from the backend, supports grouped browsing and search, and shows current assignments. An administrator may assign or remove only active ordinary permissions they currently hold. Compliance and User-Risk governance permissions remain visible but controlled and non-editable; arbitrary permission codes cannot be created from this page. A metadata-only save does not replace permissions, while an explicit permission save is validated and applied atomically. Validation, authorization, unavailable-catalogue, and save failures are shown without claiming success. After a successful permission change, current-user authorization is refreshed for subsequent navigation and requests.
+
+ACCESS-02 does not redesign user-to-role assignment, provide an effective-access viewer or administrable ABAC scopes, implement last-administrator/self-impact safeguards, or add a general immutable access-change audit. Those remain later ACCESS change sets.
+
 ### 📌 Current-Scope Rules & Invariants
 - 🔒 **Vehicle Allocation:** Reserving a vehicle means assigning an eligible vehicle to a trip. There is no separate provisional hold.
 - 📄 **Compliance Documents:** Recording a document captures metadata and a verified file reference or URL.
