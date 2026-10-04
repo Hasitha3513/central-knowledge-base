@@ -175,12 +175,14 @@ ACCESS-03 adds safe Tenant-qualified user-to-role administration without a migra
 
 ACCESS-04 adds a read-only effective-access viewer without a migration or new permission code. `GET /api/users/{userId}/effective-access` requires `IDENTITY_MANAGE`, derives Tenant authority only from authenticated context, and resolves the target through the established same-Tenant not-found boundary. A single bounded Identity-owned join reads the user, membership, configured roles, and permissions. Identity then distinguishes configured roles from currently effective roles, unions active permissions only when user, membership, role, and permission are all active, and returns deterministically ordered permission sources. The Users page renders this server-calculated explanation and client-side search but performs no authorization calculation, impersonation, token issuance, or access mutation.
 
+ACCESS-05P1 completes the inactive Project-scope foundation at Flyway V116. Identity owns two Tenant-qualified scope tables, publishes the fail-closed `EffectiveProjectScopeQuery`, and catalogues `IDENTITY_PROJECT_SCOPE_MANAGE` with zero role grants. Organization publishes `ProjectScopeQuery` for active same-Tenant Project validation; Identity has no Organization persistence access. V116 backfills active and inactive memberships to compatibility scope `ALL_WITHIN_TENANT` plus `include_unassigned=true` and version `0`, and new memberships receive the same values while activation remains blocked. Transactional mutation uses a Tenant-qualified advisory lock, deterministic actor/target locking, actor-ceiling enforcement, selected-Project validation, and optimistic versioning. There is no public administration API, frontend control, Trip/Reporting/Dashboard filtering, or runtime activation in P1. Next is `ACCESS-05P2`.
+
 ### P0-02 authoritative table ownership registry
 
 | Owner | Tables |
 | :--- | :--- |
 | tenancy | `tenant` |
-| identity | `app_user`, `app_role`, `app_permission`, `app_user_role`, `app_role_permission`, `refresh_token`, `tenant_membership`, `tenant_membership_role` |
+| identity | `app_user`, `app_role`, `app_permission`, `app_user_role`, `app_role_permission`, `refresh_token`, `tenant_membership`, `tenant_membership_role`, `tenant_membership_project_scope`, `tenant_membership_project_scope_selection` |
 | organization | `customer`, `department`, `location`, `project`, `vendor` |
 | fleet | `driver`, `driver_license`, `driver_exception`, `driver_violation`, `driver_medical_record`, `driver_drug_test`, `vehicle_category`, `vehicle_type`, `vehicle`, `vehicle_document`, `vehicle_reading`, `vehicle_meter_reset`, `maintenance_schedule`, `lubricant_log` |
 | routing | `route`, `route_stop`, `route_revision`, `route_revision_stop`, `route_disruption` |
@@ -217,6 +219,45 @@ Entityless join, collection, counter, and permission-catalogue tables remain own
 | `version` | BIGINT | NO | `0` | - | Optimistic version |
 
 V43 deterministically seeds UUID `4f8b6a3b-2c1e-4d89-9a72-f9e4c5b3671a`, `CLTS-LK`, Ceylon Logistics & Transport Solutions (Pvt) Ltd, `LKR`, `Asia/Colombo`, `ACTIVE`.
+
+### Project-scope foundation tables (V116)
+
+#### Table: `tenant_membership_project_scope`
+
+- **Purpose:** Identity-owned configured Project authorization scope for one Tenant membership.
+- **Primary Key:** `(tenant_id, membership_id)`.
+- **Multi-Tenant Key:** `tenant_id` (UUID, leading key).
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `tenant_id` | UUID | NO | - | PK component; same-module composite FK -> `tenant_membership(tenant_id, membership_id)` ON DELETE CASCADE | Tenant authority |
+| `membership_id` | UUID | NO | - | PK component; same-module membership reference | Membership whose Project scope is configured |
+| `scope_mode` | VARCHAR(32) | NO | - | CHECK in `ALL_WITHIN_TENANT`, `SELECTED_PROJECTS`, `NONE`; unique with Tenant/membership for selection FK | Scope mode |
+| `include_unassigned` | BOOLEAN | NO | - | - | Whether unassigned Trips may be included after later activation |
+| `version` | BIGINT | NO | `0` | CHECK >= 0 | Optimistic mutation version |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Creation/backfill time |
+| `created_by` | VARCHAR(120) | NO | - | Nonblank CHECK | Minimized creation actor |
+| `updated_at` | TIMESTAMPTZ | NO | - | CHECK >= `created_at` | Last mutation time |
+| `updated_by` | VARCHAR(120) | NO | - | Nonblank CHECK | Minimized last mutation actor |
+
+A deferred constraint trigger requires at least one selection for `SELECTED_PROJECTS` and zero selections for every other mode. Existing and compatibility-period memberships use `ALL_WITHIN_TENANT`, `include_unassigned=true`, version `0`.
+
+#### Table: `tenant_membership_project_scope_selection`
+
+- **Purpose:** Identity-owned selected Project identifiers for a membership configured as `SELECTED_PROJECTS`.
+- **Primary Key:** `(tenant_id, membership_id, project_id)`.
+- **Multi-Tenant Key:** `tenant_id` (UUID, leading key).
+
+| Column Name | Data Type | Nullable | Default | Constraints / Logical FK | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `tenant_id` | UUID | NO | - | PK component; same-module composite FK to scope header | Tenant authority |
+| `membership_id` | UUID | NO | - | PK component; same-module composite FK to scope header | Membership scope |
+| `scope_mode` | VARCHAR(32) | NO | `SELECTED_PROJECTS` | CHECK exactly `SELECTED_PROJECTS`; FK component to header | Guards header/selection consistency |
+| `project_id` | UUID | NO | - | PK component; logical reference to Organization Project validated through `ProjectScopeQuery`; no physical cross-module FK | Selected Project |
+| `created_at` | TIMESTAMPTZ | NO | - | - | Selection creation time |
+| `created_by` | VARCHAR(120) | NO | - | Nonblank CHECK | Minimized creation actor |
+
+Index `idx_project_scope_selection_project(tenant_id, project_id, membership_id)` supports Tenant-leading Project membership lookup. The composite header FK cascades selection deletion.
 
 #### Table: `tenant_membership`
 

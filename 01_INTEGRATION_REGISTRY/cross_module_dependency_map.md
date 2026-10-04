@@ -308,6 +308,15 @@ mutation or Operations intake. The internal CS01 contract records this vocabular
 producer or runtime evaluator. An indicator remains explicitly distinct from proof of misuse.
 
 
+### ACCESS-05P1 Project-scope foundation dependency
+
+| Provider | Consumer | Contract | Status |
+|---|---|---|---|
+| Organization | Identity | `ProjectScopeQuery`: Tenant-qualified active Project lookup/list for scope validation | `ACCESS-05P1 COMPLETE`; published root contract, no foreign SQL |
+| Identity | Future Trip enforcement | `EffectiveProjectScopeQuery`: fail-closed effective membership scope (`ALL_WITHIN_TENANT`, `SELECTED_PROJECTS`, `NONE`, selected IDs, `includeUnassigned`, version) | FOUNDATION IMPLEMENTED / RUNTIME CONSUMPTION INACTIVE until ACCESS-05P2+ |
+
+Identity owns scope persistence and consumes only Organization's published Project contract. Organization retains Project master ownership. No Trip, Reporting, Dashboard or frontend consumer is activated by P1.
+
 ### US-72 V115 provisional D7 dependency
 
 | Provider | Consumer | Contract | Status |
