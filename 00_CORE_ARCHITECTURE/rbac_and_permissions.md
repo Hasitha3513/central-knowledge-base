@@ -21,6 +21,16 @@
 - No generic ABAC/policy engine was introduced.
 - No creator-versus-approver segregation rule was added because current Trip records and approved contracts do not provide an authoritative creator fact. This remains a governance/data-model prerequisite, not an implicit runtime rule.
 
+## Project Scope Authorization — Approved Design / Not Implemented
+
+ACCESS-05P approves a future Tenant-membership Project authorization model but does not implement or activate it. Existing RBAC answers **what** a member may do; Project scope will answer **where** the evidenced Trip permission family applies. Scope belongs to Tenant membership, never global Role or global User. Its vocabulary is `ALL_WITHIN_TENANT`, `SELECTED_PROJECTS`, and `NONE`, with independent `includeUnassigned` for Trips whose `project_id` is null. Existing memberships will preserve current access through `ALL_WITHIN_TENANT` plus `includeUnassigned=true`; new memberships created after safe activation will default to `NONE` plus `includeUnassigned=false`.
+
+Initial enforcement is limited to Trip reads, Trip commands, and Trip-owned history, event and dispatch resources. Tracking, Fuel, Delivery, Documents, Notifications and unrelated domains do not inherit Project scope. `AUDIT_READ` remains privileged Tenant-wide evidence access. Trip-derived Reporting and Command Center aggregates must be hardened before activation. Project reassignment is initially limited to `DRAFT` and `REJECTED` and must validate both current and target Project/unassigned authority.
+
+The backend enforces an actor-scope ceiling: selected-scope actors may grant only subsets of their effective scope, and only an actor with `ALL_WITHIN_TENANT` may grant that mode. Self no-op is allowed, safeguarded self-reduction is allowed, and self-expansion is denied. Project UUID alone is never trusted; Organization must provide an owner-published Tenant-qualified `ProjectScopeQuery` for administration and validation. Identity owns the conceptual membership scope, Organization owns Project master data, and Trip owns runtime Trip enforcement. No runtime table, API, permission, frontend control, migration, or activation exists yet.
+
+Activation is blocked until `ACCESS-05P1` through `ACCESS-05P7` complete contracts/persistence, Trip reads, Trip commands, safe administration, Effective Access explanation, aggregate leakage hardening and final acceptance. The scope-administration permission and concrete migration allocation remain pending ACCESS-05P1 recommendation and separate authorization.
+
 ## Fuel Performance Permission Decision (US-37)
 
 US-37 implements and seeds the read-only `FUEL_PERFORMANCE_VIEW` capability through V63 for Tenant-scoped Vehicle and privacy-sensitive Driver Fuel performance analytics. Existing `FUEL_ISSUE_VIEW`, `FUEL_COST_VIEW`, and `REPORT_VIEW` do not imply this authority. The permission grants no write, threshold configuration, export, Driver discipline, US-38 exception, or raw-source access. Tenant authority is server-derived, cross-Tenant Vehicle/Driver identifiers are safe not-found, and frontend visibility never substitutes for backend authorization. Independent final acceptance passed on 2026-09-04; status is `COMPLETE`.
