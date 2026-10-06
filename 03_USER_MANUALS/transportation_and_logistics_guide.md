@@ -74,7 +74,9 @@ ACCESS-05P2/P3 apply an effective Project scope to Trip reads and commands while
 
 Creating a Project-associated Trip requires authority over that Project. Changing a Trip's Project is allowed only in the supported lifecycle and requires authority over both the current and destination scopes; moving to or from an unassigned Trip also requires unassigned authority. Project scope does not replace existing approval separation or other lifecycle rules.
 
-No Project-scope administration or Effective Access Project-scope UI is available yet. Reporting and Command Center aggregates are not yet Project-filtered. Full activation remains blocked through ACCESS-05P4–P7; administrators must not treat active Trip read/command enforcement as complete suite-wide Project isolation.
+Administrators holding both `IDENTITY_MANAGE` and `IDENTITY_PROJECT_SCOPE_MANAGE` can open **Administration → Users → Project Access** for a same-Tenant user. The drawer shows configured scope, current effective scope and the administrator's own ceiling; it supports **All Projects in Tenant**, **Selected Projects**, **No Project Access**, and explicit access to unassigned Trips. Saving replaces the complete configuration atomically. A stale version reloads the latest state for review, inactive configured Projects are shown as configured but ineffective, and the administrator cannot grant beyond their own current scope or expand their own scope. Users without the dedicated permission receive no editable control, and automatic role grants remain zero.
+
+Effective Access does not yet explain Project scope, and Reporting and Command Center aggregates are not yet Project-filtered. Full activation remains blocked through ACCESS-05P5–P7; administrators must not treat active Trip read/command/administration enforcement as complete suite-wide Project isolation.
 
 ### 📌 Current-Scope Rules & Invariants
 - 🔒 **Vehicle Allocation:** Reserving a vehicle means assigning an eligible vehicle to a trip. There is no separate provisional hold.
