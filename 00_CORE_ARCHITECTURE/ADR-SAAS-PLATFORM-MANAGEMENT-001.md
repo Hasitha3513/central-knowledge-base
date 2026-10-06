@@ -23,11 +23,15 @@ The canonical commercial rules are in [SaaS subscription and billing policy](saa
 - Departments, branches, and sections remain within their owning organization's tenant. They do not require separate subscriptions or connection fees merely because an internal unit is added.
 - One account working across several internal units is one account in that organization, not one billable seat per unit or role.
 - Parent/subsidiary relationships do not grant data access. Group reporting requires explicit authorization and approved contracts; no automatic cross-database access is approved.
-- A common login identity, when eventually supported across organizations, must retain distinct organization memberships, permissions, and billing attribution. The existing single-membership MVP is not changed here.
+- **One Account = One Organization.** A customer account is immutably bound to exactly one organization and cannot hold multiple organization memberships, switch tenants, or gain parent/subsidiary access through role assignment. The same human may use the product for several organizations only through separate named accounts, credentials/sessions, organization bindings, permission/resource scopes, billing histories, and audit identities.
 
 ### 2. Common product, dedicated tenant operational data
 
 Customers use a common ERP frontend/product codebase. Each organization receives a fresh operational database initialized from governed schema migrations and safe reference configuration, never another customer's records, credentials, or demonstration transactions.
+
+The shared login infrastructure authenticates named accounts; it does not share credentials or identities across organizations. Authentication resolves one immutable organization binding server-side. Usernames are identifiers, never authority. The recommended format is `<name-alias>.<system-user-code>.<organization-login-code>` (for example `hasitha.u7k9q2.sce`), subject to later Identity design. Immutable account and organization IDs remain authoritative; suffixes, employee/EPF numbers, browser values, URL parameters, headers, and unvalidated token claims cannot select a tenant. Organization rename does not change identity, routing, billing, audit, or authorization.
+
+The trusted chain is `Authenticated Account -> Single Organization Binding -> Active Organization -> Active Subscription -> Approved Industry/Capability Entitlement -> Account Licensing Entitlement -> RBAC/ABAC/Resource Scope -> Trusted Tenant Database Binding -> Authorized Use Case`. Every gate is server-side and fail-closed.
 
 Database-per-tenant does not imply one physical server or one backend deployment per organization. Dedicated compute topology, regional placement, capacity tiers, and routing implementation require their own execution design. The minimum accepted isolation requirement is a distinct operational database and authorized tenant-specific routing. There is no permission to fork the product code for every tenant.
 
@@ -42,6 +46,10 @@ The control plane has its own management database and privileged provider admini
 The customer ERP data plane owns business operations. Customer Finance, Transport Billing, and the existing System resilience/integrity module must not become the SaaS subscription owner. Provider invoices and customer sales invoices are different business records.
 
 The control plane may itself be implemented as a modular application. This ADR approves separation of the provider management system, not a general microservice decomposition of ERP business domains.
+
+### 3.1 Industry and product capability entitlement
+
+Platform Management authorizes each organization subscription's industry/product capability set. Entitlement is organization-level and is not inferred from names, codes, username suffixes, employee numbers, roles, database names, navigation visibility, or feature flags. Tenant administrators cannot self-grant an industry capability. Entitlement, activation/configuration, user authorization, resource scope, and database routing are separate decisions.
 
 ### 4. Organization administration and licensing
 
@@ -63,7 +71,9 @@ Read [Platform Management](../02_MODULES_KNOWLEDGE/platform_management.md) and [
 
 Required order: freeze remaining boundary decisions; define ownership/contracts; prove isolated provisioning and routing with two test tenants; implement identity/licensing and subscriptions; verify payments, invoice evidence, and recovery; add self-service and operational fleet controls. Each is a separately scoped, reviewed coding task.
 
-Existing Tenancy and Identity remain their current runtime owners. Any control-plane handoff, database split, membership expansion, or authority relocation requires a source-code inventory, compatibility plan, forward-only migration/provisioning design, tenant-isolation tests, rollback plan, and synchronized registry updates. No historical Flyway migration is changed or new migration number reserved by this ADR.
+Existing Tenancy and Identity remain their current runtime owners. Any control-plane handoff, database split, or authority relocation requires a source-code inventory, compatibility plan, forward-only migration/provisioning design, tenant-isolation tests, rollback plan, and synchronized registry updates. Multi-membership expansion and customer tenant switching are not permitted by the accepted target. No historical Flyway migration is changed or new migration number reserved by this ADR.
+
+Tenant ERP databases follow one governed schema release line by default. A global release is one approved migration package executed and recorded independently by each applicable tenant database, never one distributed SQL transaction. Rollout uses isolated and upgrade verification, internal/test tenants, pilots, then controlled rings with truthful partial status, pause/recovery, reconciliation, and drift detection. Schema readiness, backfill, entitlement, activation, and authorization remain separate. Business modules own migration meaning; Platform Management coordinates fleet rollout.
 
 ## Consequences
 

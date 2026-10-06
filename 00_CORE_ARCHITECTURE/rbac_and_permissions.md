@@ -4,6 +4,8 @@
 
 - Runtime authority comes from authenticated identity, active server-side tenant membership, and role-template permissions assigned through tenant membership.
 - Frontend visibility is not authorization.
+- For the accepted SaaS target, a customer account resolves exactly one immutable organization binding. RBAC/ABAC/resource scope operates only inside that organization and cannot create cross-organization access or unlock a capability absent from the organization subscription/industry entitlement.
+- Authorization follows active organization, subscription, capability entitlement, account licensing, RBAC/ABAC/resource scope, and trusted tenant-database routing. Feature flags, menus, roles, username suffixes, organization codes, database names, and client tenant values are never entitlement or tenant authority.
 - New backend actions must be enforced server-side and seeded through forward-only migrations before public API exposure.
 - HTTP authorization is fail-closed: public/self-service routes and permission rules are explicit, and unmatched routes are denied.
 - `IDENTITY_MANAGE` authorizes Tenant-local identity administration only. User reads, lists, updates, deactivation, and new membership creation are constrained to the authenticated actor's active Tenant.

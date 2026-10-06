@@ -30,6 +30,8 @@
 | Billing (US-47) | Trip, Freight, Organization, Tenancy and US-72 | Closed Trip or explicit Freight completed/closed billable projection, active Customer reference, Tenant currency, and tax/billing compliance decision | Implemented published provider-neutral minimized versioned facts only; no foreign repository/entity/table/SQL or physical FK | IMPLEMENTATION_COMPLETE / ACCEPTANCE_PENDING |
 | Integration | Billing (US-47) | Immutable finalized transport billing export fact | P1-01 `TransportBillingExportRequestedV1` / `TRANSPORT_BILLING_V1`, then controlled `FILE_JSON_V1`; no business-rule mutation | IMPLEMENTED_US47 / ACCEPTANCE_PENDING |
 | US-72 Compliance | Billing (US-47) | Minimized finalized tax category, jurisdiction, taxable amount, supplied rate/amount, exemption and snapshot facts | Versioned Billing-owned fact/explicit decision contract; Compliance owns the decision | APPROVED_DEPENDENCY; US-72 implementation pending |
+| Customer ERP runtime | Platform Management | Active subscription, industry/product entitlement, account licensing and trusted tenant database binding | Target provider-owned decision boundaries; exact contract pending | PLANNED (MVP TARGET); NOT IMPLEMENTED |
+| Platform release orchestration | Business-module release owners and tenant databases | Approved package plus per-database migration/backfill/verification/recovery status | Platform coordinates staged rollout; modules retain migration semantics | PLANNED (MVP TARGET); NO EXECUTABLE CONTRACT |
 
 ## Ownership Decisions
 

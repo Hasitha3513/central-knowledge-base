@@ -18,6 +18,7 @@ This is the canonical target commercial/account-administration policy. Existing 
 | ORG-03 | Departments, branches, and sections are internal organizational units, not separately subscribed tenants. Creating one does not create a separate subscription or connection charge. |
 | ORG-04 | Account billing belongs to the organization; changing an account's role, department, branch, section, or number of authorized modules does not multiply its seat count. |
 | ORG-05 | Group ownership and a common payer do not merge subscriptions, databases, permission scopes, or billing evidence. |
+| ORG-06 | A customer account belongs to exactly one organization. Multi-organization membership, tenant switching, shared credentials, and role-derived cross-organization access are prohibited. The same human requires a separately licensed and audited account in each organization. |
 
 ## 2. Complimentary Super Admin and paid accounts
 

@@ -6,6 +6,8 @@ Decision date: 2026-08-28
 
 Scope: Transportation MVP Tenant authority, membership, RBAC assignment, and execution context
 
+Supersession note (2026-10-06): this ADR remains historical evidence for the implemented Transportation foundation. References to future multi-membership, tenant selection, or roles across Tenants are superseded for the approved customer SaaS target by `ADR-SAAS-PLATFORM-MANAGEMENT-001`. One Account = One Organization; this behavior is not deferred or permitted.
+
 ## Context
 
 Transportation has a verified first-class Tenant foundation in `V43__tenant_foundation.sql`. Platform Tenancy owns Tenant lifecycle; Identity owns global credentials, explicit Tenant membership, and authenticated resolution. Existing access and refresh tokens do not contain a Tenant claim. Operational business rows are not fully Tenant-scoped, so isolation remains partial.
@@ -26,7 +28,7 @@ Mandatory `tenant_id` in JWT is not required. Existing JWT and refresh-token con
 
 ### Membership
 
-The MVP permits one operational Tenant per user. `tenant_membership` enforces one membership record per user with `UNIQUE(user_id)`. Missing/inactive membership or Tenant denies access. Multi-membership and Tenant switching are deferred.
+The MVP permits one operational Tenant per user. `tenant_membership` enforces one membership record per user with `UNIQUE(user_id)`. Missing/inactive membership or Tenant denies access. At this ADR's decision date, multi-membership and Tenant switching were deferred; the later SaaS target supersedes that roadmap option and prohibits both.
 
 ### RBAC templates and assignments
 
@@ -68,7 +70,7 @@ It duplicates mutable authorization state into a token, adds revocation/refresh 
 
 ### Global `app_user_role` as final assignment — rejected
 
-A global assignment cannot represent different capabilities for one user across different Tenants. Membership-scoped assignment supports future multi-membership without changing global templates.
+A global assignment cannot represent different capabilities for one user across different Tenants. At this ADR's decision date, membership-scoped assignment was also described as supporting future multi-membership. The later SaaS target supersedes that rationale; membership-scoped assignment now binds roles to the account's single organization.
 
 ### Client-selected Tenant without membership validation — rejected
 
@@ -85,4 +87,4 @@ Client-controlled Tenant identifiers are not authorization evidence. Future sele
 
 ## Migration Implications and Future Compatibility
 
-The retrofit must use forward-only migrations, preserve V1–V43, add immutable `tenant_id` to Tenant-owned rows, scope constraints and repositories, and introduce membership-scoped role assignment without silently changing authentication behavior. Membership association permits a future user to be Dispatcher in Tenant A and Viewer in Tenant B while global role definitions remain unchanged.
+The retrofit must use forward-only migrations, preserve V1–V43, add immutable `tenant_id` to Tenant-owned rows, scope constraints and repositories, and introduce membership-scoped role assignment without silently changing authentication behavior. This ADR originally contemplated a future user holding roles in Tenant A and Tenant B. The later SaaS target supersedes and prohibits that customer model; separate organization accounts are required.

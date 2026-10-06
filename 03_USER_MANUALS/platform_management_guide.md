@@ -12,6 +12,8 @@ Register each organization separately. A parent holding company and each subsidi
 
 Each organization receives a dedicated operational tenant database and uses the common ERP product. Holding-company ownership does not automatically authorize access to subsidiary data.
 
+Each customer account belongs to one organization only. There is no organization selector or tenant switcher. A person working with several organizations uses separate named accounts and credentials; permissions, billing, and audit remain separate. A username may look like `hasitha.u7k9q2.sce`, but its suffix and employee/EPF numbers grant no organization access.
+
 The organization pays the standard connection/setup charge in addition to account charges. The connection charge is not an advance credited against monthly user bills. No actual prices are specified in this guide.
 
 ## Super Admin and delegated administration
@@ -48,5 +50,9 @@ An account both created and deactivated in the overlapping creation-month/five-d
 Provider staff manage organizations, subscriptions, price versions, licensing evidence, connection fees, invoices/payments, provisioning status, schema/backup health, and authorized support operations. Tenant self-service must expose only the organization's own billing and permitted administration.
 
 Payment confirmation and database readiness are separate outcomes. A paid organization with failed provisioning must be shown truthfully as not ready and recovered without duplicate charges or duplicate resources. Customer ERP business records remain in their owning tenant systems.
+
+Provider staff also govern each organization's approved industry/product capabilities. Tenant admins configure only within that entitlement; roles, organization codes, database names, menus, and feature flags cannot unlock another capability. The common frontend adapts to entitlement, configuration, permissions, scope, and approved localization, while backend enforcement remains authoritative.
+
+Release operators apply one approved package in controlled stages: verified fresh/upgrade paths, internal/test tenants, pilots, then rings. Every database reports independent schema, backfill, verification, and recovery status. Partial rollout is truthful and recoverable, not an all-tenant transaction. Code deployment, schema readiness, entitlement, activation, and authorization are separate. Customer accounts never receive migration privileges or database credentials; missing routing fails closed.
 
 Operational activation, billing automation, and migration require independent implementation acceptance. This documentation update changes no live account, subscription, bill, or database.

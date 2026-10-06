@@ -1,5 +1,11 @@
 # State Machines and Lifecycles
 
+## Platform Management target release readiness (conceptual)
+
+Code deployed, schema ready, backfill complete when applicable, subscription/industry entitled, feature activated/configured, and user authorized are independent dimensions. A table, feature flag, visible menu, or role cannot grant an unentitled capability.
+
+Each tenant database records rollout independently through isolated verification, supported-upgrade verification, internal/test tenants, pilots, and controlled rings. Mixed success is a valid partial rollout requiring pause/recovery and reconciliation; migrations across databases are not one ACID transaction. Exact enums, tables, APIs, and events remain DECISION REQUIRED for implementation.
+
 ## External Integration (US-73 Implemented and Accepted)
 
 ### Configuration lifecycle

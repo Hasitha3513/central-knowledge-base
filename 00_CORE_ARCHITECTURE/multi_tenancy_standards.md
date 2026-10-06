@@ -12,6 +12,7 @@ Approved target SaaS isolation: one independently subscribed organization per te
 - The separate provider-side [Platform Management System](../02_MODULES_KNOWLEDGE/platform_management.md) owns commercial tenancy, subscriptions, billing/licensing, and provisioning orchestration through approved boundaries. Its management database does not own customer ERP transactions.
 - Exactly one designated organization Super Admin account is complimentary; all other tenant accounts are paid. New accounts incur the full creation-month fee. Commercial deactivation requires Super Admin approval and the five-day post-bill policy in [SaaS subscription and billing policy](saas_subscription_billing_policy.md).
 - Group relationships do not bypass tenant authorization. Retain tenant UUIDs and explicit scope for events, caches, storage, jobs, exports, and database routing.
+- **One Account = One Organization:** the accepted customer target forbids multi-organization membership, tenant switching/selectors, shared customer accounts, and automatic parent/subsidiary access. A human working for multiple organizations uses a separate named account, credential/session, immutable organization binding, billing record, authorization scope, and audit identity for each.
 - This is ACCEPTED_TARGET_ARCHITECTURE, not implemented database isolation or billing. Read the ADR, canonical billing policy, and [target integration boundaries](../01_INTEGRATION_REGISTRY/platform_management_boundaries.md) alongside the existing core/registry documents before relevant design or code changes.
 
 The remaining sections retain the existing runtime model and historical acceptance evidence. Their current owner/membership/bootstrap descriptions must not be silently reinterpreted as completion of the target control plane. Any authority handoff or database transition requires a separately approved implementation/migration plan; no historical Flyway rewrite is authorized.
@@ -34,7 +35,7 @@ The Transportation MVP uses `SERVER_SIDE_MEMBERSHIP_RESOLUTION`:
 5. Pass tenant identity explicitly to tenant-owned use cases and persistence operations; every query predicates on it.
 6. Clear HTTP context in `finally`.
 
-`CurrentTenant` / `TenantExecutionContext` is authoritative at runtime. Payload/query `tenantId`, browser storage, and arbitrary `X-Tenant-ID` are `UNTRUSTED`. The single-membership MVP has no tenant switcher. A future selector may select only a currently authorized membership.
+`CurrentTenant` / `TenantExecutionContext` is authoritative at runtime. Payload/query `tenantId`, browser storage, and arbitrary `X-Tenant-ID` are `UNTRUSTED`. The accepted customer target has no tenant switcher or selector. Shared login infrastructure resolves the account's one immutable organization binding server-side; it does not share credentials or identity across organizations.
 
 HTTP `ThreadLocal` context is request-scoped only. Scheduled, background, and asynchronous work receives Tenant identity explicitly and establishes/clears a bounded context; it never blindly inherits request context.
 
@@ -65,7 +66,7 @@ Target: `TenantMembership -> Membership Role Assignment -> Global Role Template 
 
 `tenant_membership_role` is the implemented authorization-assignment authority from V44. It links a Tenant membership to a global `app_role` template. `app_user_role` remains `LEGACY_UNSCOPED_ROLE_ASSIGNMENT` and `TRANSITIONAL` for compatibility only; runtime authorization no longer reads or writes it.
 
-The database currently enforces one `tenant_membership` record per user. Membership-scoped assignment remains required so future multi-membership can grant different global role templates in different Tenants.
+The database currently enforces one `tenant_membership` record per user. Membership-scoped assignment binds role templates to the account's single organization; it is not preparation for future multi-membership.
 
 ## Database Controls
 
@@ -106,7 +107,7 @@ Verified implementation: `TENANT-FOUNDATION-IMPLEMENTATION-001` (2026-08-28)
 | Event/cache isolation | `NO_NEW_TENANT_EVENTS_OR_CACHES_IN_RETROFIT_SCOPE` |
 | Overall Tenant isolation | `ACCEPTED_P0-04_CURRENT_SCOPE` |
 
-Platform `tenancy` owns Tenant lifecycle. Identity owns membership and authenticated resolution; Organization and `shared` do not own Tenant lifecycle. The MVP permits exactly one membership per user; multi-membership is deferred.
+Platform `tenancy` owns Tenant lifecycle. Identity owns membership and authenticated resolution; Organization and `shared` do not own Tenant lifecycle. The verified Transportation MVP permits exactly one membership per user. Under the later accepted SaaS target, multi-membership and customer tenant switching are SUPERSEDED / NOT PERMITTED, not deferred.
 
 ### Canonical clean initialization
 

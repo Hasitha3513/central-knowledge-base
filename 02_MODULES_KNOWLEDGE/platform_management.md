@@ -24,6 +24,8 @@ This is separate from the eight customer business domains listed in `MASTER_AGEN
 
 Each organization, including a holding parent and every subsidiary, has a separate subscription and operational database. Departments, branches, and sections are tenant-internal structures and do not create subscriptions. A common ERP frontend serves the organizations; a dedicated operational database does not itself promise a dedicated server/backend process.
 
+One Account = One Organization. Customer accounts cannot hold several organization memberships, switch tenants, share a login across organizations, or inherit parent/subsidiary access. A human serving several organizations uses a separate named account, credential/session, binding, licensing record, permissions, scope, and audit trail for each.
+
 One designated organization Super Admin account is complimentary. All other tenant accounts are paid, including delegated Admins. Super Admin delegates administration; Admin configures permitted access; Super Admin approval is mandatory for commercial account deactivation. Provider platform administrators are a separate security boundary.
 
 ## Phase 1: Current MVP Scope (Active Implementation)
@@ -41,6 +43,8 @@ The scope below is accepted for controlled follow-on implementation; each code c
 | Monthly billing | Full same-month fee for account creation on any date; original bill anchor; five-day approved/effective deactivation handling; late-month charge attribution and auditable adjustments. Resolve policy edge decisions before affected automation. |
 | Invoices/payments | Separate connection and monthly-account lines; immutable evidence/corrections, verification, idempotency, and reconciliation. No provider has been selected. |
 | Tenant provisioning | Fresh dedicated database, approved migrations/reference data, secure credentials/routing, readiness checks, repeat-safe recovery and no copied customer/demo data. |
+| Industry/product entitlement | Provider-approved organization capability set with effective/version evidence and fail-closed enforcement; never inferred or tenant-admin self-granted. |
+| Release & tenant upgrade management | One governed schema line; approved manifests; per-database version/migration/backfill/verification; rollout rings; pause/retry/recovery, backup/restore and drift evidence. Modules retain migration semantics. |
 | Platform security/support | Provider staff access, least privilege, audit trail, explicit support authorization, last-owner protection, and separation of security locks from commercial deactivation. |
 | Tenant self-service | Own account counts, invoices/payment state, bill-generation/deactivation deadline and approval status; authorized administration and narrow payment/account-recovery access. |
 | Operations/business dashboard | Organization/subscription counts, billable accounts, connection-fee collections, recurring billed amounts, outstanding invoices, provisioning failures, schema/backup health and operating-cost visibility. Monitoring is not permission to add usage fees. |
@@ -70,6 +74,12 @@ Register organization; verify owner; calculate connection and initial account ch
 
 These are capability descriptions, not invented published Java signatures or REST endpoints. A failed payment or provisioning step must leave truthful, retryable evidence. Retries cannot duplicate the connection charge, account fee, tenant database, or complimentary entitlement.
 
+Customer feature requests are classified as existing capability, configuration gap, UX gap, defect, reusable product gap, or out of scope. Generalize the real business rule, not a customer legacy screen. Reuse, configure, document, improve common UX, fix defects, or implement a reusable gap once in its owning context. Tenant-specific forks, `if tenant == X` branches, copied private data, and speculative generic engines/tables/APIs/events are prohibited.
+
+One configurable customer frontend adapts to entitlement, activation/configuration, permissions, resource scope, and approved localization. Hidden UI is not authorization; backend use cases enforce the same gates. A separate provider interface remains a distinct privileged security boundary.
+
+Tenant databases normally share one governed release line. Not every feature needs a migration. Required migrations are forward-only and module-owned; breaking change uses reviewed expand, migrate/backfill, switch, and contract techniques. Platform Management stages one approved package per database through verification, pilots, and rings, recording truthful independent outcomes rather than implying a fleet-wide transaction.
+
 ### Verified schema, ports, events and permissions
 
 No Platform Management schema, migration number, table dictionary, endpoint, event/topic, permission constant, or production deployment has been verified or introduced by this documentation change. The current Tenancy/Identity authorities and existing System/Integration/Billing contracts are not silently moved or reused.
@@ -82,7 +92,9 @@ Outstanding policy decisions D-01 through D-05 remain visible in the canonical p
 
 ## Phase 2: Post-MVP / Future Roadmap (Deferred Scope)
 
-Advanced cross-organization consolidation, negotiated enterprise arrangements, automatic tax/localization packs, marketplace commerce workflows, additional payment providers, dedicated-compute tiers, and advanced analytics remain separately scoped work. No candidate database tables or unapproved API/event families are created for them here.
+Advanced cross-organization consolidation reporting, negotiated enterprise arrangements, automatic tax/localization packs, marketplace commerce workflows, additional payment providers, dedicated-compute tiers, and advanced analytics remain separately scoped work. Cross-organization reporting never creates multi-organization customer identities or automatic parent/subsidiary access. No candidate database tables or unapproved API/event families are created for them here.
+
+Design must reconcile approved KB/ADRs, verified implementation, owner rules, usability/accessibility, security/privacy, applicable law, jurisdiction/industry compliance, operational practicality, scalability, and maintainability. Do not claim generic worldwide compliance; variable requirements need authoritative verification and controlled localization.
 
 An industry/business-model label alone does not prove its workflow is implemented or compliant in every jurisdiction. Deferred work never changes the approved organization boundary, one complimentary account, full-month creation rule, or five-day deactivation policy without a versioned product decision.
 
