@@ -45,7 +45,21 @@ If deactivation is not completed within five days after bill generation, the app
 
 Resending or reprinting the same bill does not start a new five-day period. Security locks may block access immediately but are not automatic commercial deactivations or fee exemptions.
 
-An account both created and deactivated in the overlapping creation-month/five-day scenario is explicitly awaiting a precedence decision. Exact calendar-versus-elapsed-day cutoff handling is also recorded as a decision prerequisite. Operators and agents must not invent a free-account/refund rule or a different deadline.
+An account both created and deactivated in the overlapping creation-month/five-day scenario is explicitly awaiting a precedence decision. The window is five calendar days, not business days or elapsed 120 hours; the governing timezone, end-of-day cutoff, and exact inclusive endpoint remain a decision prerequisite. Operators and agents must not invent a free-account/refund rule or a different deadline.
+
+## Monthly invoice, payment grace, and overdue recovery
+
+At monthly close, the target Platform Management workflow automatically creates a stable organization billing snapshot, detailed invoice, and Active User Billing Report from authoritative account-month history. The report shows billing-safe account identity/username, account category, complimentary or billable classification, lifecycle evidence, and charge outcome. It must not expose passwords/hashes, EPF or government identifiers, passport data, database credentials, or unrelated personal data.
+
+Each invoice has a fifteen-calendar-day payment grace period starting at invoice generation. The invoice preserves its due and policy versions. Partial payment is not settlement: it does not mark the invoice paid, remove the organization-wide overdue alert, reset delinquency, prevent an earned suspension, or restore service.
+
+After one invoice passes its due date without full settlement, the organization is overdue and the common ERP shell shows the alert, but service is not automatically suspended. Automatic payment suspension occurs only when two consecutive monthly invoices have each passed their own due date without full settlement; the second invoice receives all fifteen calendar days.
+
+During payment suspension, the target experience retains a narrow path for authentication, the organization's billing workspace, invoices and reports, payment/evidence workflow, and limited Super Admin recovery. Ordinary restoration requires full settlement of every invoice required by policy.
+
+An authorized provider operator may approve one calendar month of temporary service availability while debt remains. Each extension needs a new reasoned, audited approval and never renews automatically. The organization remains overdue, the alert stays visible, and billing/invoices/reports continue. At expiry, fully settled organizations return to ordinary service; otherwise payment suspension resumes automatically.
+
+An administrative billing-profile hold is not a debt waiver. Any commercial waiver is a separate authorized, audited decision. Exact billing-profile hold accrual behavior and accidental short-payment handling remain unresolved and must not be improvised by operators.
 
 ## Provider Platform Management responsibilities
 

@@ -32,6 +32,18 @@ The accepted customer boundary is One Account = One Organization. Shared login i
 
 The existing `system` module remains resilience/integrity focused. The existing `integration` and `billing` modules are not automatically owners of payment collection or SaaS invoices. Reuse of an existing published technical capability requires explicit scope/compatibility review.
 
+## Accepted target billing lifecycle boundary
+
+Status: **ACCEPTED TARGET / NOT IMPLEMENTED**.
+
+Platform Management owns provider SaaS month-close snapshots, invoices, Active User Billing Reports, payment verification, delinquency, organization-wide billing alerts, payment suspension, recovery access, temporary provider reactivation overrides, and ordinary restoration. Customer Finance and Transport Billing do not own or mutate this lifecycle.
+
+Each invoice has a snapshotted fifteen-calendar-day grace period. One overdue invoice produces delinquency/alert evidence but not automatic suspension. After two consecutive monthly invoices have each exhausted their own grace period without full settlement, provider service access is suspended while a narrow billing/recovery surface remains. Full settlement of all policy-required invoices ordinarily restores access.
+
+A privileged, audited provider override may temporarily allow service for one calendar month per approval. It never settles or waives debt, clears overdue visibility, stops billing, or renews automatically; expiry reevaluates settlement and otherwise returns the organization to payment suspension. Exact APIs, messages, storage, permission constants, and executable events remain pending.
+
+The lifecycle keeps organization lifecycle, subscription, billing profile, invoice/payment state, delinquency, service access, and user-account state independent. The common frontend may present the authoritative provider decision, but no individual ERP module may calculate a competing commercial state.
+
 ## Reliability and security invariants
 
 - Separate payment success, provisioning readiness, commercial activation, user authorization, and bill correction outcomes. No distributed all-or-nothing guarantee is inferred from one local transaction.

@@ -40,10 +40,10 @@ The scope below is accepted for controlled follow-on implementation; each code c
 | :--- | :--- |
 | Organization/tenant registry | Independent parent/subsidiary registration and subscriptions; tenant identity and group links; internal units do not create billable tenants. |
 | Product/pricing catalogue | Standard connection fee and monthly account prices with currency/effective version; no invented amounts or extra module/branch charges. |
-| Subscription management | Enrollment, initial-payment evidence, ongoing service entitlement, renewal/cancellation/suspension/reactivation policies and recoverable states. Exact payment/failure timelines remain explicit decisions. |
+| Subscription management | Enrollment, initial-payment evidence, ongoing service entitlement, fifteen-calendar-day per-invoice grace, two-consecutive-overdue payment suspension, narrow recovery access, full-settlement restoration, and one-calendar-month audited provider override per approval. |
 | Account licensing | One complimentary Super Admin per organization; all other accounts paid; identity-sourced historical account facts; no admin-role exemptions or per-branch duplicates. |
 | Monthly billing | Full same-month fee for account creation on any date; original bill anchor; five-day approved/effective deactivation handling; late-month charge attribution and auditable adjustments. Resolve policy edge decisions before affected automation. |
-| Invoices/payments | Separate connection and monthly-account lines; immutable evidence/corrections, verification, idempotency, and reconciliation. No provider has been selected. |
+| Invoices/payments | Stable month-close snapshot, detailed invoice and historical Active User Billing Report; separate connection/account lines; immutable policy/price/due evidence; full-settlement verification, idempotency, delinquency and reconciliation. No provider has been selected. |
 | Tenant provisioning | Fresh dedicated database, approved migrations/reference data, secure credentials/routing, readiness checks, repeat-safe recovery and no copied customer/demo data. |
 | Industry/product entitlement | Provider-approved organization capability set with effective/version evidence and fail-closed enforcement; never inferred or tenant-admin self-granted. |
 | Release & tenant upgrade management | One governed schema line; approved manifests; per-database version/migration/backfill/verification; rollout rings; pause/retry/recovery, backup/restore and drift evidence. Modules retain migration semantics. |
@@ -62,6 +62,11 @@ The canonical billing policy is authoritative; do not maintain an inconsistent s
 - A late approved deactivation may still stop access; it does not erase the charge already retained for that month.
 - Bill generation, month attribution, effective account history, and price/policy versions are evidenced, not inferred from UI state or mutable current counts.
 - Connection fees are separate from monthly account payments and are not advanced credit.
+- Five-calendar-day deactivation adjustment and fifteen-calendar-day invoice grace are independent windows anchored to invoice generation; business-day and elapsed-hour reinterpretations are prohibited.
+- Month-close billing evidence and Active User Billing Reports use authoritative account-month history and exclude authentication secrets, HR identifiers, government identifiers, database credentials, and unrelated personal data.
+- Partial payment never settles an invoice, clears the common-shell overdue alert, resets delinquency, prevents an earned suspension, or restores service.
+- Automatic payment suspension requires two consecutive monthly invoices to exhaust their own grace periods without full settlement; one overdue invoice is insufficient.
+- One-calendar-month provider overrides are privileged, audited, non-renewing approvals that temporarily allow service but preserve debt, alert, delinquency, billing and reporting.
 - No base monthly fee, extra free-account class, paid-seat minimum, module fee, or country-specific legal/accounting rule is silently added.
 
 ### Data ownership
@@ -88,9 +93,9 @@ No Platform Management schema, migration number, table dictionary, endpoint, eve
 
 ### Acceptance and readiness gates
 
-All policy scenarios T01-T22 are required. Additional future gates cover isolated two-organization routing, group-access denial, approved unit scoping, provider-versus-tenant administration, tenant restore verification, pricing/version evidence, payment callback security, and partial-failure recovery. Tests were NOT RUN by this KB-only task.
+All policy scenarios T01-T32 are required. Additional future gates cover isolated two-organization routing, group-access denial, approved unit scoping, provider-versus-tenant administration, tenant restore verification, pricing/version evidence, payment callback security, and partial-failure recovery. Tests were NOT RUN by this KB-only task.
 
-Outstanding policy decisions D-01 through D-05 remain visible in the canonical policy. Do not implement an inferred resolution. Database split/backfill/rollback, deployment topology, identity handoff, and precise contract shapes need scoped implementation designs.
+Outstanding policy decisions D-01 through D-07 remain visible in the canonical policy. Do not implement an inferred resolution. Database split/backfill/rollback, deployment topology, identity handoff, and precise contract shapes need scoped implementation designs.
 
 ## Phase 2: Post-MVP / Future Roadmap (Deferred Scope)
 

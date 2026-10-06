@@ -77,7 +77,11 @@ The organization Super Admin is neither a provider platform administrator nor a 
 
 ### 5. Commercial model
 
-A standard one-time organization connection/setup fee is charged separately from user-account payments. It is not an advance against later monthly account charges. Recurring user billing follows active/billable account history and the full-month creation and five-day deactivation rules in the canonical policy.
+A standard one-time organization connection/setup fee is charged separately from user-account payments. It is not an advance against later monthly account charges. Recurring user billing follows authoritative account-month history and the full-month creation and five-calendar-day deactivation-adjustment rules in the canonical policy.
+
+At monthly close, Platform Management produces a stable organization billing snapshot, detailed provider invoice, and historical Active User Billing Report. Each invoice receives its own fifteen-calendar-day payment grace period. One overdue invoice does not suspend service; automatic payment suspension occurs only after two consecutive monthly invoices have each passed their own due date and remain not fully settled. Full settlement of every invoice required by delinquency policy ordinarily restores service.
+
+Payment suspension is a provider-owned organization service-access condition, distinct from organization lifecycle, subscription, billing profile, invoice/payment state, delinquency, and user-account state. A narrowly authorized, audited provider override may temporarily allow service for one calendar month per approval while debt, overdue alerts, billing, invoices, and reports continue. The override neither pays nor waives debt and is reevaluated at expiry. These are accepted target semantics, not production enum names or implemented contracts.
 
 No additional free-account category, branch charge, per-role charge, per-module charge, minimum paid-seat count, or monthly base fee is introduced by this approval. Exact prices, currency catalogue, and unresolved billing edge decisions remain explicit implementation prerequisites.
 

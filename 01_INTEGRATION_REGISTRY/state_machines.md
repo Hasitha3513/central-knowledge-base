@@ -1,5 +1,17 @@
 # State Machines and Lifecycles
 
+## Platform Management billing and service-access lifecycle (conceptual)
+
+Status: **ACCEPTED TARGET / NOT IMPLEMENTED**. The descriptions below are business conditions, not production enum names, APIs, events, permissions, or persistence schemas.
+
+At monthly close, Platform Management freezes the organization billing snapshot, invoice, Active User Billing Report, and policy/price evidence. Each invoice receives its own fifteen-calendar-day grace period. Full settlement keeps or restores ordinary service. Expiry without full settlement creates overdue/delinquent evidence and an organization-wide alert.
+
+One overdue invoice alone does not suspend service. When a second consecutive monthly invoice also passes its own due date without full settlement, organization service access becomes payment-suspended. Authentication plus the narrow billing, invoice/report, payment-evidence, and Super Admin recovery surface remain available. Partial payment does not clear delinquency or prevent this transition.
+
+Ordinary recovery requires full settlement of every invoice required by policy. A separately authorized provider override may temporarily allow service for one calendar month while delinquency, debt, alerts, billing, invoices, and reports remain active. The override never auto-renews. On expiry, authoritative settlement is reevaluated: complete settlement restores ordinary service; otherwise payment suspension applies automatically.
+
+Organization lifecycle, subscription, billing profile, invoice/payment state, delinquency, service access, and user-account state remain orthogonal. Administrative billing-profile hold, commercial waiver, payment suspension, and account deactivation are not interchangeable transitions.
+
 ## Platform Management target release readiness (conceptual)
 
 Code deployed, schema ready, backfill complete when applicable, subscription/industry entitled, feature activated/configured, and user authorized are independent dimensions. A table, feature flag, visible menu, or role cannot grant an unentitled capability.
