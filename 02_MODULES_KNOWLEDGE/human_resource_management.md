@@ -4,7 +4,7 @@ Lifecycle: PROPOSED.
 
 ## Scope and Ownership
 
-Owns person/employee master, employment, organization assignment, positions, contracts, qualifications, leave, attendance, performance, payroll inputs, and workforce compliance. Authentication identities remain platform-owned. Transportation-specific driving assignments remain transportation-owned.
+Owns person/employee master, employment, organization assignment, positions, contracts, qualifications, leave, attendance, performance, payroll inputs, and workforce compliance. Authentication identities and canonical login usernames remain platform Identity-owned. HRM may hold a protected optional employee/EPF/payroll reference, but employment identifiers are not required platform usernames or canonical uniqueness discriminators. Employee/person identity and immutable login Account ID are separate concepts connected only through an approved logical reference. Transportation-specific driving assignments remain transportation-owned.
 
 ## Candidate Aggregates and Use Cases
 

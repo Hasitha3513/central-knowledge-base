@@ -12,7 +12,9 @@ Register each organization separately. A parent holding company and each subsidi
 
 Each organization receives a dedicated operational tenant database and uses the common ERP product. Holding-company ownership does not automatically authorize access to subsidiary data.
 
-Each customer account belongs to one organization only. There is no organization selector or tenant switcher. A person working with several organizations uses separate named accounts and credentials; permissions, billing, and audit remain separate. A username may look like `hasitha.u7k9q2.sce`, but its suffix and employee/EPF numbers grant no organization access.
+Each customer account belongs to one organization only. There is no organization selector or tenant switcher. A person working with several organizations uses separate named accounts and credentials; permissions, billing, and audit remain separate.
+
+The accepted target username looks like `hasitha.7k4m@sce-lk`: a recognizable alias, opaque system discriminator, and Platform-governed globally unique organization login code. It is labelled as a Username or Work ID, not necessarily an email address. The suffix, aliases, employee/EPF/payroll numbers, and words such as `admin` or `superadmin` grant no access or complimentary status. The account ID and organization UUID remain authoritative. Username rename does not reset billing, licensing, permissions, audit, deactivation history, entitlement, or routing. This convention is recommended target behavior and is not claimed as implemented.
 
 The organization pays the standard connection/setup charge in addition to account charges. The connection charge is not an advance credited against monthly user bills. No actual prices are specified in this guide.
 

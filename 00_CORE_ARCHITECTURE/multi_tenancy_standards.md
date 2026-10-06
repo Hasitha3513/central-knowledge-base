@@ -58,7 +58,7 @@ Every term is required. Admin-style roles do not bypass isolation; interactive c
 - `app_role`: `GLOBAL` role-template catalogue.
 - `app_role_permission`: `GLOBAL` template-to-permission mapping.
 
-These define capabilities, not Tenant ownership. Username and email remain globally unique credentials. Tenant-custom roles are deferred.
+These define capabilities, not Tenant ownership. The current Transportation schema verifies globally unique username and email fields. The accepted target username convention is documented in `ADR-SAAS-PLATFORM-MANAGEMENT-001`; it is a target design, not proof that the new format or normalization is implemented. Username, email, immutable account identity, organization identity, and optional HR employee reference remain distinct. Tenant-custom roles are deferred.
 
 ### Tenant-scoped authorization assignment
 

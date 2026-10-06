@@ -26,6 +26,8 @@ Each organization, including a holding parent and every subsidiary, has a separa
 
 One Account = One Organization. Customer accounts cannot hold several organization memberships, switch tenants, share a login across organizations, or inherit parent/subsidiary access. A human serving several organizations uses a separate named account, credential/session, binding, licensing record, permissions, scope, and audit trail for each.
 
+The accepted target username convention is `<recognizable-name>.<opaque-short-id>@<globally-unique-org-login-code>` (example `hasitha.7k4m@sce-lk`). Identity owns normalized global username uniqueness and immutable Account ID; Platform Management governs organization login-code allocation. Username text is never tenant, entitlement, role, database-routing, or billing authority. This is recommended target design, not verified implementation.
+
 One designated organization Super Admin account is complimentary. All other tenant accounts are paid, including delegated Admins. Super Admin delegates administration; Admin configures permitted access; Super Admin approval is mandatory for commercial account deactivation. Provider platform administrators are a separate security boundary.
 
 ## Phase 1: Current MVP Scope (Active Implementation)

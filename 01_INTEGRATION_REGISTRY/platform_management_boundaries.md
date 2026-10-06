@@ -28,7 +28,7 @@ Platform Management owns SaaS commercial records, not customer ERP ledgers, cust
 
 Identity remains authoritative for account/membership status and permissions. HRM employee lifecycle is not the paid login-account authority. Role changes and internal-unit assignments must not manufacture account creation/deactivation facts or duplicate fees.
 
-The accepted customer boundary is One Account = One Organization. Shared login infrastructure does not mean shared credentials, multi-organization membership, a tenant selector, or cross-organization role assignment. Provider identities remain separate.
+The accepted customer boundary is One Account = One Organization. Shared login infrastructure does not mean shared credentials, multi-organization membership, a tenant selector, or cross-organization role assignment. Provider identities remain separate. Identity owns atomic global username uniqueness and authentication normalization; Platform Management governs globally unique organization login codes. Username text and suffix are never organization, entitlement, authorization, or routing authority. Exact persistence and API contracts remain pending.
 
 The existing `system` module remains resilience/integrity focused. The existing `integration` and `billing` modules are not automatically owners of payment collection or SaaS invoices. Reuse of an existing published technical capability requires explicit scope/compatibility review.
 

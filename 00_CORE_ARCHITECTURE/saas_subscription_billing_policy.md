@@ -31,6 +31,7 @@ This is the canonical target commercial/account-administration policy. Existing 
 | ACC-05 | Commercial account deactivation requires approval by the current authorized Super Admin of that organization. A delegated Admin, employee, or payment integration cannot bypass this approval. |
 | ACC-06 | Preserve the last viable organization owner/admin. Ownership transfer must atomically transfer the single complimentary entitlement and leave an auditable trail, not create a second free account. |
 | ACC-07 | Named accounts and explicit membership identity are required. Shared credentials are not a mechanism for avoiding paid-account licensing. |
+| ACC-08 | Username creation or rename never creates a new complimentary entitlement, changes billable account identity, resets creation-month or deactivation history, or alters historical account-month evidence. The designated Super Admin benefit belongs to immutable account identity, not username text such as `admin` or `superadmin`. |
 
 Provider platform operators are not organization Super Admins. Their provider-side identities do not grant an extra free tenant membership. A provider operator who also receives an ordinary customer tenant account is subject to that tenant's account policy.
 
