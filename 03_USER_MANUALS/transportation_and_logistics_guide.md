@@ -70,9 +70,11 @@ ACCESS-04 does not provide administrable ABAC scopes or a new general-purpose im
 
 ### Project-scoped Trip visibility
 
-ACCESS-05P2 applies an administrator-configured effective Project scope to Trip list, detail, status-history, and operational-event reads. Existing Trip permissions are still required. Depending on the configured membership scope, an operator may see all assigned Trips in the active Tenant, only selected Projects, explicitly permitted unassigned Trips, or no Trips. An inaccessible or foreign-Tenant Trip is reported with the ordinary not-found behavior; the UI/API does not disclose Project membership details or hidden counts.
+ACCESS-05P2/P3 apply an effective Project scope to Trip reads and commands while preserving every existing Trip permission. Depending on the configured membership scope, an operator may view and mutate Trips for all Projects in the active Tenant, only selected Projects, explicitly permitted unassigned Trips, or no Trips. Unassigned Trips require explicit unassigned authority. An inaccessible or foreign-Tenant Trip is reported with the ordinary not-found/denied behavior; the UI/API does not disclose Project membership details or hidden counts.
 
-Trip commands are not yet Project-scope enforced, and no scope-administration or Effective Access Project-scope UI is available. Full activation remains blocked through ACCESS-05P3–P7; administrators must not treat current read filtering as complete command, Reporting, or dashboard isolation.
+Creating a Project-associated Trip requires authority over that Project. Changing a Trip's Project is allowed only in the supported lifecycle and requires authority over both the current and destination scopes; moving to or from an unassigned Trip also requires unassigned authority. Project scope does not replace existing approval separation or other lifecycle rules.
+
+No Project-scope administration or Effective Access Project-scope UI is available yet. Reporting and Command Center aggregates are not yet Project-filtered. Full activation remains blocked through ACCESS-05P4–P7; administrators must not treat active Trip read/command enforcement as complete suite-wide Project isolation.
 
 ### 📌 Current-Scope Rules & Invariants
 - 🔒 **Vehicle Allocation:** Reserving a vehicle means assigning an eligible vehicle to a trip. There is no separate provisional hold.
