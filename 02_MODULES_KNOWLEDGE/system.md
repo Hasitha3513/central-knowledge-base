@@ -3,6 +3,10 @@
 ## 1. Module Overview
 The `system` module owns cross-cutting system resilience, platform health monitoring, global failure degraded mode coordination (US-84), and data integrity anomaly detection, quarantine, and audited owner correction workflows (US-85).
 
+### Provider SaaS control-plane boundary (2026-10-06)
+
+The accepted [Platform Management System](platform_management.md) is the separate provider-side owner of SaaS organization subscriptions, connection fees, paid-account licensing, invoice/payment evidence, and dedicated-tenant-database provisioning orchestration. Those are target control-plane responsibilities, not additions to this `system` module. Read [ADR-SAAS-PLATFORM-MANAGEMENT-001](../00_CORE_ARCHITECTURE/ADR-SAAS-PLATFORM-MANAGEMENT-001.md) and the [billing policy](../00_CORE_ARCHITECTURE/saas_subscription_billing_policy.md). Existing resilience/integrity ownership, schemas, APIs, and Transport acceptance remain unchanged; any future health integration requires an approved published contract.
+
 ---
 
 ## 2. Database Schema (PostgreSQL Flyway V112)

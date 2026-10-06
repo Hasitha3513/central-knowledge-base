@@ -2,7 +2,19 @@
 
 Status: Mandatory for all new schema and contracts
 
-Isolation model: Shared application and database with row-level tenant discrimination unless an approved ADR specifies stronger isolation
+Current documented Transportation implementation: shared application and database with row-level tenant discrimination.
+Approved target SaaS isolation: one independently subscribed organization per tenant with a dedicated operational database, under [ADR-SAAS-PLATFORM-MANAGEMENT-001](ADR-SAAS-PLATFORM-MANAGEMENT-001.md).
+
+## Approved organization-based SaaS target (2026-10-06)
+
+- Parent holding companies and every subsidiary require independent subscriptions and tenant databases. Departments, branches, and sections stay inside their organization and require no separate subscription.
+- Customers use a common ERP frontend/product; separate operational databases do not automatically require dedicated physical servers or backend deployments.
+- The separate provider-side [Platform Management System](../02_MODULES_KNOWLEDGE/platform_management.md) owns commercial tenancy, subscriptions, billing/licensing, and provisioning orchestration through approved boundaries. Its management database does not own customer ERP transactions.
+- Exactly one designated organization Super Admin account is complimentary; all other tenant accounts are paid. New accounts incur the full creation-month fee. Commercial deactivation requires Super Admin approval and the five-day post-bill policy in [SaaS subscription and billing policy](saas_subscription_billing_policy.md).
+- Group relationships do not bypass tenant authorization. Retain tenant UUIDs and explicit scope for events, caches, storage, jobs, exports, and database routing.
+- This is ACCEPTED_TARGET_ARCHITECTURE, not implemented database isolation or billing. Read the ADR, canonical billing policy, and [target integration boundaries](../01_INTEGRATION_REGISTRY/platform_management_boundaries.md) alongside the existing core/registry documents before relevant design or code changes.
+
+The remaining sections retain the existing runtime model and historical acceptance evidence. Their current owner/membership/bootstrap descriptions must not be silently reinterpreted as completion of the target control plane. Any authority handoff or database transition requires a separately approved implementation/migration plan; no historical Flyway rewrite is authorized.
 
 ## Tenant Identity
 
