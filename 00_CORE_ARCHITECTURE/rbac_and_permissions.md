@@ -23,7 +23,7 @@
 - No generic ABAC/policy engine was introduced.
 - No creator-versus-approver segregation rule was added because current Trip records and approved contracts do not provide an authoritative creator fact. This remains a governance/data-model prerequisite, not an implicit runtime rule.
 
-## Project Scope Authorization — ACCESS-05P5 Effective Access Active
+## Project Scope Authorization — ACCESS-05P6 Reporting/Dashboard Active
 
 ACCESS-05P1 implements the Tenant-membership Project authorization foundation at Flyway V116. Existing RBAC answers **what** a member may do; Project scope answers **where** the evidenced Trip permission family applies. Scope belongs to Tenant membership, never global Role or global User. Its vocabulary is `ALL_WITHIN_TENANT`, `SELECTED_PROJECTS`, and `NONE`, with independent `includeUnassigned` for Trips whose `project_id` is null. V116 backfills existing active and inactive memberships with `ALL_WITHIN_TENANT` plus `includeUnassigned=true`; compatibility provisioning applies the same values to new memberships during the P1–P6 staged interval. No membership activation state is changed.
 
@@ -37,7 +37,9 @@ ACCESS-05P4 makes Project-scope administration ACTIVE. The response separates co
 
 ACCESS-05P5 extends the existing `GET /api/users/{userId}/effective-access` explanation under `IDENTITY_MANAGE` with the current effective Project mode, independent unassigned-Trip authority, bounded active selected-Project references, and stale configured Project UUIDs. The read path reuses Identity's published Project-scope administration query, remains same-Tenant and read-only, and exposes neither actor ceilings nor optimistic versions. Missing or unresolvable scope is `UNAVAILABLE` and fails closed rather than becoming Tenant-wide authority.
 
-Tracking, Fuel, Delivery, Documents, Notifications and unrelated domains do not inherit Project scope. `AUDIT_READ` remains privileged Tenant-wide evidence access. Trip-derived Reporting and Command Center aggregate hardening remains pending P6, and final activation pending P7. Full activation remains blocked and Production GA is not authorized; next is `ACCESS-05P6`.
+ACCESS-05P6 requires authenticated actor identity on Trip-owned reporting and dashboard contracts and applies the effective Project predicate before Trip sorting, pagination, count, grouping, rate calculation, time bucketing and aggregation. Trip report totals/pages, Trip lifecycle KPIs, Trip-derived analytics and Vehicle-utilization contributions exclude unauthorized Projects. Tracking-visible vehicles and telemetry retain their existing authorization, while active-Trip context and links are suppressed when the Trip is outside effective Project scope. Missing scope fails closed.
+
+Tracking telemetry, Fleet, Driver, Fuel, Delivery, Documents, Notifications and unrelated domains do not automatically inherit Project scope. `AUDIT_READ` remains privileged Tenant-wide evidence access. P1-P6 are active; final activation remains pending P7. Full activation remains blocked and Production GA is not authorized; next is `ACCESS-05P7`.
 
 ## Fuel Performance Permission Decision (US-37)
 

@@ -76,7 +76,9 @@ Creating a Project-associated Trip requires authority over that Project. Changin
 
 Administrators holding both `IDENTITY_MANAGE` and `IDENTITY_PROJECT_SCOPE_MANAGE` can open **Administration → Users → Project Access** for a same-Tenant user. The drawer shows configured scope, current effective scope and the administrator's own ceiling; it supports **All Projects in Tenant**, **Selected Projects**, **No Project Access**, and explicit access to unassigned Trips. Saving replaces the complete configuration atomically. A stale version reloads the latest state for review, inactive configured Projects are shown as configured but ineffective, and the administrator cannot grant beyond their own current scope or expand their own scope. Users without the dedicated permission receive no editable control, and automatic role grants remain zero.
 
-Effective Access now explains Project scope read-only, but Reporting and Command Center aggregates are not yet Project-filtered. Full activation remains blocked through ACCESS-05P6–P7; administrators must not treat active Trip read/command/administration enforcement as complete suite-wide Project isolation.
+Effective Access explains Project scope read-only. ACCESS-05P6 also scopes Trip reports, report page totals, Trip lifecycle dashboard KPIs, Trip-derived analytics and Vehicle-utilization contributions before aggregation. A Tracking-authorized Vehicle and telemetry remain visible, but active-Trip details and links are omitted when that Trip is outside the operator's effective Project scope. Independently sourced Fleet, Driver, Fuel and Delivery values retain their existing Tenant-wide contracts; Project scope is not a permission umbrella.
+
+P1-P6 are active. Final activation remains pending ACCESS-05P7, so full Project-scope activation remains blocked and Production GA is not authorized.
 
 ### 📌 Current-Scope Rules & Invariants
 - 🔒 **Vehicle Allocation:** Reserving a vehicle means assigning an eligible vehicle to a trip. There is no separate provisional hold.
